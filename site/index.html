@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TraceForge — evidence-first binary inspections</title>
+  <meta name="description" content="Read-only binary inspections with deterministic local Evidence and an MCP-native workflow." />
+  <meta property="og:title" content="TraceForge" />
+  <meta property="og:description" content="Evidence-first binary inspections for agents. Local. Deterministic. Read-only." />
+  <meta property="og:image" content="demo.png" />
+  <link rel="icon" href="logo.svg" type="image/svg+xml" />
+  <style>
+    :root { color-scheme: dark; --bg: #070b10; --panel: #0d141c; --line: #203041; --text: #dbe7f3; --muted: #7f93a8; --mint: #5eead4; --blue: #7dd3fc; --amber: #fbbf24; }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: radial-gradient(1100px 600px at 12% -10%, #10364a 0, transparent 62%), var(--bg); color: var(--text); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.6; }
+    a { color: var(--mint); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+    header { display: flex; align-items: center; justify-content: space-between; padding: 28px 0; }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 800; letter-spacing: -.02em; font-size: 20px; }
+    .brand img { width: 38px; height: 38px; border-radius: 10px; }
+    nav { display: flex; gap: 22px; color: var(--muted); font-size: 14px; }
+    nav a { color: var(--muted); }
+    nav a:hover { color: var(--text); }
+    .hero { display: grid; grid-template-columns: 1.05fr .95fr; gap: 48px; align-items: center; padding: 52px 0 38px; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 8px; color: var(--mint); font-size: 12px; letter-spacing: .16em; text-transform: uppercase; font-weight: 800; }
+    .pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--mint); box-shadow: 0 0 0 5px #5eead41a; }
+    h1 { font-size: clamp(42px, 6vw, 72px); line-height: .98; letter-spacing: -.055em; margin: 18px 0 20px; }
+    h1 span { color: var(--mint); }
+    .lede { color: var(--muted); font-size: 19px; max-width: 560px; }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+    .button { display: inline-flex; align-items: center; gap: 8px; padding: 12px 18px; border-radius: 10px; font-weight: 700; font-size: 14px; border: 1px solid var(--line); color: var(--text); }
+    .button.primary { background: var(--mint); border-color: var(--mint); color: #06231f; }
+    .button.primary:hover { background: #8af5e2; text-decoration: none; }
+    .button:hover { text-decoration: none; border-color: #35516b; }
+    .hero-art { position: relative; }
+    .hero-art img { width: 100%; border-radius: 16px; border: 1px solid var(--line); box-shadow: 0 30px 80px #0009; }
+    .hero-art::before { content: ""; position: absolute; inset: -30px -20px auto auto; width: 180px; height: 180px; background: var(--mint); filter: blur(80px); opacity: .18; border-radius: 50%; }
+    section { padding: 54px 0; }
+    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 24px; }
+    h2 { font-size: 30px; letter-spacing: -.03em; margin: 0; }
+    .section-head p { margin: 0; color: var(--muted); max-width: 560px; }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .card { background: linear-gradient(180deg, #0d151e, #0a1017); border: 1px solid var(--line); border-radius: 14px; padding: 22px; }
+    .card .icon { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 9px; background: #5eead414; color: var(--mint); font-weight: 900; }
+    .card h3 { margin: 14px 0 8px; font-size: 16px; }
+    .card p { margin: 0; color: var(--muted); font-size: 14px; }
+    .terminal { background: #090f16; border: 1px solid var(--line); border-radius: 14px; padding: 24px; overflow: auto; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; line-height: 1.75; }
+    .terminal .prompt { color: var(--mint); }
+    .terminal .muted { color: var(--muted); }
+    .terminal .amber { color: var(--amber); }
+    .terminal .violet { color: #c4b5fd; }
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+    .list { margin: 0; padding-left: 18px; color: var(--muted); }
+    .list li { margin: 8px 0; }
+    .list strong { color: var(--text); }
+    footer { border-top: 1px solid var(--line); padding: 28px 0 46px; color: var(--muted); font-size: 13px; display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+    code { background: #12202d; color: #b8f7ea; padding: 2px 6px; border-radius: 5px; font-size: .92em; }
+    @media (max-width: 880px) { .hero, .split { grid-template-columns: 1fr; } .grid { grid-template-columns: 1fr 1fr; } .hero-art { order: -1; } }
+    @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } nav { display: none; } h1 { font-size: 44px; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand"><img src="logo.svg" alt="" />TraceForge</div>
+      <nav>
+        <a href="#why">Why</a>
+        <a href="#quickstart">Quickstart</a>
+        <a href="#mcp">MCP</a>
+        <a href="https://github.com/Mutersec/traceforge">GitHub</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div>
+          <div class="eyebrow"><span class="pulse"></span> v0.1.0 · local-first</div>
+          <h1>Evidence for every byte you <span>inspect.</span></h1>
+          <p class="lede">A read-only binary inspector for Mach-O, ELF, PE and WebAssembly. Deterministic records, a local authenticated store, and an MCP server your agents can trust.</p>
+          <div class="actions">
+            <a class="button primary" href="https://github.com/Mutersec/traceforge">View on GitHub <span>→</span></a>
+            <a class="button" href="#quickstart">Quickstart</a>
+          </div>
+        </div>
+        <div class="hero-art"><img src="demo.png" alt="TraceForge scanning /bin/ls and producing an Evidence ID" /></div>
+      </section>
+
+      <section id="why">
+        <div class="section-head"><h2>Built for the quiet part of analysis</h2><p>No execution. No telemetry. No mystery state. Just bounded parsing and records you can verify.</p></div>
+        <div class="grid">
+          <article class="card"><div class="icon">01</div><h3>Read-only by design</h3><p>TraceForge never launches, attaches to, or modifies the target. Every read is bounded before allocation.</p></article>
+          <article class="card"><div class="icon">02</div><h3>Evidence, not a screenshot</h3><p>Each result gets a content-addressed ID, input SHA-256, limitations and a local JSON record.</p></article>
+          <article class="card"><div class="icon">03</div><h3>Agent-native</h3><p>A dependency-free MCP stdio server exposes the same core as the CLI. Five tools, one Evidence contract.</p></article>
+          <article class="card"><div class="icon">04</div><h3>Universal slices</h3><p>Inspect every slice or select one architecture with <code>--arch arm64</code>.</p></article>
+          <article class="card"><div class="icon">05</div><h3>Deterministic diffs</h3><p>Compare sections, imports, exports and slice metadata without host-specific noise.</p></article>
+          <article class="card"><div class="icon">06</div><h3>Zero runtime deps</h3><p>The runtime uses Node built-ins only. The MCP protocol is implemented directly.</p></article>
+        </div>
+      </section>
+
+      <section id="quickstart">
+        <div class="section-head"><h2>From clone to Evidence in one minute</h2><p>Node 22 or newer. No accounts, no API keys, no background daemon.</p></div>
+        <div class="split">
+          <div class="terminal">
+            <div><span class="prompt">❯</span> git clone https://github.com/Mutersec/traceforge.git</div>
+            <div><span class="prompt">❯</span> cd traceforge && npm ci && npm run build</div>
+            <div><span class="prompt">❯</span> node dist/cli.js scan /bin/ls</div>
+            <div class="muted">TraceForge · scan · mach-o · 3 slices</div>
+            <div><span class="violet">Evidence</span> ev_157a66f2...</div>
+            <div style="margin-top:14px"><span class="prompt">❯</span> node dist/cli.js inspect /bin/ls --arch arm64</div>
+            <div><span class="prompt">❯</span> node dist/cli.js diff /bin/ls /usr/bin/true</div>
+            <div><span class="prompt">❯</span> node dist/cli.js evidence verify-all</div>
+          </div>
+          <div>
+            <h3 style="margin-top:0">What lands on disk</h3>
+            <ul class="list">
+              <li><strong>Input identity</strong> — SHA-256 and size, never a guess.</li>
+              <li><strong>Parser facts</strong> — slices, sections, imports, exports, libraries and build metadata.</li>
+              <li><strong>Limitations</strong> — stripped symbols, absent directories and capped collections stay visible.</li>
+              <li><strong>Evidence</strong> — canonical JSON, atomic write, owner-only permissions, re-authenticated on read.</li>
+            </ul>
+            <p style="color:var(--muted);font-size:14px;margin-top:18px">Need a portable record? <code>evidence export</code> writes a deterministic bundle; <code>evidence import</code> authenticates every record before merging.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="mcp">
+        <div class="section-head"><h2>Point your agent at it</h2><p>One stdio server. Five tools. No SDK or cloud relay in the middle.</p></div>
+        <div class="split">
+          <div class="terminal">
+            <div class="muted">// mcp.json</div>
+            <div>{</div>
+            <div>&nbsp;&nbsp;"mcpServers": {</div>
+            <div>&nbsp;&nbsp;&nbsp;&nbsp;"traceforge": {</div>
+            <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"command": "node",</div>
+            <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"args": ["/absolute/path/to/traceforge/dist/cli.js", "mcp"]</div>
+            <div>&nbsp;&nbsp;&nbsp;&nbsp;}</div>
+            <div>&nbsp;&nbsp;}</div>
+            <div>}</div>
+          </div>
+          <div>
+            <ul class="list">
+              <li><code>scan_binary</code> — format, hashes and slice summary.</li>
+              <li><code>inspect_binary</code> — sections, symbols, libraries; optional architecture.</li>
+              <li><code>compare_binaries</code> — deterministic structural changes.</li>
+              <li><code>get_evidence</code> / <code>list_evidence</code> — authenticated local records.</li>
+            </ul>
+            <p style="color:var(--muted);font-size:14px;margin-top:18px">The server speaks newline-delimited JSON-RPC 2.0 over stdio and never writes non-protocol data to stdout.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <span>TraceForge · MIT · local-first binary evidence</span>
+      <span><a href="https://github.com/Mutersec/traceforge">GitHub</a> · <a href="https://github.com/Mutersec/traceforge/blob/main/SECURITY.md">Security</a> · <a href="https://github.com/Mutersec/traceforge/blob/main/CONTRIBUTING.md">Contributing</a></span>
+    </footer>
+  </div>
+</body>
+</html>
