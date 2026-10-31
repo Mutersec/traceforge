@@ -31,11 +31,11 @@ Returns a complete Evidence record whose result is a compact slice summary.
 ### `inspect_binary`
 
 ```json
-{ "path": "/bin/ls", "detail": "summary" }
+{ "path": "/bin/ls", "detail": "summary", "architecture": "arm64" }
 ```
 
 `summary` returns slice collection counts; `complete` (default) returns the
-complete inventory. The complete Evidence record is retained in both cases.
+complete inventory. `architecture` optionally selects one universal slice. The complete Evidence record is retained in both cases.
 
 ### `compare_binaries`
 

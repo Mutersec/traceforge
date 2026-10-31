@@ -13,11 +13,17 @@
   <a href="https://github.com/Mutersec/traceforge/actions/workflows/codeql.yml"><img alt="CodeQL" src="https://github.com/Mutersec/traceforge/actions/workflows/codeql.yml/badge.svg"/></a>
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-5eead4.svg"/></a>
   <a href="https://nodejs.org"><img alt="Node" src="https://img.shields.io/badge/node-%3E%3D22-339933.svg"/></a>
+  <a href="https://mutersec.github.io/traceforge/"><img alt="Website" src="https://img.shields.io/badge/website-live-5eead4.svg"/></a>
+  <a href="https://github.com/Mutersec/traceforge/releases"><img alt="Release" src="https://img.shields.io/github/v/release/Mutersec/traceforge?display_name=tag"/></a>
 </p>
 
 TraceForge is a small, read-only toolkit for inspecting native binaries and
 keeping the result as verifiable Evidence. It does not execute the target, does
 not upload data, and does not require a cloud service.
+
+<p align="center">
+  <a href="https://mutersec.github.io/traceforge/"><b>Live site</b></a>
+</p>
 
 <p align="center">
   <img src="assets/demo.png" alt="TraceForge scanning a universal macOS binary and showing slices, imports and an Evidence ID" width="960"/>
