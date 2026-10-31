@@ -89,12 +89,29 @@ node dist/cli.js scan /bin/ls
 | `evidence verify-all` | Verify every local record. |
 | `evidence export <path>` | Export a deterministic bundle. |
 | `evidence import <path>` | Authenticate and merge a bundle. |
+| `report <path\|id>` | Write a standalone HTML Evidence report. |
 | `mcp` | Start the MCP stdio server. |
 
 Common flags: `--json`, `--store <dir>`, `--no-save`, `--debug`.
+Use `--out report.html` with `report`; `npm run demo` runs the whole showcase.
 
 Evidence is written to `.traceforge/evidence` by default. Use `--no-save` for a
 one-shot inspection.
+
+## Evidence report
+
+```sh
+tforge report /bin/ls --out traceforge-report.html
+```
+
+The report is a standalone HTML file: identity badge, input hash, sections,
+imports/exports and limitations. It is generated from the same authenticated
+record and contains no external scripts.
+
+![TraceForge Evidence report](assets/report.png)
+
+See [docs/demo.md](docs/demo.md) for a three-minute non-technical and technical
+demo script.
 
 ## MCP
 

@@ -3,6 +3,7 @@ export { compareInventories, inspectBinary, summarizeInventory } from "./core/bi
 export { EvidenceStore, createEvidenceRecord } from "./core/evidence.js";
 export { TraceForgeError } from "./core/errors.js";
 export { compare, inspect, scanBinary } from "./core/operations.js";
+export { renderEvidenceReport, writeEvidenceReport } from "./core/report.js";
 export type {
   BinaryFormat,
   BinaryInventory,

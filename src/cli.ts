@@ -3,6 +3,7 @@ import { parseArgs } from "node:util";
 
 import { compare, inspect, scanBinary } from "./core/operations.js";
 import { EvidenceStore } from "./core/evidence.js";
+import { writeEvidenceReport } from "./core/report.js";
 import { TraceForgeError } from "./core/errors.js";
 import type { ComparisonResult, EvidenceRecord } from "./core/types.js";
 import { runMcpServer } from "./mcp/server.js";
@@ -21,6 +22,7 @@ Usage:
   tforge evidence verify-all
   tforge evidence export <bundle.json>
   tforge evidence import <bundle.json>
+  tforge report <path|evidence_id> [--out <file>]
   tforge mcp
   tforge version
 
@@ -154,6 +156,7 @@ const main = async (): Promise<number> => {
       json: { type: "boolean", default: false },
       store: { type: "string" },
       arch: { type: "string" },
+      out: { type: "string" },
       "no-save": { type: "boolean", default: false },
       debug: { type: "boolean", default: false },
       help: { type: "boolean", short: "h", default: false },
@@ -193,6 +196,25 @@ const main = async (): Promise<number> => {
         evidenceLine(outcome.record, useColor);
       }
     }
+    return 0;
+  }
+  if (command === "report") {
+    const subject = args[0];
+    if (subject === undefined)
+      throw new TraceForgeError("invalid_input", "report needs a path or evidence ID");
+    const reportStore = new EvidenceStore(parsed.values.store);
+    const record = subject.startsWith("ev_")
+      ? await reportStore.get(subject)
+      : (await inspect(subject, store, VERSION)).record;
+    const out = await writeEvidenceReport(
+      record,
+      parsed.values.out ?? "traceforge-report.html",
+    );
+    if (parsed.values.json) print({ path: out, evidence_id: record.evidence_id }, true);
+    else
+      process.stdout.write(
+        `${color(useColor, "1;36", "TraceForge")} report → ${out}\n${color(useColor, "2", "Evidence")} ${record.evidence_id}\n`,
+      );
     return 0;
   }
   if (command === "diff") {

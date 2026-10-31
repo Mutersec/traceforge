@@ -8,6 +8,7 @@ import { inspectBinary } from "../src/core/binary.js";
 import { canonicalJson, evidenceId } from "../src/core/canonical.js";
 import { EvidenceStore, createEvidenceRecord } from "../src/core/evidence.js";
 import { compare, inspect, scanBinary } from "../src/core/operations.js";
+import { renderEvidenceReport, writeEvidenceReport } from "../src/core/report.js";
 import { TraceForgeError } from "../src/core/errors.js";
 import { handleMcpMessage } from "../src/mcp/server.js";
 import { elfFixture, peFixture, wasmFixture } from "./fixtures.js";
@@ -146,6 +147,47 @@ it("inspects a real Linux ELF when running on Linux CI", async () => {
   const inventory = await inspectBinary("/bin/ls");
   expect(inventory.format).toBe("elf");
   expect(inventory.slices[0]?.sections.length).toBeGreaterThan(0);
+});
+
+it("renders a verified report and escapes untrusted strings", async () => {
+  const root = await temporaryRoot("traceforge-report-");
+  const record = createEvidenceRecord(
+    "inspect",
+    { path: "/tmp/<unsafe>", sha256: "c".repeat(64), size: 4 },
+    {
+      schema: "traceforge.inventory.v1",
+      path: "/tmp/<unsafe>",
+      sha256: "c".repeat(64),
+      size: 4,
+      format: "unknown",
+      slices: [
+        {
+          architecture: "<script>alert(1)</script>",
+          bits: 64,
+          endian: "little",
+          fileType: "executable",
+          entrypoint: null,
+          entrypointKind: null,
+          buildId: null,
+          sections: [],
+          imports: ["<img src=x onerror=alert(1)>"],
+          exports: [],
+          libraries: [],
+          limitations: [],
+        },
+      ],
+      limitations: [],
+    },
+    [],
+    "0.1.0",
+  );
+  const html = renderEvidenceReport(record);
+  expect(html).toContain("identity verified");
+  expect(html).toContain(record.evidence_id);
+  expect(html).not.toContain("<script>alert(1)</script>");
+  expect(html).not.toContain("<img src=x onerror=alert(1)>");
+  const path = join(root, "report.html");
+  expect(await writeEvidenceReport(record, path)).toBe(path);
 });
 
 it("handles an MCP initialize, tools/list and scan call", async () => {

@@ -33,7 +33,8 @@
     "prepublishOnly": "npm run check",
     "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
     "prepack": "npm run build",
-    "bench": "npm run build && node bench/benchmark.mjs"
+    "bench": "npm run build && node bench/benchmark.mjs",
+    "demo": "npm run build && node scripts/demo.mjs"
   },
   "keywords": [
     "binary-analysis",
