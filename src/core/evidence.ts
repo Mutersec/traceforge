@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { mkdir, readFile, readdir, rename, rm, writeFile } from "node:fs/promises";
-import { join, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 
 import { canonicalJson, evidenceId } from "./canonical.js";
 import { TraceForgeError } from "./errors.js";
@@ -108,6 +108,88 @@ export class EvidenceStore {
     } catch {
       return false;
     }
+  }
+
+  async verifyAll(): Promise<{
+    readonly valid: number;
+    readonly invalid: readonly string[];
+  }> {
+    const names = await readdir(this.root).catch(() => [] as string[]);
+    let valid = 0;
+    const invalid: string[] = [];
+    for (const name of names.sort()) {
+      if (!name.endsWith(".json")) continue;
+      const id = name.slice(0, -".json".length);
+      if (!EVIDENCE_ID.test(id)) continue;
+      if (await this.verify(id)) valid += 1;
+      else invalid.push(id);
+    }
+    return { valid, invalid };
+  }
+
+  async exportBundle(path: string): Promise<{
+    readonly path: string;
+    readonly records: number;
+  }> {
+    const names = await readdir(this.root).catch(() => [] as string[]);
+    const records: EvidenceRecord[] = [];
+    for (const name of names.sort()) {
+      if (!name.endsWith(".json")) continue;
+      const id = name.slice(0, -".json".length);
+      if (!EVIDENCE_ID.test(id)) continue;
+      try {
+        records.push(await this.get(id));
+      } catch {
+        // A corrupt record is not silently exported.
+      }
+    }
+    const operations: Record<string, number> = {};
+    for (const record of records)
+      operations[record.operation] = (operations[record.operation] ?? 0) + 1;
+    const bundle = {
+      schema: "traceforge.bundle.v1" as const,
+      records,
+      manifest: { records: records.length, operations },
+    };
+    const target = resolve(path);
+    await mkdir(dirname(target), { recursive: true, mode: 0o700 });
+    const temporary = `${target}.${process.pid}.${randomUUID()}.tmp`;
+    try {
+      await writeFile(temporary, `${canonicalJson(bundle)}\n`, { mode: 0o600 });
+      await rename(temporary, target);
+    } catch (cause) {
+      await rm(temporary, { force: true }).catch(() => undefined);
+      throw new TraceForgeError("evidence_integrity", "Evidence bundle could not be written", {
+        cause,
+      });
+    }
+    return { path: target, records: records.length };
+  }
+
+  async importBundle(path: string): Promise<{ readonly imported: number }> {
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(await readFile(resolve(path), "utf8"));
+    } catch (cause) {
+      throw new TraceForgeError("invalid_input", `Cannot read Evidence bundle ${path}`, {
+        cause,
+      });
+    }
+    if (parsed === null || typeof parsed !== "object")
+      throw new TraceForgeError("evidence_integrity", "Evidence bundle is malformed");
+    const bundle = parsed as { schema?: unknown; records?: unknown };
+    if (bundle.schema !== "traceforge.bundle.v1" || !Array.isArray(bundle.records))
+      throw new TraceForgeError("evidence_integrity", "Evidence bundle schema is invalid");
+    const records: EvidenceRecord[] = [];
+    for (const item of bundle.records) {
+      if (!isEvidenceRecord(item))
+        throw new TraceForgeError("evidence_integrity", "Evidence bundle record is malformed");
+      if (evidenceId(recordContent(item)) !== item.evidence_id)
+        throw new TraceForgeError("evidence_integrity", "Evidence bundle record failed authentication");
+      records.push(item);
+    }
+    for (const record of records) await this.put(record);
+    return { imported: records.length };
   }
 
   async list(): Promise<readonly EvidenceSummary[]> {

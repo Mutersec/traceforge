@@ -7,7 +7,7 @@ import { afterEach, expect, it } from "vitest";
 import { inspectBinary } from "../src/core/binary.js";
 import { canonicalJson, evidenceId } from "../src/core/canonical.js";
 import { EvidenceStore, createEvidenceRecord } from "../src/core/evidence.js";
-import { compare, scanBinary } from "../src/core/operations.js";
+import { compare, inspect, scanBinary } from "../src/core/operations.js";
 import { handleMcpMessage } from "../src/mcp/server.js";
 import { elfFixture, peFixture, wasmFixture } from "./fixtures.js";
 
@@ -54,7 +54,29 @@ it("stores, lists and authenticates Evidence records", async () => {
   const path = join(root, `${record.evidence_id}.json`);
   await writeFile(path, JSON.stringify({ ...record, result: { tampered: true } }));
   expect(await store.verify(record.evidence_id)).toBe(false);
+  expect(await store.verifyAll()).toEqual({
+    valid: 0,
+    invalid: [record.evidence_id],
+  });
   await expect(store.get(record.evidence_id)).rejects.toThrow(/does not match/u);
+});
+
+it("exports and imports a deterministic Evidence bundle", async () => {
+  const root = await temporaryRoot("traceforge-bundle-");
+  const store = new EvidenceStore(join(root, "source"));
+  const record = createEvidenceRecord(
+    "scan",
+    { path: "/tmp/example", sha256: "b".repeat(64), size: 2 },
+    { format: "unknown" },
+    [],
+    "0.1.0",
+  );
+  await store.put(record);
+  const bundlePath = join(root, "evidence.json");
+  expect(await store.exportBundle(bundlePath)).toMatchObject({ records: 1 });
+  const destination = new EvidenceStore(join(root, "destination"));
+  expect(await destination.importBundle(bundlePath)).toEqual({ imported: 1 });
+  expect(await destination.get(record.evidence_id)).toEqual(record);
 });
 
 it("parses synthetic ELF, PE and WASM fixtures", async () => {
@@ -95,6 +117,9 @@ it("scans and diffs a real macOS Mach-O on arm64", async () => {
   expect(scanned.result.slices.some((slice) => slice.architecture.startsWith("arm64"))).toBe(true);
   expect(await store.verify(scanned.record.evidence_id)).toBe(true);
   const compared = await compare("/bin/ls", "/usr/bin/true", store, "0.1.0");
+  const selected = await inspect("/bin/ls", undefined, "0.1.0", "arm64");
+  expect(selected.result.slices).toHaveLength(1);
+  expect(selected.result.slices[0]?.architecture).toBe("arm64");
   expect(compared.result.changed).toBe(true);
   expect(compared.result.changes.slices_added.length + compared.result.changes.slices_removed.length +
     compared.result.changes.sections_changed.length).toBeGreaterThan(0);

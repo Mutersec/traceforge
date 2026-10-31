@@ -13,11 +13,14 @@ const HELP = `TraceForge ${VERSION} — local-first binary evidence.
 
 Usage:
   tforge scan <path> [--json] [--store <dir>] [--no-save]
-  tforge inspect <path> [--json] [--store <dir>] [--no-save]
+  tforge inspect <path> [--arch <name>] [--json] [--store <dir>] [--no-save]
   tforge diff <left> <right> [--json] [--store <dir>] [--no-save]
   tforge evidence list
   tforge evidence show <evidence_id>
   tforge evidence verify <evidence_id>
+  tforge evidence verify-all
+  tforge evidence export <bundle.json>
+  tforge evidence import <bundle.json>
   tforge mcp
   tforge version
 
@@ -150,6 +153,7 @@ const main = async (): Promise<number> => {
     options: {
       json: { type: "boolean", default: false },
       store: { type: "string" },
+      arch: { type: "string" },
       "no-save": { type: "boolean", default: false },
       debug: { type: "boolean", default: false },
       help: { type: "boolean", short: "h", default: false },
@@ -182,7 +186,7 @@ const main = async (): Promise<number> => {
         evidenceLine(outcome.record, useColor);
       }
     } else {
-      const outcome = await inspect(path, store, VERSION);
+      const outcome = await inspect(path, store, VERSION, parsed.values.arch);
       if (parsed.values.json) print(outcome.record, true);
       else {
         inspectHuman(outcome.result, useColor);
@@ -206,6 +210,28 @@ const main = async (): Promise<number> => {
   if (command === "evidence") {
     const subcommand = args[0];
     const evidenceStore = new EvidenceStore(parsed.values.store);
+    if (subcommand === "verify-all") {
+      const verified = await evidenceStore.verifyAll();
+      if (parsed.values.json) print(verified, true);
+      else
+        process.stdout.write(
+          `${verified.valid} valid · ${verified.invalid.length} invalid\n` +
+            verified.invalid.map((id) => `  ${id}\n`).join(""),
+        );
+      return verified.invalid.length === 0 ? 0 : 1;
+    }
+    if (subcommand === "export" || subcommand === "import") {
+      const path = args[1];
+      if (path === undefined)
+        throw new TraceForgeError("invalid_input", `evidence ${subcommand} needs a path`);
+      const outcome =
+        subcommand === "export"
+          ? await evidenceStore.exportBundle(path)
+          : await evidenceStore.importBundle(path);
+      if (parsed.values.json) print(outcome, true);
+      else process.stdout.write(`${JSON.stringify(outcome)}\n`);
+      return 0;
+    }
     if (subcommand === "list") {
       const summaries = await evidenceStore.list();
       if (parsed.values.json) print(summaries, true);

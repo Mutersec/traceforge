@@ -19,6 +19,10 @@ TraceForge is a small, read-only toolkit for inspecting native binaries and
 keeping the result as verifiable Evidence. It does not execute the target, does
 not upload data, and does not require a cloud service.
 
+<p align="center">
+  <img src="assets/demo.png" alt="TraceForge scanning a universal macOS binary and showing slices, imports and an Evidence ID" width="960"/>
+</p>
+
 ```console
 $ tforge scan /bin/ls
 
@@ -71,11 +75,14 @@ node dist/cli.js scan /bin/ls
 | Command | Purpose |
 |---|---|
 | `scan <path>` | Identify format, hashes, slices and collection counts. |
-| `inspect <path>` | Full section, import, export and library inventory. |
+| `inspect <path>` | Full section, import, export and library inventory. Use `--arch` for one universal slice. |
 | `diff <left> <right>` | Compare two binaries by identity, sections and symbols. |
 | `evidence list` | List local Evidence summaries. |
 | `evidence show <id>` | Read one authenticated record. |
 | `evidence verify <id>` | Recompute and verify a record. |
+| `evidence verify-all` | Verify every local record. |
+| `evidence export <path>` | Export a deterministic bundle. |
+| `evidence import <path>` | Authenticate and merge a bundle. |
 | `mcp` | Start the MCP stdio server. |
 
 Common flags: `--json`, `--store <dir>`, `--no-save`, `--debug`.
@@ -165,8 +172,22 @@ npm run build
 npm run check      # typecheck + tests + build
 ```
 
-Tests cover synthetic ELF/PE/WASM fixtures, Evidence integrity, MCP protocol and
-a real macOS Mach-O when run on Darwin. CI runs on Node 22 and 24.
+Tests cover synthetic ELF/PE/WASM fixtures, Evidence integrity, bundle
+round-trips, MCP protocol and a real macOS Mach-O when run on Darwin. CI runs on
+Node 22 and 24.
+
+## Performance
+
+Measured on an Apple Silicon arm64 host with Node 24, 25 iterations over a
+252,512-byte universal Mach-O:
+
+| Operation | Median | p95 | CPU median |
+|---|---:|---:|---:|
+| `inspect /bin/ls` | 0.46 ms | 0.68 ms | 0.49 ms |
+
+The benchmark is local and parser-only; it does not execute the target or use a
+network. Reproduce with `npm run bench -- /bin/ls`. These numbers are a starting
+point, not a cross-tool comparison.
 
 ## License
 

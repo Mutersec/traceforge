@@ -93,6 +93,7 @@ export const parseContainer = (
 
 export const inspectBinary = async (
   inputPath: string,
+  options: { readonly architecture?: string } = {},
 ): Promise<BinaryInventory> => {
   const path = resolve(inputPath);
   const info = await stat(path).catch((cause: unknown) => {
@@ -110,14 +111,30 @@ export const inspectBinary = async (
   });
   const sha256 = sha256Hex(buffer);
   const parsed = parseContainer(buffer, path);
+  const selected =
+    options.architecture === undefined
+      ? parsed.slices
+      : parsed.slices.filter(
+          (slice) => slice.architecture === options.architecture,
+        );
+  if (options.architecture !== undefined && selected.length === 0)
+    throw new TraceForgeError(
+      "invalid_input",
+      `Architecture ${options.architecture} is not present in ${path}`,
+    );
+  const limitations = [...parsed.limitations];
+  if (options.architecture !== undefined && parsed.slices.length !== selected.length)
+    limitations.push(
+      `Only the ${options.architecture} slice was selected; other slices were omitted.`,
+    );
   return {
     schema: "traceforge.inventory.v1",
     path,
     sha256,
     size: buffer.length,
     format: parsed.format,
-    slices: parsed.slices,
-    limitations: parsed.limitations,
+    slices: selected,
+    limitations: [...new Set(limitations)].sort(),
   };
 };
 

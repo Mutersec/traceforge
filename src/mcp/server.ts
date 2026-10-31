@@ -78,6 +78,7 @@ const TOOLS: readonly ToolDefinition[] = [
       properties: {
         path: { type: "string", minLength: 1 },
         detail: { type: "string", enum: ["summary", "complete"] },
+        architecture: { type: "string", minLength: 1 },
       },
       required: ["path"],
       additionalProperties: false,
@@ -132,6 +133,7 @@ const callTool = async (
         stringArgument(args, "path"),
         options.store,
         options.version,
+        optionalStringArgument(args, "architecture"),
       );
       const detail = optionalStringArgument(args, "detail") ?? "complete";
       return toolResult({

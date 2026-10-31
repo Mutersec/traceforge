@@ -44,19 +44,26 @@ export const inspect = async (
   path: string,
   store: EvidenceStore | undefined,
   version: string,
+  architecture?: string,
 ): Promise<OperationResult<BinaryInventory>> => {
-  const inventory = await inspectBinary(path);
+  const inventory = await inspectBinary(path, {
+    ...(architecture === undefined ? {} : { architecture }),
+  });
+  const input = {
+    ...inventoryInput(inventory),
+    ...(architecture === undefined ? {} : { architecture }),
+  };
+  const created = createEvidenceRecord(
+    "inspect",
+    input,
+    inventory,
+    inventory.limitations,
+    version,
+  );
   return {
     inventory,
     result: inventory,
-    record: await record(
-      "inspect",
-      inventory,
-      inventory,
-      inventory.limitations,
-      store,
-      version,
-    ),
+    record: store === undefined ? created : await store.put(created),
   };
 };
 

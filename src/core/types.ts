@@ -44,6 +44,7 @@ export interface EvidenceRecord<Result = unknown> {
     readonly path: string;
     readonly sha256: string;
     readonly size: number;
+    readonly architecture?: string;
     readonly related?: readonly {
       readonly path: string;
       readonly sha256: string;
@@ -60,6 +61,15 @@ export interface EvidenceSummary {
   readonly path: string;
   readonly sha256: string;
   readonly size: number;
+}
+
+export interface EvidenceBundle {
+  readonly schema: "traceforge.bundle.v1";
+  readonly records: readonly EvidenceRecord[];
+  readonly manifest: {
+    readonly records: number;
+    readonly operations: Readonly<Record<string, number>>;
+  };
 }
 
 export interface ComparisonResult {
