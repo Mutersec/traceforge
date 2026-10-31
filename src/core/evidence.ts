@@ -84,11 +84,19 @@ export class EvidenceStore {
 
   async get(evidenceIdValue: string): Promise<EvidenceRecord> {
     const path = this.pathFor(evidenceIdValue);
-    let parsed: unknown;
+    let contents: string;
     try {
-      parsed = JSON.parse(await readFile(path, "utf8"));
+      contents = await readFile(path, "utf8");
     } catch (cause) {
       throw new TraceForgeError("evidence_not_found", `Evidence ${evidenceIdValue} was not found`, {
+        cause,
+      });
+    }
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(contents);
+    } catch (cause) {
+      throw new TraceForgeError("evidence_integrity", "Evidence file is not valid JSON", {
         cause,
       });
     }
