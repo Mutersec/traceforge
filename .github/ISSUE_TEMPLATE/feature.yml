@@ -1,0 +1,29 @@
+name: Feature request
+description: Propose a focused inspection or evidence capability
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What analyst question is currently hard or impossible to answer?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Include the input, output, and uncertainty that should remain visible.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope
+      options:
+        - label: This is read-only and does not require executing the target.
+        - label: This does not request license, DRM, or access-control circumvention.

@@ -1,0 +1,10 @@
+node_modules/
+dist/
+coverage/
+.traceforge/
+*.log
+.DS_Store
+.vscode/
+.idea/
+
+.cache/

@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "traceforge": {
+      "command": "node",
+      "args": ["/absolute/path/to/traceforge/dist/cli.js", "mcp"]
+    }
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "name": "tforge",
+  "version": "0.1.0",
+  "description": "Local-first binary evidence and MCP inspections.",
+  "type": "module",
+  "bin": {
+    "tforge": "dist/cli.js",
+    "traceforge": "dist/cli.js"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "assets"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "npm run clean && tsc -p tsconfig.build.json",
+    "dev": "tsx src/cli.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run typecheck && npm run test && npm run build",
+    "prepublishOnly": "npm run check",
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+    "prepack": "npm run build"
+  },
+  "keywords": [
+    "binary-analysis",
+    "reverse-engineering",
+    "mcp",
+    "mach-o",
+    "elf",
+    "pe",
+    "evidence",
+    "local-first"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mutersec/traceforge.git"
+  },
+  "homepage": "https://github.com/Mutersec/traceforge#readme",
+  "bugs": {
+    "url": "https://github.com/Mutersec/traceforge/issues"
+  },
+  "author": "Mutersec",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.0"
+  }
+}

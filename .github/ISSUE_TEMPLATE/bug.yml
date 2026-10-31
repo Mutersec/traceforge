@@ -1,0 +1,53 @@
+name: Bug report
+description: Report a reproducible TraceForge defect
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. Do not attach confidential binaries, credentials,
+        or private target data. A minimal synthetic fixture is best.
+  - type: input
+    id: version
+    attributes:
+      label: TraceForge version
+      placeholder: 0.1.0
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: Platform
+      placeholder: macOS 27 arm64 / Ubuntu 24.04 x86_64
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Command
+      render: shell
+      placeholder: tforge inspect ...
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed result
+      description: Include the error code, evidence ID, and relevant output.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety
+      options:
+        - label: I have removed credentials, private samples, and sensitive target data.
+          required: true
+        - label: This report does not request unauthorized access or license circumvention.
+          required: true
