@@ -8,6 +8,7 @@ import { inspectBinary } from "../src/core/binary.js";
 import { canonicalJson, evidenceId } from "../src/core/canonical.js";
 import { EvidenceStore, createEvidenceRecord } from "../src/core/evidence.js";
 import { compare, inspect, scanBinary } from "../src/core/operations.js";
+import { TraceForgeError } from "../src/core/errors.js";
 import { handleMcpMessage } from "../src/mcp/server.js";
 import { elfFixture, peFixture, wasmFixture } from "./fixtures.js";
 
@@ -124,6 +125,28 @@ it("scans and diffs a real macOS Mach-O on arm64", async () => {
   expect(compared.result.changes.slices_added.length + compared.result.changes.slices_removed.length +
     compared.result.changes.sections_changed.length).toBeGreaterThan(0);
 }, 30_000);
+
+it("rejects truncated recognized containers without crashing", async () => {
+  const root = await temporaryRoot("traceforge-malformed-");
+  const malformed = [
+    ["elf", Buffer.from([0x7f, 0x45, 0x4c, 0x46])],
+    ["macho", Buffer.from([0xcf, 0xfa, 0xed, 0xfe])],
+    ["pe", Buffer.from("MZ", "ascii")],
+    ["wasm", Buffer.from("\0asm", "binary")],
+  ] as const;
+  for (const [name, bytes] of malformed) {
+    const path = join(root, name);
+    await writeFile(path, bytes);
+    await expect(inspectBinary(path)).rejects.toBeInstanceOf(TraceForgeError);
+  }
+});
+
+it("inspects a real Linux ELF when running on Linux CI", async () => {
+  if (process.platform !== "linux") return;
+  const inventory = await inspectBinary("/bin/ls");
+  expect(inventory.format).toBe("elf");
+  expect(inventory.slices[0]?.sections.length).toBeGreaterThan(0);
+});
 
 it("handles an MCP initialize, tools/list and scan call", async () => {
   const root = await temporaryRoot("traceforge-mcp-");

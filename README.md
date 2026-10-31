@@ -136,7 +136,8 @@ The protocol is newline-delimited JSON-RPC 2.0 over stdio. See
 | Unknown | input identity and a declared limitation |
 
 TraceForge is an inspector, not a disassembler. It does not reconstruct code or
-execute targets. Stripped binaries may expose fewer symbols.
+execute targets. Stripped binaries may expose fewer symbols. Parser limits and
+coverage are documented in [docs/parsers.md](docs/parsers.md).
 
 ## Architecture
 
@@ -166,7 +167,8 @@ adapters never re-interpret parser facts.
 - Evidence is written atomically with owner-only permissions.
 - The tool does not execute, attach to, or modify targets.
 
-See [SECURITY.md](SECURITY.md) for reporting.
+See [SECURITY.md](SECURITY.md) for reporting and [docs/roadmap.md](docs/roadmap.md)
+for the next increments.
 
 ## Development
 
