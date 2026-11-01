@@ -61,7 +61,8 @@ const toolResult = (payload: unknown, isError = false) => ({
 const TOOLS: readonly ToolDefinition[] = [
   {
     name: "scan_binary",
-    description: "Identify a local binary, hash it, and summarize its slices.",
+    description:
+      "Identify a local binary, hash it, and summarize its slices with observed mitigation names.",
     inputSchema: {
       type: "object",
       properties: { path: { type: "string", minLength: 1 } },
@@ -72,7 +73,7 @@ const TOOLS: readonly ToolDefinition[] = [
   {
     name: "inspect_binary",
     description:
-      "Return sections, imports, exports, libraries, and build identity for a local binary. Read-only.",
+      "Return sections, imports, exports, libraries, build identity, structural mitigations, and self-reported provenance claims for a local binary. Read-only; nothing is executed or validated.",
     inputSchema: {
       type: "object",
       properties: {
@@ -86,7 +87,8 @@ const TOOLS: readonly ToolDefinition[] = [
   },
   {
     name: "compare_binaries",
-    description: "Compare two local binaries by metadata, sections, imports, and exports.",
+    description:
+      "Compare two local binaries by metadata, sections, imports, exports, and mitigation changes.",
     inputSchema: {
       type: "object",
       properties: {

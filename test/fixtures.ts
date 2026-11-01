@@ -1,6 +1,6 @@
-/** Synthetic minimal ELF64 with section names and a tiny .text section. */
+/** Synthetic ELF64: PIE executable with program headers, a producer string and a .text section. */
 export const elfFixture = (): Buffer => {
-  const buffer = Buffer.alloc(0x200);
+  const buffer = Buffer.alloc(0x300);
   buffer[0] = 0x7f;
   buffer[1] = 0x45;
   buffer[2] = 0x4c;
@@ -8,17 +8,38 @@ export const elfFixture = (): Buffer => {
   buffer[4] = 2;
   buffer[5] = 1;
   buffer[6] = 1;
-  buffer.writeUInt16LE(2, 16);
+  buffer[7] = 3;
+  buffer[8] = 1;
+  buffer.writeUInt16LE(3, 16);
   buffer.writeUInt16LE(0x3e, 18);
   buffer.writeUInt32LE(1, 20);
   buffer.writeBigUInt64LE(0x401000n, 24);
+  buffer.writeBigUInt64LE(0x1c0n, 32);
   buffer.writeBigUInt64LE(0x40n, 40);
   buffer.writeUInt16LE(64, 52);
-  buffer.writeUInt16LE(0, 54);
-  buffer.writeUInt16LE(0, 56);
+  buffer.writeUInt16LE(56, 54);
+  buffer.writeUInt16LE(4, 56);
   buffer.writeUInt16LE(64, 58);
   buffer.writeUInt16LE(4, 60);
   buffer.writeUInt16LE(1, 62);
+  const program = (
+    index: number,
+    type: number,
+    flags: number,
+    offset: number,
+    size: number,
+  ): void => {
+    const base = 0x1c0 + index * 56;
+    buffer.writeUInt32LE(type, base);
+    buffer.writeUInt32LE(flags, base + 4);
+    buffer.writeBigUInt64LE(BigInt(offset), base + 8);
+    buffer.writeBigUInt64LE(BigInt(size), base + 32);
+    buffer.writeBigUInt64LE(BigInt(size), base + 40);
+  };
+  program(0, 0x6474e551, 6, 0, 0);
+  program(1, 0x6474e552, 4, 0x160, 4);
+  program(2, 3, 4, 0x2c0, 27);
+  program(3, 1, 5, 0, 0x180);
   const section = (
     index: number,
     name: number,
@@ -42,16 +63,19 @@ export const elfFixture = (): Buffer => {
     buffer.writeBigUInt64LE(1n, base + 48);
     buffer.writeBigUInt64LE(BigInt(entrySize), base + 56);
   };
-  const names = "\0.shstrtab\0.text\0";
+  const names = "\0.shstrtab\0.text\0.comment\0";
   buffer.write(names, 0x140, "utf8");
+  buffer.write("GCC: (GNU) 13.2.1\0", 0x2a0, "utf8");
+  buffer.write("/lib64/ld-linux-x86-64.so.2\0", 0x2c0, "utf8");
   section(1, 1, 3, 0n, 0n, 0x140, names.length);
   section(2, 11, 1, 6n, 0x401000n, 0x160, 4);
+  section(3, 17, 1, 2n, 0n, 0x2a0, 18);
   buffer.write("ret\0", 0x160, "utf8");
   return buffer;
 };
 
-/** Synthetic minimal PE32+ with one imported symbol. */
-export const peFixture = (): Buffer => {
+/** Synthetic PE32+ with one imported symbol and DYNAMIC_BASE, NX and high-entropy VA set. */
+export const peFixture = (dllCharacteristics = 0x0160): Buffer => {
   const buffer = Buffer.alloc(0x400);
   buffer.write("MZ", 0, "ascii");
   buffer.writeUInt32LE(0x80, 0x3c);
@@ -64,8 +88,15 @@ export const peFixture = (): Buffer => {
   buffer.writeUInt16LE(0x22, coff + 18);
   const optional = coff + 20;
   buffer.writeUInt16LE(0x20b, optional);
+  buffer[optional + 2] = 14;
+  buffer[optional + 3] = 29;
   buffer.writeUInt32LE(0x1000, optional + 16);
   buffer.writeBigUInt64LE(0x140000000n, optional + 24);
+  buffer.writeUInt16LE(6, optional + 40);
+  buffer.writeUInt16LE(0, optional + 42);
+  buffer.writeUInt32LE(0x4000, optional + 56);
+  buffer.writeUInt16LE(3, optional + 68);
+  buffer.writeUInt16LE(dllCharacteristics, optional + 70);
   buffer.writeUInt32LE(16, optional + 108);
   const directories = optional + 112;
   buffer.writeUInt32LE(0x1000, directories + 8);
@@ -87,6 +118,43 @@ export const peFixture = (): Buffer => {
   return buffer;
 };
 
+/** Synthetic thin Mach-O executable with MH_PIC, a read-only segment and LC_BUILD_VERSION. */
+export const machoFixture = (
+  options: { readonly headerFlags?: number; readonly maxProt?: number } = {},
+): Buffer => {
+  const headerFlags = options.headerFlags ?? 0x201;
+  const maxProt = options.maxProt ?? 5;
+  const buffer = Buffer.alloc(136);
+  buffer.writeUInt32LE(0xfeedfacf, 0);
+  buffer.writeInt32LE(0x0100000c, 4);
+  buffer.writeInt32LE(0, 8);
+  buffer.writeUInt32LE(2, 12);
+  buffer.writeUInt32LE(2, 16);
+  buffer.writeUInt32LE(104, 20);
+  buffer.writeUInt32LE(headerFlags, 24);
+  const segment = 32;
+  buffer.writeUInt32LE(0x19, segment);
+  buffer.writeUInt32LE(72, segment + 4);
+  buffer.write("__TEXT", segment + 8, "ascii");
+  buffer.writeBigUInt64LE(0x1000n, segment + 24);
+  buffer.writeBigUInt64LE(0x1000n, segment + 32);
+  buffer.writeUInt32LE(0x1000, segment + 40);
+  buffer.writeUInt32LE(0x1000, segment + 48);
+  buffer.writeUInt32LE(maxProt, segment + 56);
+  buffer.writeUInt32LE(maxProt & 0x7, segment + 60);
+  buffer.writeUInt32LE(0, segment + 64);
+  const build = 104;
+  buffer.writeUInt32LE(0x32, build);
+  buffer.writeUInt32LE(32, build + 4);
+  buffer.writeUInt32LE(1, build + 8);
+  buffer.writeUInt32LE((13 << 16) | (2 << 8) | 1, build + 12);
+  buffer.writeUInt32LE(14 << 16, build + 16);
+  buffer.writeUInt32LE(1, build + 20);
+  buffer.writeUInt32LE(1, build + 24);
+  buffer.writeUInt32LE(902 << 16, build + 28);
+  return buffer;
+};
+
 export const wasmFixture = (): Buffer => {
   const payload = Buffer.from([4, 0x6d, 0x65, 0x74, 0x61, 0x78]);
   const buffer = Buffer.alloc(8 + 2 + payload.length);
@@ -96,4 +164,4 @@ export const wasmFixture = (): Buffer => {
   buffer[9] = payload.length;
   payload.copy(buffer, 10);
   return buffer;
-};
+}

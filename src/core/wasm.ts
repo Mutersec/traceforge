@@ -1,4 +1,4 @@
-import { sectionHash } from "./binary.js";
+import { sectionHash, securitySummary } from "./binary.js";
 import type { ParsedContainer } from "./binary.js";
 import { TraceForgeError } from "./errors.js";
 import type { SectionInfo, SliceInventory } from "./types.js";
@@ -128,6 +128,9 @@ export const parseWasm = (buffer: Buffer, _path: string): ParsedContainer => {
     });
     offset = end;
   }
+  limitations.push(
+    "WebAssembly modules carry no container-level mitigation flags; the security summary is empty by design.",
+  );
   const slice: SliceInventory = {
     architecture: "wasm32",
     bits: 32,
@@ -136,6 +139,8 @@ export const parseWasm = (buffer: Buffer, _path: string): ParsedContainer => {
     entrypoint: null,
     entrypointKind: null,
     buildId: null,
+    security: securitySummary([]),
+    provenance: { module_version: String(version) },
     sections,
     imports: [...imports].sort(),
     exports: [...exports].sort(),

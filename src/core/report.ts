@@ -7,6 +7,7 @@ import type {
   BinaryInventory,
   ComparisonResult,
   EvidenceRecord,
+  ProvenanceFacts,
   SectionInfo,
   SliceInventory,
 } from "./types.js";
@@ -52,6 +53,27 @@ const symbolList = (title: string, values: readonly string[]): string => {
   </div>`;
 };
 
+const mitigationGroup = (
+  label: string,
+  values: readonly string[],
+  className: string,
+): string =>
+  values.length === 0
+    ? ""
+    : `<div class="mitigation ${className}"><span>${escapeHtml(label)}</span>${values
+        .map((value) => `<code>${escapeHtml(value)}</code>`)
+        .join("")}</div>`;
+
+const provenanceTable = (facts: ProvenanceFacts): string =>
+  Object.keys(facts).length === 0
+    ? '<p class="muted">No provenance claims recorded.</p>'
+    : `<table><thead><tr><th>Claim</th><th>Value</th></tr></thead><tbody>${Object.entries(facts)
+        .map(
+          ([key, value]) =>
+            `<tr><td><code>${escapeHtml(key)}</code></td><td>${escapeHtml(value)}</td></tr>`,
+        )
+        .join("\n")}</tbody></table>`;
+
 const sliceBlock = (slice: SliceInventory): string => `
   <section class="slice">
     <div class="slice-head">
@@ -67,6 +89,13 @@ const sliceBlock = (slice: SliceInventory): string => `
       <div><strong>${escapeHtml(slice.libraries.length)}</strong><span>libraries</span></div>
     </div>
     ${slice.entrypoint === null ? "" : `<p class="muted">Entrypoint <code>${escapeHtml(slice.entrypoint)}</code> · ${escapeHtml(slice.entrypointKind ?? "unknown")}</p>`}
+    <div class="mitigations">
+      ${mitigationGroup("Enabled", slice.security.present, "ok")}
+      ${mitigationGroup("Disabled", slice.security.absent, "warn")}
+      ${mitigationGroup("Undetermined", slice.security.undetermined, "muted")}
+    </div>
+    <h4>Provenance claims <span>${escapeHtml(Object.keys(slice.provenance).length)}</span></h4>
+    ${provenanceTable(slice.provenance)}
     <table>
       <thead><tr><th>Section</th><th>Segment</th><th>Address</th><th>Offset</th><th>Size</th><th>SHA-256</th></tr></thead>
       <tbody>${sectionRows(slice.sections)}</tbody>
@@ -110,13 +139,16 @@ const comparisonBlock = (result: ComparisonResult): string => `
     ${changeList("Imports removed", result.changes.imports_removed)}
     ${changeList("Exports added", result.changes.exports_added)}
     ${changeList("Exports removed", result.changes.exports_removed)}
+    ${changeList("Mitigations added", result.changes.mitigations_added)}
+    ${changeList("Mitigations removed", result.changes.mitigations_removed)}
+    ${changeList("Provenance changed", result.changes.provenance_changed)}
   </div>
   ${result.limitations.length === 0 ? "" : `<section class="limitations"><h3>Limitations</h3><ul>${result.limitations.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul></section>`}`;
 
 const resultBlock = (result: unknown): string => {
   if (result !== null && typeof result === "object") {
     const value = result as Record<string, unknown>;
-    if (value.schema === "traceforge.inventory.v1")
+    if (value.schema === "traceforge.inventory.v2")
       return inventoryBlock(result as BinaryInventory);
     if (value.schema === "traceforge.comparison.v1")
       return comparisonBlock(result as ComparisonResult);
@@ -159,6 +191,12 @@ h4 span { color: #5eead4; margin-left: 6px; }
 .slice-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .slice-head h3 { margin: 0; font-size: 20px; color: #c4b5fd; }
 .pill { border: 1px solid #2b3e52; border-radius: 999px; color: #a9bad0; padding: 2px 8px; font-size: 11px; }
+.mitigations { display: flex; flex-direction: column; gap: 6px; margin: 0 0 14px; }
+.mitigation { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.mitigation > span { color: #7f93a8; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; min-width: 96px; }
+.mitigation.ok code { background: #0c2c25; color: #5eead4; }
+.mitigation.warn code { background: #2a220c; color: #fbbf24; }
+.mitigation.muted code { background: #12202d; color: #7f93a8; }
 .stats { display: flex; gap: 26px; margin: 16px 0; }
 .stats div { display: flex; flex-direction: column; }
 .stats strong { font-size: 22px; }

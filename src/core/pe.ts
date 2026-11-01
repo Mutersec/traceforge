@@ -1,4 +1,4 @@
-import { hex, readCString, sectionHash } from "./binary.js";
+import { hex, readCString, sectionHash, securitySummary } from "./binary.js";
 import type { ParsedContainer } from "./binary.js";
 import { TraceForgeError } from "./errors.js";
 import type { SectionInfo, SliceInventory } from "./types.js";
@@ -6,6 +6,25 @@ import type { SectionInfo, SliceInventory } from "./types.js";
 const MAX_SECTIONS = 96;
 const MAX_IMPORTS = 20_000;
 const MAX_EXPORTS = 20_000;
+
+const DLL_HIGH_ENTROPY_VA = 0x0020;
+const DLL_DYNAMIC_BASE = 0x0040;
+const DLL_FORCE_INTEGRITY = 0x0080;
+const DLL_NX_COMPAT = 0x0100;
+const DLL_NO_ISOLATION = 0x0200;
+const DLL_GUARD_CF = 0x4000;
+
+const SUBSYSTEM_NAMES: Record<number, string> = {
+  0: "unknown",
+  1: "native",
+  2: "windows-gui",
+  3: "windows-cui",
+  5: "os2-cui",
+  7: "posix-cui",
+  8: "native-windows",
+  9: "windows-ce-gui",
+  10: "windows-ce-cui",
+};
 
 const machineName = (machine: number): string => {
   switch (machine) {
@@ -69,6 +88,12 @@ export const parsePe = (buffer: Buffer, _path: string): ParsedContainer => {
     : buffer.readUInt32LE(optional + 28);
   const directoryCount = buffer.readUInt32LE(optional + (bits === 64 ? 108 : 92));
   const directoryOffset = optional + (bits === 64 ? 112 : 96);
+  const windowsFields = optionalSize >= 72;
+  const linkerVersion = windowsFields
+    ? `${buffer[optional + 2] ?? 0}.${buffer[optional + 3] ?? 0}`
+    : null;
+  const subsystem = windowsFields ? buffer.readUInt16LE(optional + 68) : 0;
+  const dllCharacteristics = windowsFields ? buffer.readUInt16LE(optional + 70) : null;
   const sectionTable = optional + optionalSize;
   if (sectionTable + sectionCount * 40 > buffer.length)
     throw new TraceForgeError("parse_error", "PE section table is truncated");
@@ -177,6 +202,42 @@ export const parsePe = (buffer: Buffer, _path: string): ParsedContainer => {
     sha256: sectionHash(buffer, section.rawOffset, section.rawSize, limitations),
     flags: hex(section.characteristics),
   }));
+  limitations.push(
+    "Mitigation names are structural claims from PE headers, not observed runtime enforcement.",
+  );
+  if (dllCharacteristics === null)
+    limitations.push("The PE optional header was too short to expose DllCharacteristics.");
+  const flagState = (value: number, bit: number): "present" | "absent" =>
+    (value & bit) !== 0 ? "present" : "absent";
+  const security = securitySummary([
+    ...(dllCharacteristics === null
+      ? ([
+          ["aslr", "undetermined"],
+          ["nx", "undetermined"],
+          ["guard-cf", "undetermined"],
+          ["code-integrity", "undetermined"],
+          ["image-isolation", "undetermined"],
+          ["high-entropy-aslr", "undetermined"],
+        ] as const)
+      : ([
+          ["aslr", flagState(dllCharacteristics, DLL_DYNAMIC_BASE)],
+          [
+            "high-entropy-aslr",
+            (dllCharacteristics & DLL_DYNAMIC_BASE) === 0
+              ? "absent"
+              : (dllCharacteristics & DLL_HIGH_ENTROPY_VA) !== 0
+                ? "present"
+                : "undetermined",
+          ],
+          ["nx", flagState(dllCharacteristics, DLL_NX_COMPAT)],
+          ["guard-cf", flagState(dllCharacteristics, DLL_GUARD_CF)],
+          ["code-integrity", flagState(dllCharacteristics, DLL_FORCE_INTEGRITY)],
+          [
+            "image-isolation",
+            (dllCharacteristics & DLL_NO_ISOLATION) === 0 ? "present" : "absent",
+          ],
+        ] as const)),
+  ]);
   const slice: SliceInventory = {
     architecture: machineName(machine),
     bits,
@@ -185,6 +246,19 @@ export const parsePe = (buffer: Buffer, _path: string): ParsedContainer => {
     entrypoint: hex(entryRva),
     entrypointKind: "rva",
     buildId: hex(timestamp),
+    security,
+    provenance: {
+      ...(linkerVersion === null ? {} : { linker_version: linkerVersion }),
+      subsystem: SUBSYSTEM_NAMES[subsystem] ?? `subsystem_${subsystem}`,
+      ...(windowsFields
+        ? {
+            os_version: `${buffer.readUInt16LE(optional + 40)}.${buffer.readUInt16LE(optional + 42)}`,
+            image_version: `${buffer.readUInt16LE(optional + 44)}.${buffer.readUInt16LE(optional + 46)}`,
+            size_of_image: String(buffer.readUInt32LE(optional + 56)),
+            declared_checksum: hex(buffer.readUInt32LE(optional + 64)),
+          }
+        : {}),
+    },
     sections: sectionRows,
     imports: [...imports].sort(),
     exports: [...exports].sort(),

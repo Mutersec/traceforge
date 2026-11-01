@@ -8,7 +8,14 @@ import { parseElf } from "./elf.js";
 import { parseMachO } from "./macho.js";
 import { parsePe } from "./pe.js";
 import { parseWasm } from "./wasm.js";
-import type { BinaryFormat, BinaryInventory, ComparisonResult, SliceInventory } from "./types.js";
+import type {
+  BinaryFormat,
+  BinaryInventory,
+  ComparisonResult,
+  MitigationName,
+  SecuritySummary,
+  SliceInventory,
+} from "./types.js";
 
 export const MAX_BINARY_BYTES = 512 * 1024 * 1024;
 const MAX_SECTION_HASH_BYTES = 64 * 1024 * 1024;
@@ -66,6 +73,22 @@ export const sectionHash = (
   return createHash("sha256")
     .update(buffer.subarray(offset, offset + size))
     .digest("hex");
+};
+
+export type MitigationState = "present" | "absent" | "undetermined";
+
+/** One decision per mitigation name; a decided name never appears as undetermined. */
+export const securitySummary = (
+  states: readonly (readonly [MitigationName, MitigationState])[],
+): SecuritySummary => {
+  const names = (state: MitigationState): MitigationName[] =>
+    [...new Set(states.filter(([, value]) => value === state).map(([name]) => name))].sort() as MitigationName[];
+  const decided = new Set<MitigationName>([...names("present"), ...names("absent")]);
+  return {
+    present: names("present"),
+    absent: names("absent"),
+    undetermined: names("undetermined").filter((name) => !decided.has(name)),
+  };
 };
 
 export const parseContainer = (
@@ -128,7 +151,7 @@ export const inspectBinary = async (
       `Only the ${options.architecture} slice was selected; other slices were omitted.`,
     );
   return {
-    schema: "traceforge.inventory.v1",
+    schema: "traceforge.inventory.v2",
     path,
     sha256,
     size: buffer.length,
@@ -141,7 +164,7 @@ export const inspectBinary = async (
 const sectionKey = (slice: SliceInventory, section: SliceInventory["sections"][number]): string =>
   `${slice.architecture}:${section.segment ?? ""}:${section.name}`;
 
-const uniqueSorted = (values: Iterable<string>): string[] =>
+export const uniqueSorted = (values: Iterable<string>): string[] =>
   [...new Set(values)].sort((left, right) => left.localeCompare(right));
 
 const setDiff = (left: readonly string[], right: readonly string[]): {
@@ -178,6 +201,9 @@ export const compareInventories = (
     imports_removed: [] as string[],
     exports_added: [] as string[],
     exports_removed: [] as string[],
+    mitigations_added: [] as string[],
+    mitigations_removed: [] as string[],
+    provenance_changed: [] as string[],
   };
   const limitations = uniqueSorted([
     ...left.limitations,
@@ -218,6 +244,20 @@ export const compareInventories = (
     changes.imports_removed.push(...imports.removed);
     changes.exports_added.push(...exports.added);
     changes.exports_removed.push(...exports.removed);
+    const mitigations = setDiff(leftSlice.security.present, rightSlice.security.present);
+    changes.mitigations_added.push(
+      ...mitigations.added.map((name) => `${architecture}:${name}`),
+    );
+    changes.mitigations_removed.push(
+      ...mitigations.removed.map((name) => `${architecture}:${name}`),
+    );
+    for (const key of uniqueSorted([
+      ...Object.keys(leftSlice.provenance),
+      ...Object.keys(rightSlice.provenance),
+    ])) {
+      if (leftSlice.provenance[key] !== rightSlice.provenance[key])
+        changes.provenance_changed.push(`${architecture}:${key}`);
+    }
   }
   for (const key of [
     "slices_added",
@@ -229,6 +269,9 @@ export const compareInventories = (
     "imports_removed",
     "exports_added",
     "exports_removed",
+    "mitigations_added",
+    "mitigations_removed",
+    "provenance_changed",
   ] as const)
     changes[key] = uniqueSorted(changes[key]);
   return {
@@ -244,7 +287,10 @@ export const compareInventories = (
       changes.imports_added.length > 0 ||
       changes.imports_removed.length > 0 ||
       changes.exports_added.length > 0 ||
-      changes.exports_removed.length > 0,
+      changes.exports_removed.length > 0 ||
+      changes.mitigations_added.length > 0 ||
+      changes.mitigations_removed.length > 0 ||
+      changes.provenance_changed.length > 0,
     left,
     right,
     changes,
@@ -264,6 +310,8 @@ export const summarizeInventory = (inventory: BinaryInventory) => ({
     endian: slice.endian,
     file_type: slice.fileType,
     entrypoint: slice.entrypoint,
+    mitigations: [...slice.security.present],
+    undetermined_mitigations: [...slice.security.undetermined],
     sections: slice.sections.length,
     imports: slice.imports.length,
     exports: slice.exports.length,

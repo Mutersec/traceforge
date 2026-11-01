@@ -8,7 +8,7 @@ import { TraceForgeError } from "./core/errors.js";
 import type { ComparisonResult, EvidenceRecord } from "./core/types.js";
 import { runMcpServer } from "./mcp/server.js";
 
-export const VERSION = "0.1.0";
+export const VERSION = "0.2.0";
 
 const HELP = `TraceForge ${VERSION} — local-first binary evidence.
 
@@ -75,6 +75,14 @@ const scanHuman = (
     process.stdout.write(
       `    ${slice.sections} sections · ${slice.imports} imports · ${slice.exports} exports · ${slice.libraries} libraries\n`,
     );
+    if (slice.mitigations.length > 0 || slice.undetermined_mitigations.length > 0)
+      process.stdout.write(
+        `    ${color(enabled, "32", slice.mitigations.join(", ") || "none observed")}` +
+          (slice.undetermined_mitigations.length > 0
+            ? ` ${color(enabled, "2", `· undetermined: ${slice.undetermined_mitigations.join(", ")}`)}`
+            : "") +
+          "\n",
+      );
   }
 };
 
@@ -95,6 +103,19 @@ const inspectHuman = (
         `  entrypoint ${slice.entrypoint} (${slice.entrypointKind ?? "unknown"})\n`,
       );
     if (slice.buildId !== null) process.stdout.write(`  build      ${slice.buildId}\n`);
+    process.stdout.write(
+      `  security   ${slice.security.present.join(", ") || "none observed"}\n`,
+    );
+    if (slice.security.absent.length > 0)
+      process.stdout.write(`  disabled   ${slice.security.absent.join(", ")}\n`);
+    if (slice.security.undetermined.length > 0)
+      process.stdout.write(`  unclear    ${slice.security.undetermined.join(", ")}\n`);
+    const facts = Object.entries(slice.provenance);
+    if (facts.length > 0) {
+      process.stdout.write(`  provenance\n`);
+      for (const [key, value] of facts)
+        process.stdout.write(`    ${key.padEnd(17)} ${value}\n`);
+    }
     process.stdout.write(`  sections   ${slice.sections.length}\n`);
     for (const section of slice.sections.slice(0, 12))
       process.stdout.write(
@@ -133,6 +154,9 @@ const diffHuman = (result: ComparisonResult, enabled: boolean): void => {
     ["imports removed", result.changes.imports_removed],
     ["exports added", result.changes.exports_added],
     ["exports removed", result.changes.exports_removed],
+    ["mitigations added", result.changes.mitigations_added],
+    ["mitigations removed", result.changes.mitigations_removed],
+    ["provenance changed", result.changes.provenance_changed],
   ];
   for (const [label, values] of groups) {
     if (values.length === 0) continue;

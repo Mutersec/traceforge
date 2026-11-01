@@ -42,11 +42,14 @@ format   mach-o
 Slices
   x86_64  64-bit little  executable
     12 sections · 91 imports · 1 exports · 3 libraries
+    nx · undetermined: pie
   arm64e  64-bit little  executable
     11 sections · 90 imports · 1 exports · 3 libraries
-  arm64   64-bit little  executable
+    chained-fixups, nx · undetermined: pie
+  arm64_subtype_12  64-bit little  executable
     11 sections · 90 imports · 1 exports · 3 libraries
-Evidence ev_157a66f293e5161b44cd5889b8a39555d2878d84e659d33b37019791d568dd75 (scan)
+    chained-fixups, nx · undetermined: pie
+Evidence ev_4881c15a0c4ae521f75e89d77d9abaca2cb5b6f68f32ce74cd005e58beb15e2a (scan)
 ```
 
 ## Why TraceForge
@@ -54,6 +57,9 @@ Evidence ev_157a66f293e5161b44cd5889b8a39555d2878d84e659d33b37019791d568dd75 (sc
 - **Read-only by construction.** Analysis never launches the target.
 - **Evidence, not screenshots.** Every result has a content-addressed
   `evidence_id`, a SHA-256 input identity, limitations, and a local JSON record.
+- **Mitigations and provenance, decoded.** Each slice states which structural
+  protections are present, absent or undetermined, plus the build claims the
+  container makes about itself.
 - **Deterministic records.** Stable JSON canonicalization means the same input
   and result produce the same identity.
 - **Agent-native.** A dependency-free MCP stdio server exposes the same core.
@@ -82,7 +88,7 @@ node dist/cli.js scan /bin/ls
 |---|---|
 | `scan <path>` | Identify format, hashes, slices and collection counts. |
 | `inspect <path>` | Full section, import, export and library inventory. Use `--arch` for one universal slice. |
-| `diff <left> <right>` | Compare two binaries by identity, sections and symbols. |
+| `diff <left> <right>` | Compare two binaries by identity, sections, symbols and mitigation changes. |
 | `evidence list` | List local Evidence summaries. |
 | `evidence show <id>` | Read one authenticated record. |
 | `evidence verify <id>` | Recompute and verify a record. |
@@ -146,11 +152,15 @@ The protocol is newline-delimited JSON-RPC 2.0 over stdio. See
 
 | Format | Inventory |
 |---|---|
-| Mach-O / universal | slices, sections, symbols, dylibs, UUID, entrypoint |
-| ELF32 / ELF64 | sections, symbols, `DT_NEEDED`, entrypoint, build-id |
-| PE32 / PE32+ | sections, imports, exports, RVA entrypoint |
+| Mach-O / universal | slices, sections, symbols, dylibs, UUID, entrypoint, mitigations, build-version claims |
+| ELF32 / ELF64 | sections, symbols, `DT_NEEDED`, entrypoint, build-id, program headers, mitigations, producer claim |
+| PE32 / PE32+ | sections, imports, exports, RVA entrypoint, `DllCharacteristics` mitigations, linker claims |
 | WebAssembly | sections, imports, exports |
 | Unknown | input identity and a declared limitation |
+
+Every mitigation name is a structural claim from container headers, never an
+observation of runtime enforcement, and each decision rule is documented in
+[docs/parsers.md](docs/parsers.md).
 
 TraceForge is an inspector, not a disassembler. It does not reconstruct code or
 execute targets. Stripped binaries may expose fewer symbols. Parser limits and

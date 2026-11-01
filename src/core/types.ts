@@ -10,6 +10,29 @@ export interface SectionInfo {
   readonly flags: string | null;
 }
 
+/** Structural protection decisions. Each name has one documented decision rule per format. */
+export type MitigationName =
+  | "aslr"
+  | "pie"
+  | "nx"
+  | "relro"
+  | "full-relro"
+  | "bind-now"
+  | "chained-fixups"
+  | "guard-cf"
+  | "high-entropy-aslr"
+  | "code-integrity"
+  | "image-isolation";
+
+export interface SecuritySummary {
+  readonly present: readonly MitigationName[];
+  readonly absent: readonly MitigationName[];
+  readonly undetermined: readonly MitigationName[];
+}
+
+/** Self-reported build facts. Recorded as claims, never as verified provenance. */
+export type ProvenanceFacts = Readonly<Record<string, string>>;
+
 export interface SliceInventory {
   readonly architecture: string;
   readonly bits: 32 | 64;
@@ -18,6 +41,8 @@ export interface SliceInventory {
   readonly entrypoint: string | null;
   readonly entrypointKind: "file-offset" | "virtual-address" | "rva" | null;
   readonly buildId: string | null;
+  readonly security: SecuritySummary;
+  readonly provenance: ProvenanceFacts;
   readonly sections: readonly SectionInfo[];
   readonly imports: readonly string[];
   readonly exports: readonly string[];
@@ -26,7 +51,7 @@ export interface SliceInventory {
 }
 
 export interface BinaryInventory {
-  readonly schema: "traceforge.inventory.v1";
+  readonly schema: "traceforge.inventory.v2";
   readonly path: string;
   readonly sha256: string;
   readonly size: number;
@@ -89,6 +114,9 @@ export interface ComparisonResult {
     readonly imports_removed: readonly string[];
     readonly exports_added: readonly string[];
     readonly exports_removed: readonly string[];
+    readonly mitigations_added: readonly string[];
+    readonly mitigations_removed: readonly string[];
+    readonly provenance_changed: readonly string[];
   };
   readonly limitations: readonly string[];
 }
