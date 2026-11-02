@@ -4,16 +4,17 @@ import { resolve } from "node:path";
 
 import { sha256Hex } from "./canonical.js";
 import { TraceForgeError } from "./errors.js";
-import { parseElf } from "./elf.js";
-import { parseMachO } from "./macho.js";
-import { parsePe } from "./pe.js";
-import { parseWasm } from "./wasm.js";
+import { parseElf, readElfIdentities } from "./elf.js";
+import { parseMachO, readMachOIdentities } from "./macho.js";
+import { parsePe, readPeIdentities } from "./pe.js";
+import { parseWasm, readWasmIdentities } from "./wasm.js";
 import type {
   BinaryFormat,
   BinaryInventory,
   ComparisonResult,
   MitigationName,
   SecuritySummary,
+  SliceIdentity,
   SliceInventory,
 } from "./types.js";
 
@@ -111,6 +112,33 @@ export const parseContainer = (
         slices: [],
         limitations: ["The binary format was not recognized; only file identity was recorded."],
       };
+  }
+};
+
+/**
+ * Labels a package member from a bounded header window.
+ *
+ * A bundle scan reads thousands of members, so it cannot afford to load a whole
+ * framework into memory the way `inspect` does. This path returns only what the
+ * first bytes declare; a member whose header cannot be read keeps its format and
+ * reports nothing else.
+ */
+export const readContainerIdentities = (
+  buffer: Buffer,
+  limitations: string[],
+): { readonly format: BinaryFormat; readonly identities: readonly SliceIdentity[] } => {
+  const format = detectFormat(buffer);
+  switch (format) {
+    case "mach-o":
+      return { format, identities: readMachOIdentities(buffer, limitations) };
+    case "elf":
+      return { format, identities: readElfIdentities(buffer, limitations) };
+    case "pe":
+      return { format, identities: readPeIdentities(buffer, limitations) };
+    case "wasm":
+      return { format, identities: readWasmIdentities(buffer, limitations) };
+    default:
+      return { format, identities: [] };
   }
 };
 

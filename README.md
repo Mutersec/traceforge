@@ -88,6 +88,7 @@ node dist/cli.js scan /bin/ls
 |---|---|
 | `scan <path>` | Identify format, hashes, slices and collection counts. |
 | `inspect <path>` | Full section, import, export and library inventory. Use `--arch` for one universal slice. |
+| `app <package>` | Recursively inventory an `.app`, `.framework` or directory: one entry per member plus the identity its bundle manifest declares. |
 | `diff <left> <right>` | Compare two binaries by identity, sections, symbols and mitigation changes. |
 | `evidence list` | List local Evidence summaries. |
 | `evidence show <id>` | Read one authenticated record. |
@@ -95,7 +96,7 @@ node dist/cli.js scan /bin/ls
 | `evidence verify-all` | Verify every local record. |
 | `evidence export <path>` | Export a deterministic bundle. |
 | `evidence import <path>` | Authenticate and merge a bundle. |
-| `report <path\|id>` | Write a standalone HTML Evidence report. |
+| `report <path\|package\|id>` | Write a standalone HTML Evidence report. |
 | `mcp` | Start the MCP stdio server. |
 
 Common flags: `--json`, `--store <dir>`, `--no-save`, `--debug`.
@@ -103,6 +104,44 @@ Use `--out report.html` with `report`; `npm run demo` runs the whole showcase.
 
 Evidence is written to `.traceforge/evidence` by default. Use `--no-save` for a
 one-shot inspection.
+
+## Inspecting a whole application
+
+```console
+$ tforge app /Applications/Obsidian.app
+
+TraceForge · app · app
+
+path       /Applications/Obsidian.app
+layout     macos
+members    278 files · 322 dirs · 14 links · 513.6 MiB
+tree       d018c5c536e162527560a18880baf0ca1dea189b734f849a88fc09e91382f37f
+kinds      archive 2 · code 18 · link 14 · manifest 24 · other 4 · resource 228 · script 2
+architectures arm64 18 · x86_64 18
+
+Manifest Contents/Info.plist · xml · 40 keys
+  sha256     7760bcb6e0d3c55a97d1b5952d2a83b348a91bf875d411e6639ce15324622abe
+  CFBundleIdentifier            md.obsidian
+  …
+
+Declared executable Contents/MacOS/Obsidian present
+
+Largest code members 18 mach-o · 0 wasm · 0 elf · 0 pe
+  Contents/Frameworks/Electron Framework.framework/Versions/A/Electron Framework 378.9 MiB  mach-o arm64/x86_64
+  Contents/Frameworks/Electron Framework.framework/Versions/A/Libraries/libvk_swiftshader.dylib  20.3 MiB  mach-o arm64/x86_64
+  …
+Evidence ev_... (app)
+```
+
+Every member of the package gets its own SHA-256, size and format label; the
+`tree` line is a fingerprint over those member identities, so a directory has an
+input identity even though it is not one file. The bundle manifest is recorded
+as **declared** identity — `CFBundleIdentifier`, versions, minimum system — and
+the record states that none of it was checked against a signature or a
+notarization ticket. Archives (`.asar`, `.car`, `.zip`) are counted and hashed
+but not opened, symbolic links are written down but never followed, and the walk
+stops at 5,000 members or depth 32 and says so in `limitations` instead of
+failing. `tforge report SomeApp.app` renders the same record as HTML.
 
 ## Evidence report
 
@@ -141,6 +180,7 @@ Tools:
 
 - `scan_binary`
 - `inspect_binary`
+- `inspect_package`
 - `compare_binaries`
 - `get_evidence`
 - `list_evidence`
@@ -156,6 +196,8 @@ The protocol is newline-delimited JSON-RPC 2.0 over stdio. See
 | ELF32 / ELF64 | sections, symbols, `DT_NEEDED`, entrypoint, build-id, program headers, mitigations, producer claim |
 | PE32 / PE32+ | sections, imports, exports, RVA entrypoint, `DllCharacteristics` mitigations, linker claims |
 | WebAssembly | sections, imports, exports |
+| `.app` / `.framework` / directory | recursive member inventory, per-member SHA-256 and format, declared bundle manifest, nested packages |
+| Property list (XML, binary, JSON) | manifest keys and scalar claims, as declared identity |
 | Unknown | input identity and a declared limitation |
 
 Every mitigation name is a structural claim from container headers, never an
@@ -190,6 +232,9 @@ adapters never re-interpret parser facts.
 - Targets are opened read-only.
 - Files larger than 512 MiB are rejected before parsing.
 - Section hashing is capped at 64 MiB per section.
+- A package walk stops at 5,000 members, depth 32 and 64 nested packages, and
+  records the stop as a limitation instead of failing; members are labelled from
+  a 64 KiB header window, and manifests from a 4 MiB read.
 - Bounds, counts and string lengths are checked before allocation.
 - Evidence is written atomically with owner-only permissions.
 - The tool does not execute, attach to, or modify targets.
@@ -207,9 +252,10 @@ npm run build
 npm run check      # typecheck + tests + build
 ```
 
-Tests cover synthetic ELF/PE/WASM fixtures, Evidence integrity, bundle
-round-trips, MCP protocol and a real macOS Mach-O when run on Darwin. CI runs on
-Node 22 and 24.
+Tests cover synthetic ELF/PE/WASM fixtures, synthetic bundle trees with XML and
+binary property lists, parser limits, Evidence integrity, bundle round-trips,
+MCP protocol and a real macOS Mach-O and a real installed bundle when run on
+Darwin. CI runs on Node 22 and 24.
 
 ## Performance
 

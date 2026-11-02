@@ -3,6 +3,7 @@ export class TraceForgeError extends Error {
     readonly code:
       | "invalid_path"
       | "not_a_file"
+      | "not_a_directory"
       | "file_too_large"
       | "parse_error"
       | "unsupported_format"

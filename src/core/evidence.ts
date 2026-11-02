@@ -237,7 +237,8 @@ const isEvidenceRecord = (value: unknown): value is EvidenceRecord => {
     typeof record.evidence_id === "string" &&
     (record.operation === "scan" ||
       record.operation === "inspect" ||
-      record.operation === "compare") &&
+      record.operation === "compare" ||
+      record.operation === "app") &&
     record.tool !== null &&
     typeof record.tool === "object" &&
     record.input !== null &&

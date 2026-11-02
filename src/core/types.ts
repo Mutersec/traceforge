@@ -50,6 +50,12 @@ export interface SliceInventory {
   readonly limitations: readonly string[];
 }
 
+/** A member's header-level identity, read from a bounded window without a full parse. */
+export interface SliceIdentity {
+  readonly architecture: string;
+  readonly file_type: string;
+}
+
 export interface BinaryInventory {
   readonly schema: "traceforge.inventory.v2";
   readonly path: string;
@@ -60,10 +66,93 @@ export interface BinaryInventory {
   readonly limitations: readonly string[];
 }
 
+/** How a package member was classified from its name, mode bits and header magic. */
+export type AppFileKind =
+  | "manifest"
+  | "code"
+  | "archive"
+  | "script"
+  | "resource"
+  | "link"
+  | "other";
+
+export interface AppFileEntry {
+  readonly path: string;
+  readonly size: number;
+  readonly sha256: string | null;
+  readonly kind: AppFileKind;
+  readonly format: BinaryFormat;
+  readonly executable: boolean;
+  readonly architectures: readonly string[];
+  readonly file_types: readonly string[];
+  /** Target text of a symbolic link, recorded but never followed. Null for other entries. */
+  readonly link_target: string | null;
+}
+
+/** Aggregated totals over the inventoried subtree, not over the whole package. */
+export interface AppCounts {
+  readonly files: number;
+  readonly directories: number;
+  readonly links: number;
+  readonly special: number;
+  readonly unreadable: number;
+  readonly executable: number;
+  readonly total_bytes: number;
+  readonly hashed_bytes: number;
+  readonly by_kind: Readonly<Record<string, number>>;
+  readonly by_format: Readonly<Record<string, number>>;
+  readonly architectures: Readonly<Record<string, number>>;
+}
+
+/** One package member declared as the launch target. */
+export interface AppDeclaredExecutable {
+  readonly name: string | null;
+  readonly path: string | null;
+  readonly present: boolean;
+  readonly sha256: string | null;
+}
+
+export interface AppManifest {
+  readonly path: string;
+  readonly size: number;
+  readonly sha256: string | null;
+  readonly encoding: "xml" | "binary" | "json" | null;
+  readonly keys: number;
+  readonly claims: Readonly<Record<string, string>>;
+}
+
+/** A bundle found inside the scanned root, with its own declared identity. */
+export interface AppNestedPackage {
+  readonly path: string;
+  readonly kind: string;
+  readonly layout: AppLayout;
+  readonly manifest_path: string | null;
+  readonly declared: Readonly<Record<string, string>>;
+}
+
+export type AppLayout = "macos" | "flat" | "unknown";
+
+export interface AppInventory {
+  readonly schema: "traceforge.app.inventory.v1";
+  readonly path: string;
+  readonly kind: string;
+  readonly layout: AppLayout;
+  /** SHA-256 of the canonical file tree below; a directory identity, not a file hash. */
+  readonly tree_sha256: string;
+  readonly total_bytes: number;
+  readonly manifest: AppManifest | null;
+  readonly pkg_info: Readonly<Record<string, string>>;
+  readonly declared_executable: AppDeclaredExecutable;
+  readonly nested: readonly AppNestedPackage[];
+  readonly counts: AppCounts;
+  readonly files: readonly AppFileEntry[];
+  readonly limitations: readonly string[];
+}
+
 export interface EvidenceRecord<Result = unknown> {
   readonly schema: "traceforge.evidence.v1";
   readonly evidence_id: string;
-  readonly operation: "scan" | "inspect" | "compare";
+  readonly operation: "scan" | "inspect" | "compare" | "app";
   readonly tool: { readonly name: "traceforge"; readonly version: string };
   readonly input: {
     readonly path: string;

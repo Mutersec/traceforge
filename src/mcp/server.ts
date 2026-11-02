@@ -1,7 +1,8 @@
 import { createInterface } from "node:readline";
 
+import { summarizePackage } from "../core/app.js";
 import { summarizeInventory } from "../core/binary.js";
-import { compare, inspect, scanBinary } from "../core/operations.js";
+import { compare, inspect, scanBinary, scanPackage } from "../core/operations.js";
 import { EvidenceStore } from "../core/evidence.js";
 import { TraceForgeError } from "../core/errors.js";
 
@@ -86,6 +87,20 @@ const TOOLS: readonly ToolDefinition[] = [
     },
   },
   {
+    name: "inspect_package",
+    description:
+      "Recursively inventory a local .app, .framework or directory: one entry per member with size, SHA-256 and format, plus the identity claims its bundle manifest makes. Read-only; archives are not opened and symbolic links are never followed. detail=summary returns counts and the largest code members, detail=complete returns every member.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        path: { type: "string", minLength: 1 },
+        detail: { type: "string", enum: ["summary", "complete"] },
+      },
+      required: ["path"],
+      additionalProperties: false,
+    },
+  },
+  {
     name: "compare_binaries",
     description:
       "Compare two local binaries by metadata, sections, imports, exports, and mitigation changes.",
@@ -143,6 +158,20 @@ const callTool = async (
         detail,
         inventory:
           detail === "summary" ? summarizeInventory(outcome.result) : outcome.result,
+      });
+    }
+    case "inspect_package": {
+      const outcome = await scanPackage(
+        stringArgument(args, "path"),
+        options.store,
+        options.version,
+      );
+      const detail = optionalStringArgument(args, "detail") ?? "summary";
+      return toolResult({
+        evidence_id: outcome.record.evidence_id,
+        detail,
+        inventory:
+          detail === "complete" ? outcome.inventory : summarizePackage(outcome.inventory),
       });
     }
     case "compare_binaries": {

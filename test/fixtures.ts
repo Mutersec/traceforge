@@ -165,3 +165,91 @@ export const wasmFixture = (): Buffer => {
   payload.copy(buffer, 10);
   return buffer;
 }
+
+/** XML property list with the claims a macOS bundle manifest normally declares. */
+export const xmlPlistFixture = (
+  overrides: Readonly<Record<string, string>> = {},
+): Buffer => {
+  const entries: readonly (readonly [string, string])[] = [
+    ["CFBundleIdentifier", overrides.CFBundleIdentifier ?? "com.acme.example"],
+    ["CFBundleName", overrides.CFBundleName ?? "Example"],
+    ["CFBundleExecutable", overrides.CFBundleExecutable ?? "example"],
+    ["CFBundleShortVersionString", overrides.CFBundleShortVersionString ?? "1.4.2"],
+    ["CFBundleVersion", overrides.CFBundleVersion ?? "1420"],
+    ["LSMinimumSystemVersion", "12.0"],
+    ["CFBundlePackageType", "APPL"],
+    ["NSHumanReadableCopyright", "Copyright © Acme & Co"],
+    ["CFBundleSupportedPlatforms", "MacOSX"],
+  ];
+  const body = entries
+    .map(
+      ([key, value]) =>
+        `\t\t<key>${key}</key>\n\t\t<string>${value
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")}</string>`,
+    )
+    .join("\n");
+  return Buffer.from(
+    `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+	<dict>
+${body}
+	</dict>
+</plist>
+`,
+    "utf8",
+  );
+};
+
+/**
+ * Binary property list (`bplist00`) written byte by byte: object headers, an
+ * extended length marker, a UTF-16 string, an integer, a boolean and a four-byte
+ * offset table are all explicit, so the reader cannot pass by sharing a
+ * misunderstanding with a generator.
+ */
+export const binaryPlistFixture = (): Buffer => {
+  const withLength = (nibble: number, length: number, payload: Buffer): Buffer =>
+    length < 15
+      ? Buffer.concat([Buffer.from([nibble | length]), payload])
+      : Buffer.concat([Buffer.from([nibble | 0x0f, 0x10, length]), payload]);
+  const ascii = (value: string): Buffer =>
+    withLength(0x50, value.length, Buffer.from(value, "ascii"));
+  const utf16 = (value: string): Buffer => {
+    const bytes = Buffer.alloc(value.length * 2);
+    for (let index = 0; index < value.length; index += 1)
+      bytes.writeUInt16BE(value.charCodeAt(index), index * 2);
+    return withLength(0x60, value.length, bytes);
+  };
+  const objects: Buffer[] = [
+    // 0: dict of three pairs: keys 1, 3, 7 -> values 2, 4, 8, refs interleaved
+    // as Apple writes them: all key refs first, then all value refs.
+    withLength(0xc0, 3, Buffer.from([1, 3, 7, 2, 4, 8])),
+    ascii("CFBundleIdentifier"),
+    ascii("com.acme.helper"),
+    ascii("CFBundleName"),
+    utf16("Helper"),
+    Buffer.from([0x09]),
+    Buffer.from([0x11, 0x00, 0x2a]),
+    ascii("LSUIElement"),
+    Buffer.from([0x08]),
+  ];
+  const magic = Buffer.from("bplist00", "ascii");
+  const offsets: number[] = [];
+  let position = magic.length;
+  for (const object of objects) {
+    offsets.push(position);
+    position += object.length;
+  }
+  const body = Buffer.concat(objects);
+  const table = Buffer.alloc(offsets.length * 4);
+  offsets.forEach((offset, index) => table.writeUInt32BE(offset, index * 4));
+  const trailer = Buffer.alloc(32);
+  trailer[6] = 4;
+  trailer[7] = 1;
+  trailer.writeBigUInt64BE(BigInt(offsets.length), 8);
+  trailer.writeBigUInt64BE(0n, 16);
+  trailer.writeBigUInt64BE(BigInt(position), 24);
+  return Buffer.concat([magic, body, table, trailer]);
+};

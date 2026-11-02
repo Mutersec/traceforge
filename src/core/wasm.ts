@@ -1,7 +1,7 @@
 import { sectionHash, securitySummary } from "./binary.js";
 import type { ParsedContainer } from "./binary.js";
 import { TraceForgeError } from "./errors.js";
-import type { SectionInfo, SliceInventory } from "./types.js";
+import type { SectionInfo, SliceIdentity, SliceInventory } from "./types.js";
 
 const SECTION_NAMES: Record<number, string> = {
   1: "type",
@@ -148,4 +148,23 @@ export const parseWasm = (buffer: Buffer, _path: string): ParsedContainer => {
     limitations: [...new Set(limitations)].sort(),
   };
   return { format: "wasm", slices: [slice], limitations: [...new Set(limitations)].sort() };
+};
+
+/**
+ * Reads only the WASM version field.
+ *
+ * WebAssembly has no architecture or OS field; the module version is all a
+ * header window can honestly report for a package member.
+ */
+export const readWasmIdentities = (
+  buffer: Buffer,
+  limitations: string[],
+): readonly SliceIdentity[] => {
+  if (buffer.length < 8)
+    throw new TraceForgeError("parse_error", "WASM header is truncated");
+  const version = buffer.readUInt32LE(4);
+  if (version !== 1)
+    throw new TraceForgeError("parse_error", `Unsupported WASM version ${version}`);
+  limitations.push("WebAssembly members are labelled by module version only.");
+  return [{ architecture: "wasm32", file_type: "module" }];
 };

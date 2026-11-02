@@ -37,6 +37,19 @@ Returns a complete Evidence record whose result is a compact slice summary.
 `summary` returns slice collection counts; `complete` (default) returns the
 complete inventory. `architecture` optionally selects one universal slice. The complete Evidence record is retained in both cases.
 
+### `inspect_package`
+
+```json
+{ "path": "/Applications/Obsidian.app", "detail": "summary" }
+```
+
+Recursively inventories a package directory: one entry per member with size,
+SHA-256, kind and detected format, plus the identity the bundle manifest
+declares. `summary` (default) returns counts, the manifest and the largest code
+members; `complete` returns every inventoried member. Archives are not opened
+and symbolic links are never followed. The full `app` Evidence record is
+retained in both cases.
+
 ### `compare_binaries`
 
 ```json

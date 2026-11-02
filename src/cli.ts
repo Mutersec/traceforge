@@ -1,11 +1,13 @@
 #!/usr/bin/env node
+import { stat } from "node:fs/promises";
 import { parseArgs } from "node:util";
 
-import { compare, inspect, scanBinary } from "./core/operations.js";
+import { summarizePackage } from "./core/app.js";
+import { compare, inspect, scanBinary, scanPackage } from "./core/operations.js";
 import { EvidenceStore } from "./core/evidence.js";
 import { writeEvidenceReport } from "./core/report.js";
 import { TraceForgeError } from "./core/errors.js";
-import type { ComparisonResult, EvidenceRecord } from "./core/types.js";
+import type { AppInventory, ComparisonResult, EvidenceRecord } from "./core/types.js";
 import { runMcpServer } from "./mcp/server.js";
 
 export const VERSION = "0.2.0";
@@ -15,6 +17,7 @@ const HELP = `TraceForge ${VERSION} — local-first binary evidence.
 Usage:
   tforge scan <path> [--json] [--store <dir>] [--no-save]
   tforge inspect <path> [--arch <name>] [--json] [--store <dir>] [--no-save]
+  tforge app <package> [--json] [--store <dir>] [--no-save]
   tforge diff <left> <right> [--json] [--store <dir>] [--no-save]
   tforge evidence list
   tforge evidence show <evidence_id>
@@ -22,12 +25,19 @@ Usage:
   tforge evidence verify-all
   tforge evidence export <bundle.json>
   tforge evidence import <bundle.json>
-  tforge report <path|evidence_id> [--out <file>]
+  tforge report <path|package|evidence_id> [--out <file>]
   tforge mcp
   tforge version
 
+Packages:
+  tforge app walks an .app, .framework or directory recursively: one member
+  per file with size, SHA-256 and format, plus the identity the bundle
+  manifest declares. The walk stops at 5,000 members or depth 32 and records
+  that as a limitation instead of failing. Nothing is executed, and symbolic
+  links are recorded but never followed.
+
 Evidence:
-  Every scan, inspect and diff writes a deterministic content-addressed
+  Every scan, inspect, app and diff writes a deterministic content-addressed
   record to .traceforge/evidence unless --no-save is used.
 
 Exit codes:
@@ -137,6 +147,102 @@ const inspectHuman = (
   }
 };
 
+const bytesHuman = (value: number): string => {
+  if (value < 1024) return `${value} B`;
+  if (value < 1024 ** 2) return `${(value / 1024).toFixed(1)} KiB`;
+  if (value < 1024 ** 3) return `${(value / 1024 ** 2).toFixed(1)} MiB`;
+  return `${(value / 1024 ** 3).toFixed(2)} GiB`;
+};
+
+const appHuman = (inventory: AppInventory, enabled: boolean): void => {
+  simpleHeader(`app · ${inventory.kind}`, enabled);
+  process.stdout.write(`${color(enabled, "2", "path")}       ${inventory.path}\n`);
+  process.stdout.write(`${color(enabled, "2", "layout")}     ${inventory.layout}\n`);
+  process.stdout.write(
+    `${color(enabled, "2", "members")}    ${inventory.counts.files.toLocaleString("en-US")} files · ${inventory.counts.directories.toLocaleString("en-US")} dirs · ${inventory.counts.links} links · ${bytesHuman(inventory.total_bytes)}\n`,
+  );
+  process.stdout.write(
+    `${color(enabled, "2", "tree")}       ${inventory.tree_sha256}\n`,
+  );
+  const kinds = Object.entries(inventory.counts.by_kind);
+  if (kinds.length > 0)
+    process.stdout.write(
+      `${color(enabled, "2", "kinds")}      ${kinds.map(([kind, count]) => `${kind} ${count}`).join(" · ")}\n`,
+    );
+  const architectures = Object.entries(inventory.counts.architectures);
+  if (architectures.length > 0)
+    process.stdout.write(
+      `${color(enabled, "2", "architectures")} ${architectures.map(([name, count]) => `${name} ${count}`).join(" · ")}\n`,
+    );
+
+  if (inventory.manifest === null) {
+    process.stdout.write(`\n${color(enabled, "33", "No bundle manifest was found.")}\n`);
+  } else {
+    const manifest = inventory.manifest;
+    process.stdout.write(
+      `\n${color(enabled, "1", "Manifest")} ${color(enabled, "2", `${manifest.path} · ${manifest.encoding ?? "unparsed"} · ${manifest.keys} keys`)}`,
+    );
+    process.stdout.write("\n");
+    if (manifest.sha256 !== null)
+      process.stdout.write(`  sha256     ${manifest.sha256}\n`);
+    const claims = Object.entries(manifest.claims).slice(0, 14);
+    for (const [key, value] of claims)
+      process.stdout.write(`  ${key.padEnd(29)} ${value}\n`);
+    if (Object.keys(manifest.claims).length > claims.length)
+      process.stdout.write(
+        `  … ${Object.keys(manifest.claims).length - claims.length} more claims (use --json)\n`,
+      );
+    const pkgInfo = Object.entries(inventory.pkg_info);
+    if (pkgInfo.length > 0)
+      process.stdout.write(
+        `  PkgInfo                      ${pkgInfo.map(([key, value]) => `${key}=${value}`).join(" ")}\n`,
+      );
+  }
+
+  const declared = inventory.declared_executable;
+  if (declared.name !== null)
+    process.stdout.write(
+      `\n${color(enabled, "1", "Declared executable")} ${color(
+        enabled,
+        declared.present ? "32" : "33",
+        declared.present ? `${declared.path} present` : `${declared.name} not found`,
+      )}\n`,
+    );
+
+  const code = summarizePackage(inventory).code;
+  if (code.length > 0) {
+    process.stdout.write(
+      `\n${color(enabled, "1", "Largest code members")} ${color(enabled, "2", `${inventory.counts.by_format["mach-o"] ?? 0} mach-o · ${inventory.counts.by_format["wasm"] ?? 0} wasm · ${inventory.counts.by_format["elf"] ?? 0} elf · ${inventory.counts.by_format["pe"] ?? 0} pe`)}\n`,
+    );
+    for (const file of code.slice(0, 10))
+      process.stdout.write(
+        `  ${file.path.padEnd(58)} ${bytesHuman(file.size).padStart(9)}  ${[file.format, file.architectures.join("/")].filter((part) => part.length > 0 && part !== "unknown").join(" ")}\n`,
+      );
+    if (code.length > 10)
+      process.stdout.write(`  … ${code.length - 10} more (use --json)\n`);
+  }
+
+  if (inventory.nested.length > 0) {
+    process.stdout.write(
+      `\n${color(enabled, "1", "Nested packages")} ${color(enabled, "2", String(inventory.nested.length))}\n`,
+    );
+    for (const nested of inventory.nested.slice(0, 8))
+      process.stdout.write(
+        `  ${nested.path}\n    ${nested.kind}  ${nested.declared.CFBundleIdentifier ?? "no declared identifier"}\n`,
+      );
+    if (inventory.nested.length > 8)
+      process.stdout.write(
+        `  … ${inventory.nested.length - 8} more (use --json)\n`,
+      );
+  }
+
+  if (inventory.limitations.length > 0) {
+    process.stdout.write(`\n${color(enabled, "33", "Limitations")}\n`);
+    for (const limitation of inventory.limitations)
+      process.stdout.write(`  - ${limitation}\n`);
+  }
+};
+
 const diffHuman = (result: ComparisonResult, enabled: boolean): void => {
   simpleHeader("diff", enabled);
   process.stdout.write(`${color(enabled, "2", "left")}   ${result.left.path}\n`);
@@ -222,14 +328,32 @@ const main = async (): Promise<number> => {
     }
     return 0;
   }
+  if (command === "app") {
+    const path = args[0];
+    if (path === undefined)
+      throw new TraceForgeError("invalid_input", "app needs a package directory");
+    const outcome = await scanPackage(path, store, VERSION);
+    if (parsed.values.json) print(outcome.record, true);
+    else {
+      appHuman(outcome.inventory, useColor);
+      evidenceLine(outcome.record, useColor);
+    }
+    return 0;
+  }
   if (command === "report") {
     const subject = args[0];
     if (subject === undefined)
       throw new TraceForgeError("invalid_input", "report needs a path or evidence ID");
     const reportStore = new EvidenceStore(parsed.values.store);
-    const record = subject.startsWith("ev_")
-      ? await reportStore.get(subject)
-      : (await inspect(subject, store, VERSION)).record;
+    let record: EvidenceRecord;
+    if (subject.startsWith("ev_")) record = await reportStore.get(subject);
+    else {
+      const info = await stat(subject).catch(() => null);
+      record =
+        info !== null && info.isDirectory()
+          ? (await scanPackage(subject, store, VERSION)).record
+          : (await inspect(subject, store, VERSION)).record;
+    }
     const out = await writeEvidenceReport(
       record,
       parsed.values.out ?? "traceforge-report.html",

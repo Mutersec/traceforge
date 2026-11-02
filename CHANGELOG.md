@@ -1,5 +1,30 @@
 # Changelog
 
+## Unreleased (0.3.0 work)
+
+- `tforge app <package>`: recursive inventory of an `.app`, `.framework` or
+  directory. Every member keeps its own path, size, streaming SHA-256, kind,
+  detected format and architecture labels read from a 64 KiB header window.
+- Bundle manifests are recorded as **declared** identity: a new
+  `src/core/plist.ts` reads XML, binary (`bplist00`) and JSON property lists,
+  and the record states that the values are self-reported and were not checked
+  against a signature, notarization ticket or entitlements.
+- `traceforge.app.inventory.v1` results carry a `tree_sha256` — a fingerprint
+  over relative member paths, sizes and hashes — so a directory gets an input
+  identity even though it is not one file. `app` Evidence records bind the
+  manifest and the declared executable as `related` identities.
+- Nested packages (`Helper.app`, frameworks, bundles, XPC services, `.dSYM`,
+  app extensions) are listed with the identity their own manifest declares.
+- Hard read-only limits: symbolic links recorded and never followed, pipes and
+  sockets skipped rather than read, archives counted and hashed but not opened,
+  and a walk capped at 5,000 members / depth 32 / 64 nested packages, each stop
+  written into `limitations` instead of failing the scan.
+- New `inspect_package` MCP tool with `summary` and `complete` detail levels.
+- `tforge report` accepts a package directory and renders manifest claims,
+  largest members and nested packages in the standalone HTML report.
+- Existing schemas are untouched: stored Evidence records keep authenticating
+  and single-file Evidence IDs are unchanged.
+
 ## 0.2.0
 
 - Per-slice `security` summary with one cross-format mitigation vocabulary

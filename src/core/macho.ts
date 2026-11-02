@@ -1,7 +1,7 @@
 import { hex, readCString, sectionHash, securitySummary } from "./binary.js";
 import { TraceForgeError } from "./errors.js";
 import type { ParsedContainer } from "./binary.js";
-import type { SectionInfo, SliceInventory } from "./types.js";
+import type { SectionInfo, SliceIdentity, SliceInventory } from "./types.js";
 
 const MH_MAGIC = 0xfeedface;
 const MH_MAGIC_64 = 0xfeedfacf;
@@ -426,4 +426,63 @@ export const parseMachO = (buffer: Buffer, _path: string): ParsedContainer => {
     slices: [parseThin(buffer, 0, buffer.length, limitations)],
     limitations: [...new Set(limitations)].sort(),
   };
+};
+
+/**
+ * Reads only the architecture identities a package member declares.
+ *
+ * A bundle scan touches thousands of files, so it must not read a whole 400 MiB
+ * framework to learn its architecture. The Mach-O header and fat table sit in
+ * the first kilobytes; anything past a slice header stays unread and is labelled
+ * `universal-member` rather than guessed. A thin container reports its real file
+ * type because the header itself carries it.
+ */
+export const readMachOIdentities = (
+  buffer: Buffer,
+  limitations: string[],
+): readonly SliceIdentity[] => {
+  if (buffer.length < 8)
+    throw new TraceForgeError("parse_error", "Mach-O header is truncated");
+  const beMagic = buffer.readUInt32BE(0);
+  if (beMagic === FAT_MAGIC || beMagic === FAT_MAGIC_64) {
+    const is64 = beMagic === FAT_MAGIC_64;
+    const count = buffer.readUInt32BE(4);
+    if (count > 64)
+      throw new TraceForgeError("parse_error", "Mach-O fat slice count is unreasonable");
+    const entrySize = is64 ? 32 : 20;
+    const identities: SliceIdentity[] = [];
+    for (let index = 0; index < count; index += 1) {
+      const entry = 8 + index * entrySize;
+      if (entry + 8 > buffer.length) {
+        limitations.push(
+          "A universal Mach-O fat table extended past the read window; later slices were not labelled.",
+        );
+        break;
+      }
+      identities.push({
+        architecture: architectureName(
+          buffer.readInt32BE(entry),
+          buffer.readInt32BE(entry + 4),
+        ),
+        file_type: "universal-member",
+      });
+    }
+    return identities;
+  }
+  if (buffer.length < 28)
+    throw new TraceForgeError("parse_error", "Mach-O header is truncated");
+  const little =
+    buffer.readUInt32LE(0) === MH_MAGIC || buffer.readUInt32LE(0) === MH_MAGIC_64;
+  const magic = u32(buffer, 0, little);
+  if (magic !== MH_MAGIC && magic !== MH_MAGIC_64)
+    throw new TraceForgeError("parse_error", "Mach-O magic is invalid");
+  return [
+    {
+      architecture: architectureName(
+        i32(buffer, 4, little),
+        i32(buffer, 8, little),
+      ),
+      file_type: fileTypeName(u32(buffer, 12, little)),
+    },
+  ];
 };

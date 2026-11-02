@@ -1,7 +1,7 @@
 import { hex, readCString, sectionHash, securitySummary } from "./binary.js";
 import type { ParsedContainer } from "./binary.js";
 import { TraceForgeError } from "./errors.js";
-import type { SectionInfo, SliceInventory } from "./types.js";
+import type { SectionInfo, SliceIdentity, SliceInventory } from "./types.js";
 
 const MAX_SECTIONS = 96;
 const MAX_IMPORTS = 20_000;
@@ -266,4 +266,39 @@ export const parsePe = (buffer: Buffer, _path: string): ParsedContainer => {
     limitations: [...new Set(limitations)].sort(),
   };
   return { format: "pe", slices: [slice], limitations: [...new Set(limitations)].sort() };
+};
+
+const IMAGE_FILE_DLL = 0x2000;
+
+/**
+ * Reads only the PE machine field and DLL characteristic.
+ *
+ * A package scan never needs the section table to say whether a member is an
+ * x64 DLL, so only the DOS header, the `e_lfanew` pointer and the COFF header
+ * are touched. If `e_lfanew` points outside the read window the member is
+ * reported as unreadable rather than guessed.
+ */
+export const readPeIdentities = (
+  buffer: Buffer,
+  _limitations: string[],
+): readonly SliceIdentity[] => {
+  if (buffer.length < 64 || buffer[0] !== 0x4d || buffer[1] !== 0x5a)
+    throw new TraceForgeError("parse_error", "PE DOS header is missing");
+  const peOffset = buffer.readUInt32LE(0x3c);
+  if (peOffset + 24 > buffer.length)
+    throw new TraceForgeError("parse_error", "PE header is outside the read window");
+  if (
+    buffer[peOffset] !== 0x50 ||
+    buffer[peOffset + 1] !== 0x45 ||
+    buffer[peOffset + 2] !== 0 ||
+    buffer[peOffset + 3] !== 0
+  )
+    throw new TraceForgeError("parse_error", "PE signature is invalid");
+  const characteristics = buffer.readUInt16LE(peOffset + 22);
+  return [
+    {
+      architecture: machineName(buffer.readUInt16LE(peOffset + 4)),
+      file_type: (characteristics & IMAGE_FILE_DLL) !== 0 ? "dll" : "executable",
+    },
+  ];
 };

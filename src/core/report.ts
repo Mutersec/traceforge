@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 
 import { evidenceId } from "./canonical.js";
 import type {
+  AppInventory,
   BinaryInventory,
   ComparisonResult,
   EvidenceRecord,
@@ -117,6 +118,99 @@ const inventoryBlock = (inventory: BinaryInventory): string => `
   ${inventory.slices.map(sliceBlock).join("\n")}
   ${inventory.limitations.length === 0 ? "" : `<section class="limitations"><h3>Limitations</h3><ul>${inventory.limitations.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul></section>`}`;
 
+const memberRows = (files: readonly AppInventory["files"][number][]): string =>
+  files
+    .slice(0, 250)
+    .map(
+      (file) => `<tr>
+        <td><code>${escapeHtml(file.path)}</code></td>
+        <td>${escapeHtml(file.kind)}</td>
+        <td>${escapeHtml(file.format === "unknown" ? "—" : file.format)}</td>
+        <td>${escapeHtml(file.architectures.join(", ") || "—")}</td>
+        <td>${escapeHtml(formatBytes(file.size))}</td>
+        <td><code>${escapeHtml(file.sha256 === null ? "—" : short(file.sha256, 12))}</code></td>
+      </tr>`,
+    )
+    .join("\n");
+
+const packageBlock = (inventory: AppInventory): string => {
+  const largest = [...inventory.files]
+    .sort((left, right) => right.size - left.size || left.path.localeCompare(right.path))
+    .slice(0, 250);
+  const kinds = Object.entries(inventory.counts.by_kind)
+    .map(([kind, count]) => `<span class="pill">${escapeHtml(kind)} ${escapeHtml(count)}</span>`)
+    .join(" ");
+  const architectures = Object.entries(inventory.counts.architectures)
+    .map(
+      ([name, count]) =>
+        `<span class="pill">${escapeHtml(name)} ${escapeHtml(count)}</span>`,
+    )
+    .join(" ");
+  const manifest = inventory.manifest;
+  return `
+  <section class="summary">
+    <div><span>Package</span><strong>${escapeHtml(inventory.kind)} · ${escapeHtml(inventory.layout)}</strong></div>
+    <div><span>Members</span><strong>${escapeHtml(inventory.counts.files)} files / ${escapeHtml(inventory.counts.directories)} dirs</strong></div>
+    <div><span>Total size</span><strong>${escapeHtml(formatBytes(inventory.total_bytes))}</strong></div>
+    <div><span>Tree SHA-256</span><strong class="mono">${escapeHtml(short(inventory.tree_sha256, 24))}</strong></div>
+  </section>
+  <p class="muted">${escapeHtml(inventory.path)} · ${escapeHtml(inventory.counts.links)} links recorded, never followed</p>
+  <div class="mitigations">${kinds}${architectures}</div>
+  <h4>Declared executable</h4>
+  <p>${
+    inventory.declared_executable.name === null
+      ? '<span class="muted">The manifest declares no CFBundleExecutable.</span>'
+      : inventory.declared_executable.present
+        ? `<code>${escapeHtml(inventory.declared_executable.path ?? "")}</code>${
+            inventory.declared_executable.sha256 === null
+              ? ' <span class="muted">member was not hashed</span>'
+              : ` <code class="muted">${escapeHtml(short(inventory.declared_executable.sha256, 12))}</code>`
+          }`
+        : `<span class="warn">Declared ${escapeHtml(inventory.declared_executable.name)} but no regular file was found there.</span>`
+  }</p>
+  ${
+    manifest === null
+      ? '<p class="muted">No bundle manifest was found at Contents/Info.plist or Info.plist.</p>'
+      : `<h4>Manifest claims <span>${escapeHtml(Object.keys(manifest.claims).length)} of ${escapeHtml(manifest.keys)}</span></h4>
+  <p class="muted">${escapeHtml(manifest.path)} · ${escapeHtml(manifest.encoding ?? "unparsed")} · ${escapeHtml(formatBytes(manifest.size))}${
+    manifest.sha256 === null ? "" : ` · <code>${escapeHtml(short(manifest.sha256, 16))}</code>`
+  }</p>
+  ${provenanceTable(manifest.claims)}`
+  }
+  ${
+    Object.keys(inventory.pkg_info).length === 0
+      ? ""
+      : `<h4>PkgInfo</h4>${provenanceTable(inventory.pkg_info)}`
+  }
+  ${
+    inventory.nested.length === 0
+      ? ""
+      : `<h4>Nested packages <span>${escapeHtml(inventory.nested.length)}</span></h4>
+  <table><thead><tr><th>Path</th><th>Kind</th><th>Declared identifier</th><th>Version</th></tr></thead><tbody>${inventory.nested
+    .slice(0, 120)
+    .map(
+      (nested) => `<tr>
+        <td><code>${escapeHtml(nested.path)}</code></td>
+        <td>${escapeHtml(nested.kind)}</td>
+        <td>${escapeHtml(nested.declared.CFBundleIdentifier ?? "—")}</td>
+        <td>${escapeHtml(nested.declared.CFBundleShortVersionString ?? nested.declared.CFBundleVersion ?? "—")}</td>
+      </tr>`,
+    )
+    .join("\n")}</tbody></table>${
+    inventory.nested.length > 120 ? '<p class="muted">More nested packages are in the record JSON.</p>' : ""
+  }`
+  }
+  <h4>Largest members <span>${escapeHtml(largest.length)} shown</span></h4>
+  <table><thead><tr><th>Member</th><th>Kind</th><th>Format</th><th>Architectures</th><th>Size</th><th>SHA-256</th></tr></thead>
+  <tbody>${memberRows(largest)}</tbody></table>
+  ${
+    inventory.files.length > largest.length
+      ? `<p class="muted">${escapeHtml(inventory.files.length - largest.length)} further members are in the record JSON, and in the tree fingerprint.</p>`
+      : ""
+  }
+  ${inventory.limitations.length === 0 ? "" : `<section class="limitations"><h3>Limitations</h3><ul>${inventory.limitations.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul></section>`}`;
+};
+
 const changeList = (label: string, values: readonly string[]): string =>
   values.length === 0
     ? ""
@@ -150,6 +244,8 @@ const resultBlock = (result: unknown): string => {
     const value = result as Record<string, unknown>;
     if (value.schema === "traceforge.inventory.v2")
       return inventoryBlock(result as BinaryInventory);
+    if (value.schema === "traceforge.app.inventory.v1")
+      return packageBlock(result as AppInventory);
     if (value.schema === "traceforge.comparison.v1")
       return comparisonBlock(result as ComparisonResult);
   }

@@ -303,6 +303,7 @@ it("handles an MCP initialize, tools/list and scan call", async () => {
   ).toEqual([
     "scan_binary",
     "inspect_binary",
+    "inspect_package",
     "compare_binaries",
     "get_evidence",
     "list_evidence",

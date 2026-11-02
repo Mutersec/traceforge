@@ -21,10 +21,18 @@ read-only boundary.
 
 ## 0.3 — agent workflows
 
+- Recursive package (`.app`, `.framework`, directory) inventory with a bundle
+  manifest recorded as declared identity. — Done, with per-member hashes, a tree
+  fingerprint, bounded caps and a `tforge app` / `inspect_package` surface.
 - MCP resources for paged inventories and retained Evidence.
 - Evidence-aware task summaries with explicit coverage and limitations.
 - Reference examples for Claude Code, Cursor, OpenCode and LM Studio.
 - Stable JSON Schemas for every tool result.
+- Open edges left on purpose by the package inventory: archive contents (`.asar`,
+  `.car`, `.zip`) are still counted and hashed but not enumerated; a versioned
+  `.framework` whose manifest is only reachable through `Versions/Current` is
+  reported as layout `unknown`, because links are never followed; and code
+  signature blobs and entitlements remain unread.
 
 ## Later
 

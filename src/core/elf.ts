@@ -1,7 +1,7 @@
 import { readCString, sectionHash, hex, securitySummary } from "./binary.js";
 import type { ParsedContainer } from "./binary.js";
 import { TraceForgeError } from "./errors.js";
-import type { SectionInfo, SliceInventory } from "./types.js";
+import type { SectionInfo, SliceIdentity, SliceInventory } from "./types.js";
 
 const SHT_SYMTAB = 2;
 const SHT_STRTAB = 3;
@@ -394,4 +394,32 @@ export const parseElf = (buffer: Buffer, _path: string): ParsedContainer => {
     slices: [slice],
     limitations: [...new Set(limitations)].sort(),
   };
+};
+
+/**
+ * Reads only the ELF identity fields (class, endianness, type, machine).
+ *
+ * Package members are labelled from the first 20 header bytes; no section table
+ * is touched, so a scan stays cheap on a bundle with thousands of members.
+ */
+export const readElfIdentities = (
+  buffer: Buffer,
+  _limitations: string[],
+): readonly SliceIdentity[] => {
+  if (buffer.length < 20)
+    throw new TraceForgeError("parse_error", "ELF header is truncated");
+  const classValue = buffer[4];
+  if (classValue !== 1 && classValue !== 2)
+    throw new TraceForgeError("parse_error", "ELF class is invalid");
+  const little = buffer[5] === 1;
+  if (!little && buffer[5] !== 2)
+    throw new TraceForgeError("parse_error", "ELF endianness is invalid");
+  const u16 = (offset: number): number =>
+    little ? buffer.readUInt16LE(offset) : buffer.readUInt16BE(offset);
+  return [
+    {
+      architecture: machineName(u16(18)),
+      file_type: fileTypeName(u16(16)),
+    },
+  ];
 };
