@@ -85,7 +85,12 @@ error [signature_mismatch]: The record changed after it was signed (record hash 
   örnekler + Ubuntu'daki gerçek ELF ile doğrulanıyor.
 - **Canlı MCP istemcisi test edilmedi.** Claude/Cursor/OpenCode bağlantısı protokol
   seviyesinde doğrulandı, gerçek bir istemcide görülmedi.
-- **GitHub Actions henüz hiç koşmadı.** CI işi push sonrası ilk kez koşacak.
+- **GitHub Actions koştu ve iki gerçek kusur buldu — şimdi kapandı.** İlk koşumda
+  (a) `concurrency` bloğu job seviyesinde olduğu için matrisin dört ayağı birbirini
+  iptal ediyordu, (b) imza testi `/bin/ls` taramasının kayıt numarasını sabitliyordu
+  ve o numara makineye ait (GitHub'ın macOS runner'ı `ev_406547ca…`, senin
+  MacBook'un `ev_72e61605…`). İkisi de düzeltildi; Ubuntu bacakları yeşil, macOS
+  bacakları düzeltme sonrası yeniden koşuluyor.
 - **`report` bir dizin verildiğinde store'a kayıt yazıyor** (`--no-save` bunu engeller);
   galeri üretimi bu yüzden `verify-all` sayısını 30'a çıkardı.
 
@@ -129,7 +134,7 @@ error [signature_mismatch]: The record changed after it was signed (record hash 
 | F1 `app` | 23 passed | 12 test | AirStats 95 üye; Qoder 5.000 tavan limitation'ı | `ev_19f2674…` iki koşum aynı | 20 valid | `ev_4881c15a…` değişmedi | CHANGELOG+README+roadmap | `.asar` içi yok |
 | F2 imza | 33 passed | 10 test | keygen→sign→verify→tahrilat | imza hex iki koşum aynı | 23 valid | bayraksız `verify` = `valid` | `docs/signing.md` | timestamp/revocation yok |
 | F3 ergonomi | 42 passed | 9 test | Cursor MCP cevabı 45.196 B `truncated:true` (öncesi ~1,9 MiB) | `ev_4881c15a…` sabit | 24 valid | 6 tool adı+sıra sabit | `docs/mcp.md` | canlı istemci denenmedi |
-| F6 CI | 42 passed | kırılma kanıtı `--max-median-ms 0.001` → exit 1 | 4 duman adımı yerelde yeşil (MCP 2.284 B / 21.970 B) | iki koşum eşit id | 1 valid · 0 invalid (temp) | codeql/release/pages değişmedi | README+bench | **Actions koşmadı** |
+| F6 CI | 42 passed | kırılma kanıtı `--max-median-ms 0.001` → exit 1 | 4 duman adımı yerelde yeşil (MCP 2.284 B / 21.970 B) + **GitHub'da koştu** | iki koşum eşit id | 1 valid · 0 invalid (temp) | codeql/release/pages değişmedi | README+bench | matrisin ilk koşumu 2 kusur buldu, kapatıldı |
 | F4 galeri | 42 passed | denetleyici 8 dosyada ok, enjekte kopyada exit 1 | 4 gerçek rapor, en büyüğü 83.700 B | `--check` bayt-bayt aynı | 25 valid | `src/` değişmedi | `examples/README.md` | `report` dizinde kayıt yazar |
 | F5 doküman | **46 passed** | 4 test (taşma kilidi) | README'deki her blok bu makineden | bump öncesi/sonrası id farkı belgeli | **30 valid · 0 invalid, 3 signed** | 6 tool + bütün komutlar | README+Türkçe rehber+roadmap+CHANGELOG | Node 22/Linux'ta test koşulmadı |
 

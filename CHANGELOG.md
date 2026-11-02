@@ -139,6 +139,14 @@
   run of this branch, where only `ubuntu-latest · node 22` finished and the other
   three legs were cancelled at ~32 s. Moved to workflow level.
 
+- Test fix found by the first real CI run: the CLI signing test pinned the
+  Evidence ID of `/bin/ls`, which belongs to one host. It passed on this
+  MacBook and failed on GitHub's macOS runner (`ev_406547ca...`). The pin is
+  replaced by what is true everywhere - the ID is a content address and two
+  scans of the same file on the same host agree - and both real values are kept
+  in the test comment and in the README so the difference is explained, not
+  hidden.
+
 - Documentation accuracy pass: the README no longer claims a report can be
   re-verified by "anyone with this repository" — verification recomputes the
   stored record, so `evidence verify` answers `invalid or missing` without the

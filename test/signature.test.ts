@@ -329,11 +329,20 @@ it("runs the full keygen, sign and verify flow through the CLI", async () => {
   const scanned = runCli(...storeArgs, "scan", "/bin/ls", "--json");
   expect(scanned.status).toBe(0);
   const record = JSON.parse(scanned.stdout) as EvidenceRecord;
-  // tool.version is part of the hashed Evidence content: bumping the CLI
-  // version changes this ID for the same file on purpose (see README
-  // "Determinism"). Update this pin together with VERSION.
-  expect(record.evidence_id).toBe(
-    "ev_72e61605858e30e40a66f858b0ca1d3e74c934cb39f6acced07abf9226dd6b0e",
+  // No host-specific ID may be pinned here. /bin/ls differs between machines,
+  // so the same command yields a different ID on every host (GitHub's macOS
+  // runner produces ev_406547ca6a1a583e8abf56fac45ebaf018f2d5d824e9fe1ba72848e13a5531d5
+  // while the development MacBook produces
+  // ev_72e61605858e30e40a66f858b0ca1d3e74c934cb39f6acced07abf9226dd6b0e at
+  // version 0.3.0). What must hold everywhere is that one host is
+  // self-consistent: the same file scanned twice yields the same ID, and the
+  // ID is a content address. tool.version is part of the hashed content, so a
+  // version bump legitimately moves these values (see README "Determinism").
+  expect(record.evidence_id).toMatch(/^ev_[a-f0-9]{64}$/u);
+  const rescanned = runCli(...storeArgs, "scan", "/bin/ls", "--json");
+  expect(rescanned.status).toBe(0);
+  expect((JSON.parse(rescanned.stdout) as EvidenceRecord).evidence_id).toBe(
+    record.evidence_id,
   );
   const keys = runCli(...storeArgs, "evidence", "keygen", "--json");
   expect(keys.status).toBe(0);

@@ -312,6 +312,12 @@ record includes the tool version. Two facts follow, and both are real:
   0.3.0: ev_72e61605858e30e40a66f858b0ca1d3e74c934cb39f6acced07abf9226dd6b0e
   ```
 
+  These IDs belong to **this host's** `/bin/ls`. Another machine ships a
+  different `/bin/ls`, so it produces a different ID — on GitHub's macOS runner
+  the same command yields `ev_406547ca6a1a583e8abf56fac45ebaf018f2d5d824e9fe1ba72848e13a5531d5`.
+  What holds on every host is the self-consistency above, so no test pins a
+  host-specific ID.
+
   ⚠ When you bump the version, every example ID in this README, in `docs/`, in
   the CHANGELOG, and in the gallery must be regenerated after the bump — an old
   ID will not reproduce on the new build. The gallery script re-runs the CLI, so
