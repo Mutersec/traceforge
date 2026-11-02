@@ -88,7 +88,7 @@ node dist/cli.js scan /bin/ls
 |---|---|
 | `scan <path>` | Identify format, hashes, slices and collection counts. |
 | `inspect <path>` | Full section, import, export and library inventory. Use `--arch` for one universal slice. |
-| `app <package>` | Recursively inventory an `.app`, `.framework` or directory: one entry per member plus the identity its bundle manifest declares. |
+| `app <package>` | Recursively inventory an `.app`, `.framework` or directory: one entry per member plus the identity its bundle manifest declares. Supports `--only` and `--limit`/`--cursor`. |
 | `diff <left> <right>` | Compare two binaries by identity, sections, symbols and mitigation changes. |
 | `evidence list` | List local Evidence summaries. |
 | `evidence show <id>` | Read one authenticated record. |
@@ -101,7 +101,8 @@ node dist/cli.js scan /bin/ls
 | `report <path\|package\|id>` | Write a standalone HTML Evidence report. |
 | `mcp` | Start the MCP stdio server. |
 
-Common flags: `--json`, `--store <dir>`, `--no-save`, `--debug`.
+Common flags: `--json`, `--store <dir>`, `--no-save`, `--debug`. For
+agent-sized answers: `--only <fields>`, `--limit <n>`, `--cursor <offset>`.
 Use `--out report.html` with `report`; `npm run demo` runs the whole showcase.
 
 Evidence is written to `.traceforge/evidence` by default. Use `--no-save` for a
@@ -221,6 +222,30 @@ Tools:
 
 The protocol is newline-delimited JSON-RPC 2.0 over stdio. See
 [docs/mcp.md](docs/mcp.md).
+
+## Agent ergonomics
+
+One answer per big binary or package should never balloon into MiB of JSON.
+
+- `--only` keeps just what you asked for. `inspect` accepts `sections,
+  imports, exports, libraries, provenance, security`; `app` accepts `files,
+  manifest, nested, limitations`. Unselected fields are removed from the
+  answer and named in `omitted`; a stored record always stays complete.
+- `--limit <1-500>` with `--cursor <offset>` pages member and symbol lists
+  in `--json` and MCP answers. Follow `page.next_cursor` until it is `null`.
+- MCP caps one tool answer at 256 KiB of text: an oversized `detail=complete`
+  degrades to summary with `truncated: true` and a hint instead of a MiB blob.
+- MCP resources: `traceforge://evidence`, `traceforge://evidence/{evidence_id}`
+  and `traceforge://store` — counts and state only, key files are never read.
+
+```console
+$ tforge app /Applications/Obsidian.app --json --only files --limit 2
+{ "evidence_id": "ev_...", "detail": "complete",
+  "page": { "limit": 2, "returned": 2, "next_cursor": "2", "total": 292 },
+  "inventory": { "...": "2 of 292 members" }, "omitted": ["manifest", "nested", "limitations"] }
+```
+
+Paging is a transport convenience, not an evidence boundary.
 
 ## Supported formats
 

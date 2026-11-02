@@ -28,6 +28,28 @@ export {
   scanBinary,
   scanPackage,
 } from "./core/operations.js";
+export {
+  DEFAULT_PAGE_ITEMS,
+  INSPECT_FIELDS,
+  MAX_PAGE_ITEMS,
+  MAX_TOOL_TEXT_BYTES,
+  PACKAGE_FIELDS,
+  omittedFields,
+  pageBinaryLists,
+  pageItems,
+  pageNamedList,
+  pageOffset,
+  parseOnly,
+  selectInspectFields,
+  selectPackageFields,
+  validatedLimit,
+} from "./core/paging.js";
+export type {
+  FieldSelection,
+  ListPage,
+  Page,
+  PageRequest,
+} from "./core/paging.js";
 export { renderEvidenceReport, writeEvidenceReport } from "./core/report.js";
 export type {
   AppCounts,

@@ -6,6 +6,20 @@ import { resolve } from "node:path";
 import { summarizePackage } from "./core/app.js";
 import { compare, inspect, scanBinary, scanPackage } from "./core/operations.js";
 import { EvidenceStore } from "./core/evidence.js";
+import {
+  INSPECT_FIELDS,
+  MAX_PAGE_ITEMS,
+  PACKAGE_FIELDS,
+  omittedFields,
+  pageBinaryLists,
+  pageNamedList,
+  pageOffset,
+  parseOnly,
+  selectInspectFields,
+  selectPackageFields,
+  validatedLimit,
+} from "./core/paging.js";
+import type { PageRequest } from "./core/paging.js";
 import { writeEvidenceReport } from "./core/report.js";
 import type { EvidenceSignatureReport } from "./core/report.js";
 import {
@@ -25,8 +39,8 @@ const HELP = `TraceForge ${VERSION} — local-first binary evidence.
 
 Usage:
   tforge scan <path> [--json] [--store <dir>] [--no-save]
-  tforge inspect <path> [--arch <name>] [--json] [--store <dir>] [--no-save]
-  tforge app <package> [--json] [--store <dir>] [--no-save]
+  tforge inspect <path> [--arch <name>] [--only <fields>] [--limit <n>] [--cursor <offset>] [--json] [--store <dir>] [--no-save]
+  tforge app <package> [--only <fields>] [--limit <n>] [--cursor <offset>] [--json] [--store <dir>] [--no-save]
   tforge diff <left> <right> [--json] [--store <dir>] [--no-save]
   tforge evidence list
   tforge evidence show <evidence_id>
@@ -46,6 +60,16 @@ Packages:
   manifest declares. The walk stops at 5,000 members or depth 32 and records
   that as a limitation instead of failing. Nothing is executed, and symbolic
   links are recorded but never followed.
+
+Agent ergonomics:
+  --only <fields>   Keep only these fields. inspect accepts sections,
+                    imports, exports, libraries, provenance, security;
+                    app accepts files, manifest, nested, limitations.
+                    Dropped fields are named in the omitted list of --json.
+  --limit <n>       Page size for long lists in --json answers (1-500).
+  --cursor <n>      Offset cursor from a previous next_cursor.
+  Paging and --only shape one answer; the stored Evidence record always
+  stays complete.
 
 Evidence:
   Every scan, inspect, app and diff writes a deterministic content-addressed
@@ -116,9 +140,31 @@ const scanHuman = (
   }
 };
 
+const cliPageRequest = (
+  limit: string | undefined,
+  cursor: string | undefined,
+): PageRequest | null => {
+  if (limit === undefined && cursor === undefined) return null;
+  const request: { cursor?: string; limit?: number } = {};
+  if (cursor !== undefined) request.cursor = cursor;
+  if (limit !== undefined) {
+    if (!/^\d+$/u.test(limit.trim()))
+      throw new TraceForgeError(
+        "invalid_input",
+        `--limit must be an integer between 1 and ${MAX_PAGE_ITEMS}, got "${limit}"`,
+      );
+    request.limit = Number(limit);
+  }
+  const page = request as PageRequest;
+  validatedLimit(page);
+  pageOffset(page);
+  return page;
+};
+
 const inspectHuman = (
   result: Awaited<ReturnType<typeof inspect>>["result"],
   enabled: boolean,
+  omitted: readonly string[] = [],
 ): void => {
   simpleHeader("inspect", enabled);
   process.stdout.write(`${color(enabled, "2", "path")}     ${result.path}\n`);
@@ -133,32 +179,40 @@ const inspectHuman = (
         `  entrypoint ${slice.entrypoint} (${slice.entrypointKind ?? "unknown"})\n`,
       );
     if (slice.buildId !== null) process.stdout.write(`  build      ${slice.buildId}\n`);
-    process.stdout.write(
-      `  security   ${slice.security.present.join(", ") || "none observed"}\n`,
-    );
-    if (slice.security.absent.length > 0)
-      process.stdout.write(`  disabled   ${slice.security.absent.join(", ")}\n`);
-    if (slice.security.undetermined.length > 0)
-      process.stdout.write(`  unclear    ${slice.security.undetermined.join(", ")}\n`);
+    if (!omitted.includes("security")) {
+      process.stdout.write(
+        `  security   ${slice.security.present.join(", ") || "none observed"}\n`,
+      );
+      if (slice.security.absent.length > 0)
+        process.stdout.write(`  disabled   ${slice.security.absent.join(", ")}\n`);
+      if (slice.security.undetermined.length > 0)
+        process.stdout.write(`  unclear    ${slice.security.undetermined.join(", ")}\n`);
+    }
     const facts = Object.entries(slice.provenance);
-    if (facts.length > 0) {
+    if (!omitted.includes("provenance") && facts.length > 0) {
       process.stdout.write(`  provenance\n`);
       for (const [key, value] of facts)
         process.stdout.write(`    ${key.padEnd(17)} ${value}\n`);
     }
-    process.stdout.write(`  sections   ${slice.sections.length}\n`);
-    for (const section of slice.sections.slice(0, 12))
-      process.stdout.write(
-        `    ${section.name.padEnd(24)} ${section.size.toString().padStart(8)} bytes  ${section.sha256?.slice(0, 12) ?? "-"}\n`,
-      );
-    if (slice.sections.length > 12)
-      process.stdout.write(`    … ${slice.sections.length - 12} more (use --json)\n`);
-    process.stdout.write(`  imports    ${slice.imports.length}\n`);
-    for (const item of slice.imports.slice(0, 8)) process.stdout.write(`    ${item}\n`);
-    if (slice.imports.length > 8)
-      process.stdout.write(`    … ${slice.imports.length - 8} more (use --json)\n`);
-    process.stdout.write(`  exports    ${slice.exports.length}\n`);
-    process.stdout.write(`  libraries  ${slice.libraries.length}\n`);
+    if (!omitted.includes("sections")) {
+      process.stdout.write(`  sections   ${slice.sections.length}\n`);
+      for (const section of slice.sections.slice(0, 12))
+        process.stdout.write(
+          `    ${section.name.padEnd(24)} ${section.size.toString().padStart(8)} bytes  ${section.sha256?.slice(0, 12) ?? "-"}\n`,
+        );
+      if (slice.sections.length > 12)
+        process.stdout.write(`    … ${slice.sections.length - 12} more (use --json)\n`);
+    }
+    if (!omitted.includes("imports")) {
+      process.stdout.write(`  imports    ${slice.imports.length}\n`);
+      for (const item of slice.imports.slice(0, 8)) process.stdout.write(`    ${item}\n`);
+      if (slice.imports.length > 8)
+        process.stdout.write(`    … ${slice.imports.length - 8} more (use --json)\n`);
+    }
+    if (!omitted.includes("exports"))
+      process.stdout.write(`  exports    ${slice.exports.length}\n`);
+    if (!omitted.includes("libraries"))
+      process.stdout.write(`  libraries  ${slice.libraries.length}\n`);
   }
   if (result.limitations.length > 0) {
     process.stdout.write(`\n${color(enabled, "33", "Limitations")}\n`);
@@ -174,7 +228,11 @@ const bytesHuman = (value: number): string => {
   return `${(value / 1024 ** 3).toFixed(2)} GiB`;
 };
 
-const appHuman = (inventory: AppInventory, enabled: boolean): void => {
+const appHuman = (
+  inventory: AppInventory,
+  enabled: boolean,
+  omitted: readonly string[] = [],
+): void => {
   simpleHeader(`app · ${inventory.kind}`, enabled);
   process.stdout.write(`${color(enabled, "2", "path")}       ${inventory.path}\n`);
   process.stdout.write(`${color(enabled, "2", "layout")}     ${inventory.layout}\n`);
@@ -195,7 +253,9 @@ const appHuman = (inventory: AppInventory, enabled: boolean): void => {
       `${color(enabled, "2", "architectures")} ${architectures.map(([name, count]) => `${name} ${count}`).join(" · ")}\n`,
     );
 
-  if (inventory.manifest === null) {
+  if (omitted.includes("manifest")) {
+    // --only dropped the manifest view; the member and tree identity lines above still stand.
+  } else if (inventory.manifest === null) {
     process.stdout.write(`\n${color(enabled, "33", "No bundle manifest was found.")}\n`);
   } else {
     const manifest = inventory.manifest;
@@ -220,7 +280,7 @@ const appHuman = (inventory: AppInventory, enabled: boolean): void => {
   }
 
   const declared = inventory.declared_executable;
-  if (declared.name !== null)
+  if (!omitted.includes("manifest") && declared.name !== null)
     process.stdout.write(
       `\n${color(enabled, "1", "Declared executable")} ${color(
         enabled,
@@ -230,7 +290,7 @@ const appHuman = (inventory: AppInventory, enabled: boolean): void => {
     );
 
   const code = summarizePackage(inventory).code;
-  if (code.length > 0) {
+  if (!omitted.includes("files") && code.length > 0) {
     process.stdout.write(
       `\n${color(enabled, "1", "Largest code members")} ${color(enabled, "2", `${inventory.counts.by_format["mach-o"] ?? 0} mach-o · ${inventory.counts.by_format["wasm"] ?? 0} wasm · ${inventory.counts.by_format["elf"] ?? 0} elf · ${inventory.counts.by_format["pe"] ?? 0} pe`)}\n`,
     );
@@ -242,7 +302,7 @@ const appHuman = (inventory: AppInventory, enabled: boolean): void => {
       process.stdout.write(`  … ${code.length - 10} more (use --json)\n`);
   }
 
-  if (inventory.nested.length > 0) {
+  if (!omitted.includes("nested") && inventory.nested.length > 0) {
     process.stdout.write(
       `\n${color(enabled, "1", "Nested packages")} ${color(enabled, "2", String(inventory.nested.length))}\n`,
     );
@@ -256,7 +316,7 @@ const appHuman = (inventory: AppInventory, enabled: boolean): void => {
       );
   }
 
-  if (inventory.limitations.length > 0) {
+  if (!omitted.includes("limitations") && inventory.limitations.length > 0) {
     process.stdout.write(`\n${color(enabled, "33", "Limitations")}\n`);
     for (const limitation of inventory.limitations)
       process.stdout.write(`  - ${limitation}\n`);
@@ -363,6 +423,9 @@ const main = async (): Promise<number> => {
       arch: { type: "string" },
       out: { type: "string" },
       "no-save": { type: "boolean", default: false },
+      only: { type: "string" },
+      limit: { type: "string" },
+      cursor: { type: "string" },
       "private-key": { type: "string" },
       "public-key": { type: "string" },
       signature: { type: "string" },
@@ -398,10 +461,32 @@ const main = async (): Promise<number> => {
         evidenceLine(outcome.record, useColor);
       }
     } else {
+      const keep =
+        parsed.values.only === undefined
+          ? null
+          : parseOnly(parsed.values.only, INSPECT_FIELDS);
+      const request = cliPageRequest(parsed.values.limit, parsed.values.cursor);
       const outcome = await inspect(path, store, VERSION, parsed.values.arch);
-      if (parsed.values.json) print(outcome.record, true);
-      else {
-        inspectHuman(outcome.result, useColor);
+      if (parsed.values.json) {
+        if (keep === null && request === null) print(outcome.record, true);
+        else {
+          const selection = keep === null ? null : selectInspectFields(outcome.result, keep);
+          let value: object = selection === null ? outcome.result : selection.value;
+          const paged = request === null ? null : pageBinaryLists(value, request);
+          if (paged !== null) value = paged.value;
+          print(
+            {
+              evidence_id: outcome.record.evidence_id,
+              detail: "complete",
+              ...(paged === null ? {} : { page: paged.page }),
+              inventory: value,
+              ...(selection === null ? {} : { omitted: selection.omitted }),
+            },
+            true,
+          );
+        }
+      } else {
+        inspectHuman(outcome.result, useColor, omittedFields(keep, INSPECT_FIELDS));
         evidenceLine(outcome.record, useColor);
       }
     }
@@ -411,10 +496,32 @@ const main = async (): Promise<number> => {
     const path = args[0];
     if (path === undefined)
       throw new TraceForgeError("invalid_input", "app needs a package directory");
+    const keep =
+      parsed.values.only === undefined
+        ? null
+        : parseOnly(parsed.values.only, PACKAGE_FIELDS);
+    const request = cliPageRequest(parsed.values.limit, parsed.values.cursor);
     const outcome = await scanPackage(path, store, VERSION);
-    if (parsed.values.json) print(outcome.record, true);
-    else {
-      appHuman(outcome.inventory, useColor);
+    if (parsed.values.json) {
+      if (keep === null && request === null) print(outcome.record, true);
+      else {
+        const selection = keep === null ? null : selectPackageFields(outcome.inventory, keep);
+        let value: object = selection === null ? outcome.inventory : selection.value;
+        const paged = request === null ? null : pageNamedList(value, "files", request);
+        if (paged !== null) value = paged.value;
+        print(
+          {
+            evidence_id: outcome.record.evidence_id,
+            detail: "complete",
+            ...(paged === null ? {} : { page: paged.page }),
+            inventory: value,
+            ...(selection === null ? {} : { omitted: selection.omitted }),
+          },
+          true,
+        );
+      }
+    } else {
+      appHuman(outcome.inventory, useColor, omittedFields(keep, PACKAGE_FIELDS));
       evidenceLine(outcome.record, useColor);
     }
     return 0;

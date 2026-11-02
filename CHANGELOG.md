@@ -2,6 +2,25 @@
 
 ## Unreleased (0.3.0 work)
 
+- Agent ergonomics: `tforge inspect`/`app` and the `inspect_binary`/
+  `inspect_package` MCP tools accept `--only`/`only` field selectors
+  (inspect: `sections, imports, exports, libraries, provenance, security`;
+  app: `files, manifest, nested, limitations`), `--limit`/`--cursor` offset
+  paging (1-500 items per page, `next_cursor` walk) and a 256 KiB ceiling per
+  MCP tool answer: an oversized `detail=complete` degrades to summary with
+  `truncated: true` and a hint instead of returning MiB of JSON. Removed
+  fields are named in `omitted`; paging and selectors shape only the answer —
+  the stored Evidence record stays complete and every prior evidence ID is
+  unchanged without the new parameters. New `src/core/paging.ts`; paging
+  metadata never enters hashed record content.
+- MCP resources: `resources/list`, `resources/templates/list` and
+  `resources/read` expose `traceforge://evidence` (same summaries as
+  `list_evidence`), `traceforge://evidence/{evidence_id}` (the complete
+  read-only record; a missing record answers a JSON-RPC error object) and
+  `traceforge://store` (record count, valid/invalid, signed/unsigned,
+  signatures directory presence — key files are never read or returned).
+  `initialize` now advertises `{ tools: {}, resources: {} }`. The six tool
+  names and their order are unchanged; the new parameters are optional.
 - Signed Evidence: `tforge evidence keygen`, `sign` and `verify --public-key`
   use Ed25519 from Node's own `crypto` — no new dependencies. Keys are PKCS#8
   and SPKI PEMs under `.traceforge/keys`, sidecars under
