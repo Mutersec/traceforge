@@ -39,6 +39,14 @@ flowchart TB
   order are documented in [docs/signing.md](signing.md).
 - `src/core/operations.ts` is the shared application workflow used by both
   adapters.
+- `src/core/paging.ts` owns `--only`/`only` field selection and offset paging
+  for answers. It runs after the record exists and never touches hashed
+  record content: a paged or filtered answer is a transport view, the stored
+  Evidence stays complete.
+- `src/core/report.ts` renders one authenticated record into a standalone HTML
+  file. It escapes every target-supplied string, keeps wide tables inside a
+  scrollable wrapper, and never changes a byte of the record — two renders of
+  one record are byte-identical.
 - `src/cli.ts` and `src/mcp/server.ts` only parse transport input and present
   results.
 

@@ -95,7 +95,7 @@
     <main>
       <section class="hero">
         <div>
-          <div class="eyebrow"><span class="pulse"></span> v0.2.0 · local-first</div>
+          <div class="eyebrow"><span class="pulse"></span> v0.3.0 · local-first</div>
           <h1>Evidence for every byte you <span>inspect.</span></h1>
           <p class="lede">A read-only binary inspector for Mach-O, ELF, PE and WebAssembly. Deterministic records, a local authenticated store, and an MCP server your agents can trust.</p>
           <div class="actions">
@@ -126,7 +126,7 @@
             <div><span class="prompt">❯</span> cd traceforge && npm ci && npm run build</div>
             <div><span class="prompt">❯</span> node dist/cli.js scan /bin/ls</div>
             <div class="muted">TraceForge · scan · mach-o · 3 slices</div>
-            <div><span class="violet">Evidence</span> ev_157a66f2...</div>
+            <div><span class="violet">Evidence</span> ev_72e61605...</div>
             <div style="margin-top:14px"><span class="prompt">❯</span> node dist/cli.js inspect /bin/ls --arch arm64</div>
             <div><span class="prompt">❯</span> node dist/cli.js diff /bin/ls /usr/bin/true</div>
             <div><span class="prompt">❯</span> node dist/cli.js evidence verify-all</div>
@@ -173,8 +173,8 @@
             <dl class="facts">
               <dt>Members</dt><dd>95 files · 65 dirs</dd>
               <dt>Nested</dt><dd>5 packages</dd>
-              <dt>Report</dt><dd>37,363 B</dd>
-              <dt>Evidence</dt><dd>ev_19f2674909d4a320a2a…</dd>
+              <dt>Report</dt><dd>37,577 B</dd>
+              <dt>Evidence</dt><dd>ev_8e6ff9bf617a3585359…</dd>
             </dl>
             <a class="button small" href="gallery/airstats.html">Open AirStats report <span>→</span></a>
           </article>
@@ -185,8 +185,8 @@
             <dl class="facts">
               <dt>Members</dt><dd>278 files · 322 dirs</dd>
               <dt>Total</dt><dd>513.63 MiB</dd>
-              <dt>Report</dt><dd>81,373 B</dd>
-              <dt>Evidence</dt><dd>ev_2060636de94207c12cd…</dd>
+              <dt>Report</dt><dd>81,587 B</dd>
+              <dt>Evidence</dt><dd>ev_eb9eb2ef46957214978…</dd>
             </dl>
             <a class="button small" href="gallery/obsidian.html">Open Obsidian report <span>→</span></a>
           </article>
@@ -197,8 +197,8 @@
             <dl class="facts">
               <dt>Members</dt><dd>4,975 files · 1,241 dirs</dd>
               <dt>Limitations</dt><dd>7, including the stop</dd>
-              <dt>Report</dt><dd>83,700 B</dd>
-              <dt>Evidence</dt><dd>ev_0b58f8187a470543e4e…</dd>
+              <dt>Report</dt><dd>83,914 B</dd>
+              <dt>Evidence</dt><dd>ev_0b118594dcb68fb1002…</dd>
             </dl>
             <a class="button small" href="gallery/qoder.html">Open Qoder report <span>→</span></a>
           </article>
@@ -209,8 +209,8 @@
             <dl class="facts">
               <dt>Members</dt><dd>256 files · 118 dirs</dd>
               <dt>Total</dt><dd>1,261.55 MiB hashed</dd>
-              <dt>Report</dt><dd>79,420 B</dd>
-              <dt>Evidence</dt><dd>ev_10acf3ad89b337409f…</dd>
+              <dt>Report</dt><dd>79,604 B</dd>
+              <dt>Evidence</dt><dd>ev_0ccd1730f2396f46aed…</dd>
             </dl>
             <a class="button small" href="gallery/riot-client.html">Open Riot Client report <span>→</span></a>
           </article>
@@ -221,15 +221,15 @@
             <div class="terminal">
               <div><span class="prompt">❯</span> node scripts/gallery.mjs</div>
               <div class="muted">TraceForge · evidence gallery</div>
-              <div>ok   airstats <span class="muted">37,363 B</span> <span class="violet">ev_19f2674909d4a320a2a…</span></div>
-              <div>ok   obsidian <span class="muted">81,373 B</span> <span class="violet">ev_2060636de94207c12cd…</span></div>
-              <div>ok   qoder <span class="muted">83,700 B</span> <span class="violet">ev_0b58f8187a470543e4e…</span></div>
-              <div>ok   riot-client <span class="muted">79,420 B</span> <span class="violet">ev_10acf3ad89b337409f…</span></div>
-              <div class="muted">4 artifact(s) · 281,856 B · cap 700 KiB each, 2 MiB total</div>
+              <div>ok   airstats <span class="muted">37,577 B</span> <span class="violet">ev_8e6ff9bf617a3585359…</span></div>
+              <div>ok   obsidian <span class="muted">81,587 B</span> <span class="violet">ev_eb9eb2ef46957214978…</span></div>
+              <div>ok   qoder <span class="muted">83,914 B</span> <span class="violet">ev_0b118594dcb68fb1002…</span></div>
+              <div>ok   riot-client <span class="muted">79,604 B</span> <span class="violet">ev_0ccd1730f2396f46aed…</span></div>
+              <div class="muted">4 artifact(s) · 282,682 B · cap 700 KiB each, 2 MiB total</div>
               <div class="amber">gallery: ok</div>
             </div>
             <p style="color:var(--muted);font-size:14px;margin-top:16px">The script only calls the CLI — it renders no HTML of its own — then rejects any report over its size cap, audits every tag before keeping the file, and <code>--check</code> re-runs the whole set and byte-compares it. <a href="https://github.com/Mutersec/traceforge/blob/main/examples/README.md">Full gallery notes</a>.</p>
-            <p style="color:var(--muted);font-size:13px">One honest caveat: inside a report, the member tables are wider than a phone screen (measured 1,348 px of layout at a 390 px viewport), so they scroll sideways. The record is complete; only the layout is the limit.</p>
+            <p style="color:var(--muted);font-size:13px">One honest note: inside a report, the member tables are wider than a phone screen, so they scroll sideways inside their own wrapper — nothing overflows a box any more, and long paths and hashes break where they must. The record is complete; only the layout is the limit.</p>
           </div>
           <div class="honest">
             <h3>What these reports do not prove</h3>

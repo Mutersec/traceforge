@@ -68,12 +68,12 @@ const mitigationGroup = (
 const provenanceTable = (facts: ProvenanceFacts): string =>
   Object.keys(facts).length === 0
     ? '<p class="muted">No provenance claims recorded.</p>'
-    : `<table><thead><tr><th>Claim</th><th>Value</th></tr></thead><tbody>${Object.entries(facts)
+    : `<div class="table-wrap"><table><thead><tr><th>Claim</th><th>Value</th></tr></thead><tbody>${Object.entries(facts)
         .map(
           ([key, value]) =>
             `<tr><td><code>${escapeHtml(key)}</code></td><td>${escapeHtml(value)}</td></tr>`,
         )
-        .join("\n")}</tbody></table>`;
+        .join("\n")}</tbody></table></div>`;
 
 const sliceBlock = (slice: SliceInventory): string => `
   <section class="slice">
@@ -97,10 +97,12 @@ const sliceBlock = (slice: SliceInventory): string => `
     </div>
     <h4>Provenance claims <span>${escapeHtml(Object.keys(slice.provenance).length)}</span></h4>
     ${provenanceTable(slice.provenance)}
+    <div class="table-wrap">
     <table>
       <thead><tr><th>Section</th><th>Segment</th><th>Address</th><th>Offset</th><th>Size</th><th>SHA-256</th></tr></thead>
       <tbody>${sectionRows(slice.sections)}</tbody>
     </table>
+    </div>
     <div class="symbol-grid">
       ${symbolList("Imports", slice.imports)}
       ${symbolList("Exports", slice.exports)}
@@ -186,7 +188,7 @@ const packageBlock = (inventory: AppInventory): string => {
     inventory.nested.length === 0
       ? ""
       : `<h4>Nested packages <span>${escapeHtml(inventory.nested.length)}</span></h4>
-  <table><thead><tr><th>Path</th><th>Kind</th><th>Declared identifier</th><th>Version</th></tr></thead><tbody>${inventory.nested
+  <div class="table-wrap"><table><thead><tr><th>Path</th><th>Kind</th><th>Declared identifier</th><th>Version</th></tr></thead><tbody>${inventory.nested
     .slice(0, 120)
     .map(
       (nested) => `<tr>
@@ -196,13 +198,13 @@ const packageBlock = (inventory: AppInventory): string => {
         <td>${escapeHtml(nested.declared.CFBundleShortVersionString ?? nested.declared.CFBundleVersion ?? "—")}</td>
       </tr>`,
     )
-    .join("\n")}</tbody></table>${
+    .join("\n")}</tbody></table></div>${
     inventory.nested.length > 120 ? '<p class="muted">More nested packages are in the record JSON.</p>' : ""
   }`
   }
   <h4>Largest members <span>${escapeHtml(largest.length)} shown</span></h4>
-  <table><thead><tr><th>Member</th><th>Kind</th><th>Format</th><th>Architectures</th><th>Size</th><th>SHA-256</th></tr></thead>
-  <tbody>${memberRows(largest)}</tbody></table>
+  <div class="table-wrap"><table><thead><tr><th>Member</th><th>Kind</th><th>Format</th><th>Architectures</th><th>Size</th><th>SHA-256</th></tr></thead>
+  <tbody>${memberRows(largest)}</tbody></table></div>
   ${
     inventory.files.length > largest.length
       ? `<p class="muted">${escapeHtml(inventory.files.length - largest.length)} further members are in the record JSON, and in the tree fingerprint.</p>`
@@ -327,10 +329,12 @@ h4 span { color: #5eead4; margin-left: 6px; }
 .stats strong { font-size: 22px; }
 .stats span { color: #7f93a8; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
 table { width: 100%; border-collapse: collapse; margin: 14px 0; }
+.table-wrap { overflow-x: auto; }
 th { text-align: left; color: #7f93a8; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; border-bottom: 1px solid #203041; padding: 8px 6px; }
 td { border-bottom: 1px solid #16212c; padding: 7px 6px; color: #b7c6d8; }
 code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
 code { background: #12202d; color: #b8f7ea; padding: 1px 5px; border-radius: 4px; font-size: .92em; }
+code, .mono, td code, footer * { overflow-wrap: anywhere; }
 .symbol-grid, .change-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 18px; }
 .symbol-block, .change { background: #0d151e; border: 1px solid #203041; border-radius: 10px; padding: 14px; min-width: 0; }
 ul { margin: 0; padding-left: 18px; color: #b7c6d8; }

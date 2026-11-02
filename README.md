@@ -21,6 +21,30 @@ TraceForge is a small, read-only toolkit for inspecting native binaries and
 keeping the result as verifiable Evidence. It does not execute the target, does
 not upload data, and does not require a cloud service.
 
+## What this does in 30 seconds
+
+TraceForge reads a binary or an application bundle — it never runs it — writes
+a verifiable Evidence record to disk, and renders that record as one standalone
+HTML report you can open in any browser.
+
+```sh
+git clone https://github.com/Mutersec/traceforge.git
+cd traceforge
+npm ci
+npm run build
+node dist/cli.js app /Applications/SomeApp.app          # inventory the whole bundle
+node dist/cli.js report /Applications/SomeApp.app --out report.html
+open report.html                                        # the evidence, offline, in a browser
+```
+
+Every report carries a content-addressed `evidence_id`; anyone with this
+repository can re-verify it with `node dist/cli.js evidence verify <id>`. No
+network, no account, no execution of the target.
+
+*A plain-Turkish, jargon-free guide to reading a report — what each line
+proves and what it does not — lives in
+[docs/turkish-guide.md](docs/turkish-guide.md).*
+
 <p align="center">
   <a href="https://mutersec.github.io/traceforge/"><b>Live site</b></a>
 </p>
@@ -49,8 +73,11 @@ Slices
   arm64_subtype_12  64-bit little  executable
     11 sections · 90 imports · 1 exports · 3 libraries
     chained-fixups, nx · undetermined: pie
-Evidence ev_4881c15a0c4ae521f75e89d77d9abaca2cb5b6f68f32ce74cd005e58beb15e2a (scan)
+Evidence ev_72e61605858e30e40a66f858b0ca1d3e74c934cb39f6acced07abf9226dd6b0e (scan)
 ```
+
+*Every console block in this README is real output, captured on 2026-11-02 on
+an Apple Silicon MacBook (darwin/arm64, Node v24.20.0).*
 
 ## Why TraceForge
 
@@ -120,14 +147,27 @@ public key  /Users/emirhan/Desktop/TraceForge/.traceforge/keys/pk_786bbd87c43f5f
 
 Keep the private key offline. Anyone who holds it can sign records as you; share only the public key.
 
-$ tforge evidence sign ev_4881c15a0c4ae521f75e89d77d9abaca2cb5b6f68f32ce74cd005e58beb15e2a
-evidence  ev_4881c15a0c4ae521f75e89d77d9abaca2cb5b6f68f32ce74cd005e58beb15e2a
+$ tforge evidence sign ev_72e61605858e30e40a66f858b0ca1d3e74c934cb39f6acced07abf9226dd6b0e
+evidence  ev_72e61605858e30e40a66f858b0ca1d3e74c934cb39f6acced07abf9226dd6b0e
 key       pk_786bbd87c43f5f088dafb5f9ab7ed0b6765b5a11bf60fbaea819da88714205a4
-signature /Users/emirhan/Desktop/TraceForge/.traceforge/signatures/ev_4881c15a0c4ae521f75e89d77d9abaca2cb5b6f68f32ce74cd005e58beb15e2a.sig.json
+signature /Users/emirhan/Desktop/TraceForge/.traceforge/signatures/ev_72e61605858e30e40a66f858b0ca1d3e74c934cb39f6acced07abf9226dd6b0e.sig.json
 
-$ tforge evidence verify ev_4881c15a0c4ae521f75e89d77d9abaca2cb5b6f68f32ce74cd005e58beb15e2a --public-key .traceforge/keys/pk_786bbd87c43f5f088dafb5f9ab7ed0b6765b5a11bf60fbaea819da88714205a4.pub.pem
+$ tforge evidence verify ev_72e61605858e30e40a66f858b0ca1d3e74c934cb39f6acced07abf9226dd6b0e --public-key .traceforge/keys/pk_786bbd87c43f5f088dafb5f9ab7ed0b6765b5a11bf60fbaea819da88714205a4.pub.pem
 signed · verified by pk_786bbd87c43f5f088dafb5f9ab7ed0b6765b5a11bf60fbaea819da88714205a4
 ```
+
+After that, the record was rewritten (one byte of `input.size` changed in the
+JSON under `.traceforge/evidence`) and re-verified:
+
+```console
+$ tforge evidence verify ev_72e61605858e30e40a66f858b0ca1d3e74c934cb39f6acced07abf9226dd6b0e --public-key .traceforge/keys/pk_786bbd87c43f5f088dafb5f9ab7ed0b6765b5a11bf60fbaea819da88714205a4.pub.pem
+error [signature_mismatch]: The record changed after it was signed (record hash differs).
+$ echo $?
+1
+```
+
+*(The tamper step was run in a throwaway `--store` copy so the shipped store
+stayed at `0 invalid`; the CLI output above is verbatim.)*
 
 A detached Ed25519 sidecar binds one key to one record and proves the record
 bytes have not changed since it was signed. Signatures use Node's own crypto;
@@ -143,29 +183,40 @@ embedded key is only self-reported — is spelled out in
 ## Inspecting a whole application
 
 ```console
-$ tforge app /Applications/Obsidian.app
+$ tforge app /Applications/AirStats.app
 
 TraceForge · app · app
 
-path       /Applications/Obsidian.app
+path       /Applications/AirStats.app
 layout     macos
-members    278 files · 322 dirs · 14 links · 513.6 MiB
-tree       d018c5c536e162527560a18880baf0ca1dea189b734f849a88fc09e91382f37f
-kinds      archive 2 · code 18 · link 14 · manifest 24 · other 4 · resource 228 · script 2
-architectures arm64 18 · x86_64 18
+members    95 files · 65 dirs · 9 links · 8.8 MiB
+tree       c575f6ca4c51bbee69890d25513242b68cbeb1c3ea9043a18d66c023944bcb6e
+kinds      code 6 · link 9 · manifest 13 · other 32 · resource 44
+architectures arm64 6 · x86_64 5
 
-Manifest Contents/Info.plist · xml · 40 keys
-  sha256     7760bcb6e0d3c55a97d1b5952d2a83b348a91bf875d411e6639ce15324622abe
-  CFBundleIdentifier            md.obsidian
+Manifest Contents/Info.plist · xml · 21 keys
+  sha256     d5a92d051e38802d4caa6320aed420f0ee9a4c10e7897cc43a29a0aec6bbdfc1
+  CFBundleIdentifier            com.airstat.AirStats
+  CFBundleName                  AirStats
+  CFBundleDisplayName           AirStats
+  CFBundleExecutable            AirStats
+  CFBundleShortVersionString    1.3.2
+  CFBundleVersion               8
+  CFBundlePackageType           APPL
   …
 
-Declared executable Contents/MacOS/Obsidian present
-
-Largest code members 18 mach-o · 0 wasm · 0 elf · 0 pe
-  Contents/Frameworks/Electron Framework.framework/Versions/A/Electron Framework 378.9 MiB  mach-o arm64/x86_64
-  Contents/Frameworks/Electron Framework.framework/Versions/A/Libraries/libvk_swiftshader.dylib  20.3 MiB  mach-o arm64/x86_64
-  …
-Evidence ev_... (app)
+Nested packages 5
+  Contents/Frameworks/Sparkle.framework
+    framework  no declared identifier
+  Contents/Frameworks/Sparkle.framework/Versions/B/Updater.app
+    app  org.sparkle-project.Sparkle.Updater
+  Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Downloader.xpc
+    xpc-service  org.sparkle-project.DownloaderService
+  Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Installer.xpc
+    xpc-service  org.sparkle-project.InstallerLauncher
+  Contents/Resources/AirStats_AirStatUI.bundle
+    bundle  no declared identifier
+Evidence ev_8e6ff9bf617a35853592297b528301e9908549ef212861c4bed9bfc22ecb378e (app)
 ```
 
 Every member of the package gets its own SHA-256, size and format label; the
@@ -180,18 +231,81 @@ failing. `tforge report SomeApp.app` renders the same record as HTML.
 
 ## Evidence report
 
-```sh
-tforge report /bin/ls --out traceforge-report.html
+```console
+$ tforge report /bin/ls --out traceforge-report.html
+TraceForge report → /Users/emirhan/Desktop/TraceForge/traceforge-report.html
+Evidence ev_4395c41a8d44a30761004a29fa7cbeefe77330f9bf1e74587a01b8c632729d76
 ```
 
-The report is a standalone HTML file: identity badge, input hash, sections,
-imports/exports and limitations. It is generated from the same authenticated
-record and contains no external scripts.
+The report is a standalone HTML file (27,918 bytes for `/bin/ls`): identity
+badge, input hash, sections, imports/exports and limitations. It is generated
+from the same authenticated record and contains no external scripts. Wide
+member/section tables sit in a horizontally scrollable `.table-wrap`, and long
+paths and hashes use `overflow-wrap: anywhere`, so a 177-character member path
+or the 64-hex Evidence ID in the footer never breaks the layout on a phone or a
+narrow window.
 
 ![TraceForge Evidence report](assets/report.png)
 
 See [docs/demo.md](docs/demo.md) for a three-minute non-technical and technical
-demo script.
+demo script, and the [Evidence gallery](#evidence-gallery) for four real reports.
+
+## Evidence gallery
+
+Four standalone HTML reports, written by `tforge report` against applications
+really installed on one Apple Silicon MacBook, then committed unchanged. Open
+any file in a browser: it fetches nothing and runs nothing.
+
+| Report | Path | What it proves |
+|---|---|---|
+| AirStats | [`examples/gallery/airstats.html`](examples/gallery/airstats.html) | An app that contains other apps: 5 nested packages, including a Sparkle `Updater.app` and two `.xpc` services. |
+| Obsidian | [`examples/gallery/obsidian.html`](examples/gallery/obsidian.html) | A real 378.9 MiB member hashed in one pass, with the `.asar` archives counted but honestly not opened. |
+| Qoder | [`examples/gallery/qoder.html`](examples/gallery/qoder.html) | The walk hitting its 5,000-member cap and writing the stop into `limitations`. |
+| Riot Client | [`examples/gallery/riot-client.html`](examples/gallery/riot-client.html) | A symlinked bundle root with a non-ASCII (`İ`) path resolved and carried through. |
+
+Each also exists under `site/gallery/` for the live site. The four Evidence IDs
+and exact byte sizes are pinned in
+[examples/README.md](examples/README.md). Regenerate the whole set with the
+CLI-only script:
+
+```sh
+node scripts/gallery.mjs          # writes examples/gallery + site/gallery
+node scripts/gallery.mjs --check  # fresh run in a temp dir, byte-compared, writes nothing
+```
+
+Budget: one report ≤ 700 KiB, gallery total ≤ 2 MiB. On this bump the four
+reports are `37,577 / 81,587 / 83,914 / 79,604 B` (282,682 B total), each well
+under the cap.
+
+## Determinism
+
+The `evidence_id` is a SHA-256 over the canonical JSON of the record, and that
+record includes the tool version. Two facts follow, and both are real:
+
+- **Same command, same input, same version → same ID.** Running `tforge scan
+  /bin/ls --no-save` twice on 2026-11-02 produced the identical ID both times:
+
+  ```text
+  ev_72e61605858e30e40a66f858b0ca1d3e74c934cb39f6acced07abf9226dd6b0e   (scan 1)
+  ev_72e61605858e30e40a66f858b0ca1d3e74c934cb39f6acced07abf9226dd6b0e   (scan 2)
+  ```
+
+- **Same file, different tool version → different ID.** Bumping `VERSION` from
+  `0.2.0` to `0.3.0` changed the ID for the *exact same* `/bin/ls` bytes,
+  because `tool.version` is part of the hashed content. This is not a hash
+  change in the file — the input SHA-256 (`13f44bfe…22bfb`) is identical — it
+  is the version label moving the identity, on purpose:
+
+  ```text
+  0.2.0: ev_4881c15a0c4ae521f75e89d77d9abaca2cb5b6f68f32ce74cd005e58beb15e2a
+  0.3.0: ev_72e61605858e30e40a66f858b0ca1d3e74c934cb39f6acced07abf9226dd6b0e
+  ```
+
+  ⚠ When you bump the version, every example ID in this README, in `docs/`, in
+  the CHANGELOG, and in the gallery must be regenerated after the bump — an old
+  ID will not reproduce on the new build. The gallery script re-runs the CLI, so
+  it always emits current-version IDs.
+
 
 ## MCP
 
@@ -240,7 +354,8 @@ One answer per big binary or package should never balloon into MiB of JSON.
 
 ```console
 $ tforge app /Applications/Obsidian.app --json --only files --limit 2
-{ "evidence_id": "ev_...", "detail": "complete",
+{ "evidence_id": "ev_eb9eb2ef46957214978eba85c1278b5b34ef2b32c869dd28dc1522aaa6e2b271",
+  "detail": "complete",
   "page": { "limit": 2, "returned": 2, "next_cursor": "2", "total": 292 },
   "inventory": { "...": "2 of 292 members" }, "omitted": ["manifest", "nested", "limitations"] }
 ```
@@ -294,14 +409,25 @@ adapters never re-interpret parser facts.
 - A package walk stops at 5,000 members, depth 32 and 64 nested packages, and
   records the stop as a limitation instead of failing; members are labelled from
   a 64 KiB header window, and manifests from a 4 MiB read.
+- Symbolic links are recorded with their target text but never followed or
+  opened; pipes and sockets are skipped so a read can never block.
+- Archives (`.asar`, `.car`, `.zip`) are counted and hashed but never opened —
+  the record states that their contents were not inspected, and no file inside
+  an `.asar` is ever listed.
 - Bounds, counts and string lengths are checked before allocation.
 - Evidence is written atomically with owner-only permissions.
 - Signing keys are written 0600 under the git-ignored `.traceforge/` tree; the
   file mode is the only guard, so keep the private key offline.
 - The tool does not execute, attach to, or modify targets.
 
-See [SECURITY.md](SECURITY.md) for reporting and [docs/roadmap.md](docs/roadmap.md)
-for the next increments.
+What a signature does **not** prove (all of these, deliberately): no timestamp
+or timestamping authority, so it cannot say when a record was signed; no key
+revocation, so a compromised key keeps verifying; it is not a code signature and
+says nothing about Apple codesign, notarization or Authenticode origin; and an
+embedded key with no `--public-key` is only self-reported. See
+[docs/signing.md](docs/signing.md) for the full model and
+[SECURITY.md](SECURITY.md) for reporting. The delivered/open split for the
+current release is in [docs/roadmap.md](docs/roadmap.md).
 
 ## Development
 
@@ -333,26 +459,28 @@ the real Mach-O, real-bundle, live-CLI-signing and live-paging test bodies
 early-return on Linux (they run on the macOS leg), and the real-ELF test
 early-returns on macOS (it runs on the Ubuntu leg) — so four red-free legs do
 not mean the same test bodies ran on each. `scan /bin/ls` on this machine must
-still hash to `ev_4881c15a0c4ae521f75e89d77d9abaca2cb5b6f68f32ce74cd005e58beb15e2a`;
+still hash to `ev_72e61605858e30e40a66f858b0ca1d3e74c934cb39f6acced07abf9226dd6b0e`
+(the pinned value tracks `VERSION`, so it moves with every version bump — see
+[Determinism](#determinism));
 CI instead proves determinism by scanning the runner's own `/bin/ls` twice and
 comparing ids, because runner binaries differ per image.
 
 ## Performance
 
-Measured on an Apple Silicon arm64 host with Node 24, 25 iterations over a
-252,512-byte universal Mach-O:
+Measured on an Apple Silicon arm64 host with Node 24.20.0, 25 iterations over a
+252,512-byte universal Mach-O (`/bin/ls`), on 2026-11-02:
 
 | Operation | Median | p95 | CPU median |
 |---|---:|---:|---:|
-| `inspect /bin/ls` | 0.46 ms | 0.68 ms | 0.49 ms |
+| `inspect /bin/ls` | 0.47 ms | 0.59 ms | 1.04 ms |
 
-The benchmark is local and parser-only; it does not execute the target or use a
-network. Reproduce with `npm run bench -- /bin/ls`. These numbers are a starting
-point, not a cross-tool comparison. CI runs the benchmark too, but its gate is
-a wide smoke ceiling (median ≤ 10 ms, p95 ≤ 25 ms on 25 iterations), not a
-regression comparison: shared-runner noise makes one CI sample unfit to catch a
-real slowdown, and no baseline artifact is retained to compare against yet. See
-[bench/README.md](bench/README.md).
+Reproduce with `npm run bench -- /bin/ls` (it rebuilds first). The benchmark is
+local and parser-only; it does not execute the target or use a network. These
+numbers are a starting point, not a cross-tool comparison. CI runs the benchmark
+too, but its gate is a wide smoke ceiling (median ≤ 10 ms, p95 ≤ 25 ms on 25
+iterations), **not** a regression comparison: shared-runner noise makes one CI
+sample unfit to catch a real slowdown, and no cross-run baseline artifact is
+retained to compare against yet. See [bench/README.md](bench/README.md).
 
 ## License
 

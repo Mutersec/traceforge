@@ -48,18 +48,21 @@ with owner-only mode.
 ```json
 {
   "algorithm": "ed25519",
-  "evidence_id": "ev_4881c15a0c4ae521f75e89d77d9abaca2cb5b6f68f32ce74cd005e58beb15e2a",
+  "evidence_id": "ev_72e61605858e30e40a66f858b0ca1d3e74c934cb39f6acced07abf9226dd6b0e",
   "key_fingerprint": "pk_786bbd87c43f5f088dafb5f9ab7ed0b6765b5a11bf60fbaea819da88714205a4",
   "public_key": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAet2L1pSkAMdwrU5U3ECB1vBSuXEWl0Ra9YcHc4Uwc8w=\n-----END PUBLIC KEY-----\n",
-  "record_sha256": "5abdeb3b954a51757fc1794d01006183d0a3250583339db7f45d27855377cfc1",
+  "record_sha256": "8c0034a71b2b96dbdc708d65c54db6535f77329778c64276769e7e4dded4d672",
   "schema": "traceforge.signature.v1",
-  "signature": "73c3b4d08f41bd9d5805a670d5f947026efdf042719e4acf97450ce3225f9d8a8fb8cc7587d9238c48cb64e43b3f084f6872bde59f978066c4f3f2ce234bfb01",
+  "signature": "66564a307a70c19b1875cf15bcc50ea3b2177212289aa18ee69988145ef27a35198250fdb36ddc0fa0dc3574eb6ceeb38a712d989fbdcdb3ffe81b31e75c9703",
   "tool": {
     "name": "traceforge",
-    "version": "0.2.0"
+    "version": "0.3.0"
   }
 }
 ```
+
+*(The file above is the real sidecar for `tforge scan /bin/ls` on version
+0.3.0, pretty-printed here; on disk it is one canonical JSON line.)*
 
 ## Workflow
 

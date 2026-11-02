@@ -1,7 +1,30 @@
 # Changelog
 
-## Unreleased (0.3.0 work)
+## 0.3.0 — 2026-11-02
 
+- Report layout fix: wide Evidence-report tables (sections, provenance claims,
+  nested packages, largest members) now sit in a horizontally scrollable
+  `.table-wrap`, and `td code` and `footer *` get `overflow-wrap: anywhere`, so
+  a 177-character member path or the full Evidence ID in the footer no longer
+  overflows its box at a phone-width viewport. Renderer-only change: hashed
+  record content and every Evidence ID are unaffected; all gallery HTML was
+  regenerated through the new build. Locked by `test/report.test.ts`.
+- Documentation pass for 0.3.0: a plain-language "What this does in 30 seconds"
+  block at the top of the README, a Determinism section that shows the same
+  command producing the same ID twice and explains why the same file produces a
+  different ID across a version bump, a new `docs/turkish-guide.md` (layperson
+  Turkish report guide), and `docs/demo.md` rewritten as the live 0.3 flow
+  (`app → report → keygen → sign → verify → verify-all`). Every example ID in
+  the README, `docs/` and the gallery was regenerated from real output on the
+  0.3.0 build, not copied from 0.2.0.
+- Version bumped to `0.3.0`. Because `tool.version` is part of the hashed
+  Evidence content, the same input file yields a new `evidence_id` under the
+  new version — `scan /bin/ls` moves from
+  `ev_4881c15a0c4ae521f75e89d77d9abaca2cb5b6f68f32ce74cd005e58beb15e2a` (0.2.0)
+  to `ev_72e61605858e30e40a66f858b0ca1d3e74c934cb39f6acced07abf9226dd6b0e`
+  (0.3.0). Old stored records keep authenticating; only new scans carry the
+  new IDs. `scripts/demo.mjs` now reads one `version` constant instead of
+  hardcoding `0.1.0`.
 - Agent ergonomics: `tforge inspect`/`app` and the `inspect_binary`/
   `inspect_package` MCP tools accept `--only`/`only` field selectors
   (inspect: `sections, imports, exports, libraries, provenance, security`;

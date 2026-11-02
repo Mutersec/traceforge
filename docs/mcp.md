@@ -118,6 +118,28 @@ The server also exposes read-only MCP resources (`resources/list`,
 An unknown resource URI answers `-32602`. Unknown JSON-RPC methods keep
 answering `-32601`.
 
+## Boundaries
+
+- The six tool names and their order are the stable surface: `scan_binary`,
+  `inspect_binary`, `inspect_package`, `compare_binaries`, `get_evidence`,
+  `list_evidence`. The CLI `app` command is the same inventory as
+  `inspect_package`.
+- `get_evidence` and the `traceforge://evidence/{id}` resource deliberately
+  return the complete stored record even past 256 KiB: an authenticated record
+  must be retrievable whole, or the ceiling would silently break the evidence
+  contract.
+- Paging is transport, not evidence. `--only`/`only`, `cursor` and `limit`
+  shape one answer; the stored record always stays complete. An offset cursor
+  is only stable while the record underneath does not change — a fresh
+  `inspect_package` call re-scans, so if the package moved between calls, page
+  offsets can shift. Walk pages of one answer, or pin by `evidence_id`.
+- Signing is deliberately out of the MCP band: keygen/sign/verify are CLI-only
+  so private keys never sit behind an agent-reachable tool surface. The
+  `traceforge://store` resource reports only whether signatures exist.
+- Records embed `tool.version`, and that version is part of the hashed
+  content: the same file inspected under two TraceForge versions yields two
+  evidence IDs by design.
+
 ## Errors
 
 Tool failures are returned as `isError: true` with a text error object. Invalid

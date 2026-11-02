@@ -21,10 +21,10 @@ the whole point of this folder: they are reproducible with
 `node scripts/gallery.mjs` (see [Regenerating](#regenerating)).
 
 ```console
-ev_19f2674909d4a320a2a389a4a22b986bbdead0c9361ca154db1aacdad135b227   airstats.html    37,363 B
-ev_2060636de94207c12cdf6bd4b898183aba495319120f1dea9f7db126bb032c87   obsidian.html    81,373 B
-ev_0b58f8187a470543e4e9d8b48662ceac4e61b3540afc584b8e25d46d7b44669c   qoder.html       83,700 B
-ev_10acf3ad89b337409fb93091fc9f04a1dfa943bad98cfe63aadf91555e65aa56   riot-client.html 79,420 B
+ev_8e6ff9bf617a35853592297b528301e9908549ef212861c4bed9bfc22ecb378e   airstats.html    37,577 B
+ev_eb9eb2ef46957214978eba85c1278b5b34ef2b32c869dd28dc1522aaa6e2b271   obsidian.html    81,587 B
+ev_0b118594dcb68fb100202ac6d5b3a23af53a134defe83d175566e2fe07f0239b   qoder.html       83,914 B
+ev_0ccd1730f2396f46aed6b8f0d96892ccd0d6ca57dc7fd0f4fc76838c23ee5096   riot-client.html 79,604 B
 ```
 
 ## 1. `airstats.html` — an app that contains other apps
@@ -110,22 +110,23 @@ Top to bottom, every report has the same shape:
 5. **Footer** — the command to re-verify the record yourself.
 
 **On a phone, and on a narrow window:** the summary cards at the top fit any
-screen, but the member tables are wider than a phone. Measured in headless
-Chrome at a 390 px viewport, `airstats.html` lays out 1,348 px wide and
-`qoder.html` 1,195 px, so the tables need a sideways scroll; the footer's
-Evidence ID overflows its own 342 px box (454 px of content). The cause is in
-the report renderer's CSS (`src/core/report.ts`): `td code` and `footer` have no
-`overflow-wrap`, and a member path like
+screen, and the member tables no longer break the page. F4 measured the old
+behaviour in headless Chrome at a 390 px viewport — `airstats.html` laid out
+1,348 px wide and the footer's Evidence ID overflowed its own box — and 0.3.0
+closed it in the report renderer (`src/core/report.ts`): every wide table now
+sits in a horizontally scrollable `.table-wrap`, and `td code` and `footer *`
+get `overflow-wrap: anywhere`, so a member path like
 `Contents/Resources/app.asar.unpacked/node_modules/aoq-electron-sdk/prebuilds/darwin-universal/AoqClientSdk.framework/Versions/A/Frameworks/openhevc.framework/Versions/A/openhevc`
-is 177 characters with nowhere to break. This is a known limitation of the
-generated report, not of the record — nothing is missing, it just scrolls. The
-same content on a desktop at 1,280 px also overflows (1,398 px), so this is not
-only a mobile issue.
+(177 characters) stays inside its cell and the footer ID inside the page. The
+table test is locked in `test/report.test.ts`. A wide table is still a wide
+table — it scrolls sideways — but nothing overflows a box any more, and the
+record content is identical: the fix changed rendered HTML bytes only, never a
+hashed record.
 
 Confirm any of them locally:
 
 ```sh
-node dist/cli.js evidence verify ev_0b58f8187a470543e4e9d8b48662ceac4e61b3540afc584b8e25d46d7b44669c
+node dist/cli.js evidence verify ev_0b118594dcb68fb100202ac6d5b3a23af53a134defe83d175566e2fe07f0239b
 node dist/cli.js evidence verify-all
 ```
 
@@ -155,7 +156,7 @@ node scripts/gallery.mjs --audit site/gallery/airstats.html
 
 The script only calls `node dist/cli.js report <package>`; it renders no HTML of
 its own. It enforces the gallery budget — **one report ≤ 700 KiB, gallery total
-≤ 2 MiB** (the four reports here are 281,856 bytes counted once) — and if a
+≤ 2 MiB** (the four reports here are 282,682 bytes counted once) — and if a
 report ever came back over its cap it would be dropped and replaced by the
 plain-text `tforge app <package> --no-save` transcript instead, because the
 stopping point is the evidence in that case.

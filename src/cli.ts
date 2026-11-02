@@ -33,7 +33,7 @@ import { TraceForgeError } from "./core/errors.js";
 import type { AppInventory, ComparisonResult, EvidenceRecord } from "./core/types.js";
 import { runMcpServer } from "./mcp/server.js";
 
-export const VERSION = "0.2.0";
+export const VERSION = "0.3.0";
 
 const HELP = `TraceForge ${VERSION} — local-first binary evidence.
 

@@ -1,56 +1,77 @@
 # Demo script
 
-This is a three-minute demo for two different audiences. Do not script praise;
-show the artifact and ask for honest feedback.
+This is a three-minute live demo for two different audiences. Do not script
+praise; show the artifact and ask for honest feedback. Every command below is
+the real 0.3 surface — run it, do not describe it.
 
-## For a non-technical guest (3 minutes)
+## The three-minute live flow (any audience)
 
-1. Open the live site: <https://mutersec.github.io/traceforge/>
-   Say: “This is a local tool for inspecting software without running it.”
-2. In a terminal:
+Open a terminal in the repository (built with `npm run build`) and run, in
+order:
 
-   ```sh
-   cd /path/to/traceforge
-   npm run demo
-   ```
+```sh
+# 1. What is actually inside an installed app? (nothing is executed)
+node dist/cli.js app /Applications/AirStats.app
 
-3. Open `.cache/demo/traceforge-report.html` in a browser.
-   Point out:
-   - the green **identity verified** badge;
-   - the file SHA-256 and Evidence ID;
-   - sections, imports and exports in plain language;
-   - the footer: *no target was executed*.
-4. Show tamper evidence:
+# 2. Turn that inventory into one standalone HTML report and open it
+node dist/cli.js report /Applications/AirStats.app --out report.html
+open report.html
 
-   ```sh
-   tforge evidence verify <evidence_id>   # valid
-   # edit a field in the JSON under .cache/demo/evidence
-   tforge evidence verify <evidence_id>   # invalid or missing
-   ```
+# 3. Prove the record is tamper-evident: sign it, then verify it
+node dist/cli.js evidence keygen            # once; prints the pk_ fingerprint
+node dist/cli.js evidence sign <evidence_id printed above>
+node dist/cli.js evidence verify <evidence_id> --public-key .traceforge/keys/<pk>.pub.pem
 
-   Message: “The record is not a screenshot; changing it makes verification
-   fail.”
+# 4. Audit the whole local store
+node dist/cli.js evidence verify-all
+```
 
-5. Ask: “Would this help you review a release or explain a binary to someone
-   else? What would you want on the report?”
+Point at, in this order:
+
+- the member list, nested packages and **manifest claims** in step 1 — say:
+  "this is what is inside the app; it never ran the app; the identifiers are
+  what the bundle *claims*, and the record says so";
+- the green **identity verified** badge and the Evidence ID in the report;
+- step 3's failure path if you have 30 spare seconds: edit one byte of the
+  saved record JSON and re-run `verify` — it stops with
+  `error [signature_mismatch]: The record changed after it was signed (record
+  hash differs).`;
+- `verify-all`: `N valid · 0 invalid` plus the `X signed · Y unsigned` line —
+  unsigned is not an error.
+
+End with: "Every number you saw came off this machine's disk. Nothing phoned
+home. Re-run any command and the Evidence ID is identical."
+
+For a non-technical guest, add the live site
+(<https://mutersec.github.io/traceforge/>) first and the gallery
+("four reports from one real machine") instead of steps 3–4.
 
 ## For a technical guest (5 minutes)
 
 1. `tforge inspect /bin/ls --arch arm64` — one universal slice.
-2. `tforge diff /bin/ls /usr/bin/true` — deterministic structural changes.
-3. `tforge evidence export bundle.json` and `tforge evidence import bundle.json`
+2. `tforge diff /bin/ls /usr/bin/true` — deterministic structural changes; the
+   diff itself is an Evidence record.
+3. `tforge app <App> --json --only files --limit 2` and follow
+   `page.next_cursor` — paging and field selectors shape the *answer*, never
+   the stored record.
+4. `tforge evidence export bundle.json` and `tforge evidence import bundle.json`
    — portable, authenticated records.
-4. Start MCP:
+5. Start MCP:
 
    ```sh
    node dist/cli.js mcp
    ```
 
-   Show `scan_binary`, `inspect_binary`, `compare_binaries` and
-   `get_evidence` from a JSON-RPC client.
-5. `npm run bench -- /bin/ls` — parser-only number, clearly separated from CLI
-   startup time.
-6. Open the GitHub Actions page: CI, CodeQL and release workflow.
+   Show `tools/list` (six tools, fixed order), one `inspect_package` call, a
+   `detail=complete` answer degrading under the 256 KiB ceiling, and
+   `resources/read` on `traceforge://store`.
+6. `npm run bench -- /bin/ls` — parser-only number, clearly separated from CLI
+   startup time; CI's gate is a smoke ceiling, not a regression baseline.
+7. Raise the version dependency on purpose: the same `/bin/ls` scanned under
+   0.2.0 and 0.3.0 yields different Evidence IDs, because `tool.version` is
+   part of the hashed content (see README "Determinism").
+8. Open the GitHub Actions page: CI matrix (ubuntu + macos × Node 22/24),
+   CodeQL and release workflow.
 
 ## Honest feedback questions
 

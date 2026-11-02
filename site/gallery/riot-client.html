@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>TraceForge Evidence ev_10acf3ad89b33</title>
+<title>TraceForge Evidence ev_0ccd1730f2396</title>
 <style>
 :root { color-scheme: dark; }
 * { box-sizing: border-box; }
@@ -39,10 +39,12 @@ h4 span { color: #5eead4; margin-left: 6px; }
 .stats strong { font-size: 22px; }
 .stats span { color: #7f93a8; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
 table { width: 100%; border-collapse: collapse; margin: 14px 0; }
+.table-wrap { overflow-x: auto; }
 th { text-align: left; color: #7f93a8; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; border-bottom: 1px solid #203041; padding: 8px 6px; }
 td { border-bottom: 1px solid #16212c; padding: 7px 6px; color: #b7c6d8; }
 code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
 code { background: #12202d; color: #b8f7ea; padding: 1px 5px; border-radius: 4px; font-size: .92em; }
+code, .mono, td code, footer * { overflow-wrap: anywhere; }
 .symbol-grid, .change-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 18px; }
 .symbol-block, .change { background: #0d151e; border: 1px solid #203041; border-radius: 10px; padding: 14px; min-width: 0; }
 ul { margin: 0; padding-left: 18px; color: #b7c6d8; }
@@ -60,12 +62,12 @@ footer { color: #56697d; font-size: 12px; border-top: 1px solid #16212c; margin-
 <body>
 <div class="wrap">
 <header>
-  <div class="brand"><svg width="42" height="42" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="112" fill="#0b0f14"/><path d="M144 336 256 144l112 192-112 48z" fill="none" stroke="#5eead4" stroke-width="22" stroke-linejoin="round"/><path d="M176 320h160M208 256h96" stroke="#fbbf24" stroke-width="22" stroke-linecap="round"/></svg><div><h1>TraceForge Evidence</h1><p>app · traceforge 0.2.0</p></div></div>
+  <div class="brand"><svg width="42" height="42" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="112" fill="#0b0f14"/><path d="M144 336 256 144l112 192-112 48z" fill="none" stroke="#5eead4" stroke-width="22" stroke-linejoin="round"/><path d="M176 320h160M208 256h96" stroke="#fbbf24" stroke-width="22" stroke-linecap="round"/></svg><div><h1>TraceForge Evidence</h1><p>app · traceforge 0.3.0</p></div></div>
   <span class="badge ok">identity verified</span>
 </header>
 <h2>Record</h2>
 <div class="summary">
-  <div><span>Evidence ID</span><strong class="mono">ev_10acf3ad89b337409fb…</strong></div>
+  <div><span>Evidence ID</span><strong class="mono">ev_0ccd1730f2396f46aed…</strong></div>
   <div><span>Input SHA-256</span><strong class="mono">031ca9bfaf1385114c1c4c…</strong></div>
   <div><span>Input size</span><strong>1261.55 MiB</strong></div>
   <div><span>Limitations</span><strong>5</strong></div>
@@ -86,7 +88,7 @@ footer { color: #56697d; font-size: 12px; border-top: 1px solid #16212c; margin-
   <p><code>Contents/MacOS/RiotClientServices</code> <code class="muted">7a791d179a2f…</code></p>
   <h4>Manifest claims <span>17 of 18</span></h4>
   <p class="muted">Contents/Info.plist · xml · 1.4 KiB · <code>7fcd8e2cd249c4c7…</code></p>
-  <table><thead><tr><th>Claim</th><th>Value</th></tr></thead><tbody><tr><td><code>CFBundleIdentifier</code></td><td>com.riotgames.RiotGames.RiotClient</td></tr>
+  <div class="table-wrap"><table><thead><tr><th>Claim</th><th>Value</th></tr></thead><tbody><tr><td><code>CFBundleIdentifier</code></td><td>com.riotgames.RiotGames.RiotClient</td></tr>
 <tr><td><code>CFBundleName</code></td><td>Riot Client</td></tr>
 <tr><td><code>CFBundleDisplayName</code></td><td>Riot Client</td></tr>
 <tr><td><code>CFBundleExecutable</code></td><td>RiotClientServices</td></tr>
@@ -102,10 +104,10 @@ footer { color: #56697d; font-size: 12px; border-top: 1px solid #16212c; margin-
 <tr><td><code>NSMicrophoneUsageDescription</code></td><td>RiotClient needs access to the microphone for voice chat</td></tr>
 <tr><td><code>NSPrincipalClass</code></td><td>NSApplication</td></tr>
 <tr><td><code>com.apple.security.device.audio-input</code></td><td>true</td></tr>
-<tr><td><code>com.apple.security.device.microphone</code></td><td>true</td></tr></tbody></table>
+<tr><td><code>com.apple.security.device.microphone</code></td><td>true</td></tr></tbody></table></div>
   
   <h4>Nested packages <span>10</span></h4>
-  <table><thead><tr><th>Path</th><th>Kind</th><th>Declared identifier</th><th>Version</th></tr></thead><tbody><tr>
+  <div class="table-wrap"><table><thead><tr><th>Path</th><th>Kind</th><th>Declared identifier</th><th>Version</th></tr></thead><tbody><tr>
         <td><code>Contents/Frameworks/Riot Client.app</code></td>
         <td>app</td>
         <td>com.riotgames.RiotGames.RiotClient</td>
@@ -164,9 +166,9 @@ footer { color: #56697d; font-size: 12px; border-top: 1px solid #16212c; margin-
         <td>framework</td>
         <td>com.riotgames.pp.sdk.RiotGamesApi</td>
         <td>26.8.1</td>
-      </tr></tbody></table>
+      </tr></tbody></table></div>
   <h4>Largest members <span>250 shown</span></h4>
-  <table><thead><tr><th>Member</th><th>Kind</th><th>Format</th><th>Architectures</th><th>Size</th><th>SHA-256</th></tr></thead>
+  <div class="table-wrap"><table><thead><tr><th>Member</th><th>Kind</th><th>Format</th><th>Architectures</th><th>Size</th><th>SHA-256</th></tr></thead>
   <tbody><tr>
         <td><code>Contents/Frameworks/Riot Client.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Electron Framework</code></td>
         <td>code</td>
@@ -2166,10 +2168,10 @@ footer { color: #56697d; font-size: 12px; border-top: 1px solid #16212c; margin-
         <td>—</td>
         <td>126 B</td>
         <td><code>5016a323018f…</code></td>
-      </tr></tbody></table>
+      </tr></tbody></table></div>
   <p class="muted">20 further members are in the record JSON, and in the tree fingerprint.</p>
   <section class="limitations"><h3>Limitations</h3><ul><li>1 archive member was counted and hashed but not opened (for example app.asar).</li><li>A package inventory hashes each inventoried member; it does not open archives, parse code signatures, or establish where any member came from.</li><li>Manifest values are self-reported by the target; none were checked against a signature, notarization ticket or entitlements.</li><li>Symbolic links were recorded with their target text but were never followed, opened or hashed.</li><li>The tree fingerprint is computed over relative member paths, sizes and hashes, so it does not depend on where the package is mounted.</li></ul></section>
-<footer>Generated by TraceForge. Evidence is content-addressed and locally authenticated. Verify with <code>tforge evidence verify ev_10acf3ad89b337409fb93091fc9f04a1dfa943bad98cfe63aadf91555e65aa56</code>.</footer>
+<footer>Generated by TraceForge. Evidence is content-addressed and locally authenticated. Verify with <code>tforge evidence verify ev_0ccd1730f2396f46aed6b8f0d96892ccd0d6ca57dc7fd0f4fc76838c23ee5096</code>.</footer>
 </div>
 </body>
 </html>

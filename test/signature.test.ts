@@ -329,8 +329,11 @@ it("runs the full keygen, sign and verify flow through the CLI", async () => {
   const scanned = runCli(...storeArgs, "scan", "/bin/ls", "--json");
   expect(scanned.status).toBe(0);
   const record = JSON.parse(scanned.stdout) as EvidenceRecord;
+  // tool.version is part of the hashed Evidence content: bumping the CLI
+  // version changes this ID for the same file on purpose (see README
+  // "Determinism"). Update this pin together with VERSION.
   expect(record.evidence_id).toBe(
-    "ev_4881c15a0c4ae521f75e89d77d9abaca2cb5b6f68f32ce74cd005e58beb15e2a",
+    "ev_72e61605858e30e40a66f858b0ca1d3e74c934cb39f6acced07abf9226dd6b0e",
   );
   const keys = runCli(...storeArgs, "evidence", "keygen", "--json");
   expect(keys.status).toBe(0);
