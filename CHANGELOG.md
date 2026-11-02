@@ -94,6 +94,22 @@
   or `test/` would ship; `npm publish --dry-run` is a required step (verified
   offline — the dry run performs no registry call), and it exercises the
   `prepublishOnly` check the real release path would run.
+- Evidence gallery: four standalone HTML reports produced by `tforge report`
+  against applications really installed on one Apple Silicon Mac — AirStats
+  (5 nested packages, incl. a Sparkle `Updater.app` and two `.xpc` services),
+  Obsidian (a 397,316,032-byte member, archives hashed but not opened), Qoder
+  (the 5,000-member walk cap firing and written into `limitations`) and Riot
+  Client (a symlinked bundle root with a non-ASCII path, 1,261.55 MiB hashed).
+  `scripts/gallery.mjs` regenerates them by calling the CLI only — it renders no
+  HTML itself — enforces a 700 KiB per-report and 2 MiB total budget, replaces
+  any over-cap report with the `tforge app --no-save` transcript instead, audits
+  every tag of each output for executable or remote markup before keeping it,
+  mirrors byte-identical copies to `examples/gallery` and `site/gallery` (the
+  pages workflow publishes only `site/**`), and `--check` re-runs the set into a
+  temp directory and fails on drift. Plain-language notes for each report are in
+  [`examples/README.md`](examples/README.md); `site/index.html` gains a `#gallery`
+  section linking the four reports. No `src/` or `test/` change, no new
+  dependency, no network.
 
 ## 0.2.0
 

@@ -1,0 +1,982 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>TraceForge Evidence ev_19f2674909d4a</title>
+<style>
+:root { color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #070b10; color: #dbe7f3; font: 14px/1.6 Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 36px 24px 64px; }
+header { display: flex; align-items: center; justify-content: space-between; gap: 20px; border-bottom: 1px solid #203041; padding-bottom: 22px; }
+.brand { display: flex; align-items: center; gap: 14px; }
+.brand h1 { margin: 0; font-size: 24px; letter-spacing: -.03em; }
+.brand p { margin: 2px 0 0; color: #7f93a8; }
+.badge { border: 1px solid #2b4a5e; color: #5eead4; border-radius: 999px; padding: 5px 10px; font-size: 12px; font-weight: 700; }
+.badge.ok { border-color: #1f6f5c; background: #0c2c25; }
+.badge.warn { border-color: #7a5a1d; background: #2a220c; color: #fbbf24; }
+h2 { font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: #7f93a8; margin: 34px 0 12px; }
+h3 { margin: 0 0 8px; }
+h4 { margin: 0 0 8px; font-size: 13px; }
+h4 span { color: #5eead4; margin-left: 6px; }
+.summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.summary div { background: #0d151e; border: 1px solid #203041; border-radius: 10px; padding: 14px; }
+.summary span { display: block; color: #7f93a8; font-size: 11px; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 6px; }
+.summary strong { font-size: 15px; }
+.slice { border: 1px solid #203041; border-radius: 12px; padding: 20px; margin: 16px 0; background: #0a1118; }
+.slice-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.slice-head h3 { margin: 0; font-size: 20px; color: #c4b5fd; }
+.pill { border: 1px solid #2b3e52; border-radius: 999px; color: #a9bad0; padding: 2px 8px; font-size: 11px; }
+.mitigations { display: flex; flex-direction: column; gap: 6px; margin: 0 0 14px; }
+.mitigation { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.mitigation > span { color: #7f93a8; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; min-width: 96px; }
+.mitigation.ok code { background: #0c2c25; color: #5eead4; }
+.mitigation.warn code { background: #2a220c; color: #fbbf24; }
+.mitigation.muted code { background: #12202d; color: #7f93a8; }
+.stats { display: flex; gap: 26px; margin: 16px 0; }
+.stats div { display: flex; flex-direction: column; }
+.stats strong { font-size: 22px; }
+.stats span { color: #7f93a8; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
+table { width: 100%; border-collapse: collapse; margin: 14px 0; }
+th { text-align: left; color: #7f93a8; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; border-bottom: 1px solid #203041; padding: 8px 6px; }
+td { border-bottom: 1px solid #16212c; padding: 7px 6px; color: #b7c6d8; }
+code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+code { background: #12202d; color: #b8f7ea; padding: 1px 5px; border-radius: 4px; font-size: .92em; }
+.symbol-grid, .change-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 18px; }
+.symbol-block, .change { background: #0d151e; border: 1px solid #203041; border-radius: 10px; padding: 14px; min-width: 0; }
+ul { margin: 0; padding-left: 18px; color: #b7c6d8; }
+li { margin: 3px 0; overflow-wrap: anywhere; }
+.muted { color: #7f93a8 !important; }
+.limitations { border: 1px solid #3b3020; background: #19150c; border-radius: 10px; padding: 16px; margin-top: 18px; }
+.limitations h3 { color: #fbbf24; }
+.ok { color: #5eead4; } .warn { color: #fbbf24; }
+pre { overflow: auto; background: #0d151e; border: 1px solid #203041; border-radius: 10px; padding: 16px; }
+footer { color: #56697d; font-size: 12px; border-top: 1px solid #16212c; margin-top: 40px; padding-top: 18px; }
+@media (max-width: 800px) { .summary, .symbol-grid, .change-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 520px) { .summary, .symbol-grid, .change-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="brand"><svg width="42" height="42" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="112" fill="#0b0f14"/><path d="M144 336 256 144l112 192-112 48z" fill="none" stroke="#5eead4" stroke-width="22" stroke-linejoin="round"/><path d="M176 320h160M208 256h96" stroke="#fbbf24" stroke-width="22" stroke-linecap="round"/></svg><div><h1>TraceForge Evidence</h1><p>app · traceforge 0.2.0</p></div></div>
+  <span class="badge ok">identity verified</span>
+</header>
+<h2>Record</h2>
+<div class="summary">
+  <div><span>Evidence ID</span><strong class="mono">ev_19f2674909d4a320a2a…</strong></div>
+  <div><span>Input SHA-256</span><strong class="mono">c575f6ca4c51bbee69890d…</strong></div>
+  <div><span>Input size</span><strong>8.78 MiB</strong></div>
+  <div><span>Limitations</span><strong>4</strong></div>
+</div>
+<p class="muted">/Applications/AirStats.app · related: /Applications/AirStats.app/Contents/Info.plist, /Applications/AirStats.app/Contents/MacOS/AirStats</p>
+
+<h2>Result</h2>
+
+  <section class="summary">
+    <div><span>Package</span><strong>app · macos</strong></div>
+    <div><span>Members</span><strong>95 files / 65 dirs</strong></div>
+    <div><span>Total size</span><strong>8.78 MiB</strong></div>
+    <div><span>Tree SHA-256</span><strong class="mono">c575f6ca4c51bbee69890d25…</strong></div>
+  </section>
+  <p class="muted">/Applications/AirStats.app · 9 links recorded, never followed</p>
+  <div class="mitigations"><span class="pill">code 6</span> <span class="pill">link 9</span> <span class="pill">manifest 13</span> <span class="pill">other 32</span> <span class="pill">resource 44</span><span class="pill">arm64 6</span> <span class="pill">x86_64 5</span></div>
+  <h4>Declared executable</h4>
+  <p><code>Contents/MacOS/AirStats</code> <code class="muted">48b1bcb118bb…</code></p>
+  <h4>Manifest claims <span>21 of 21</span></h4>
+  <p class="muted">Contents/Info.plist · xml · 1.4 KiB · <code>d5a92d051e38802d…</code></p>
+  <table><thead><tr><th>Claim</th><th>Value</th></tr></thead><tbody><tr><td><code>CFBundleIdentifier</code></td><td>com.airstat.AirStats</td></tr>
+<tr><td><code>CFBundleName</code></td><td>AirStats</td></tr>
+<tr><td><code>CFBundleDisplayName</code></td><td>AirStats</td></tr>
+<tr><td><code>CFBundleExecutable</code></td><td>AirStats</td></tr>
+<tr><td><code>CFBundleShortVersionString</code></td><td>1.3.2</td></tr>
+<tr><td><code>CFBundleVersion</code></td><td>8</td></tr>
+<tr><td><code>CFBundlePackageType</code></td><td>APPL</td></tr>
+<tr><td><code>CFBundleInfoDictionaryVersion</code></td><td>6.0</td></tr>
+<tr><td><code>LSMinimumSystemVersion</code></td><td>14.0</td></tr>
+<tr><td><code>CFBundleIconFile</code></td><td>AppIcon</td></tr>
+<tr><td><code>NSHumanReadableCopyright</code></td><td>AirStats</td></tr>
+<tr><td><code>LSUIElement</code></td><td>true</td></tr>
+<tr><td><code>CFBundleDevelopmentRegion</code></td><td>en</td></tr>
+<tr><td><code>NSHighResolutionCapable</code></td><td>true</td></tr>
+<tr><td><code>NSSupportsAutomaticTermination</code></td><td>false</td></tr>
+<tr><td><code>NSSupportsSuddenTermination</code></td><td>false</td></tr>
+<tr><td><code>SUAutomaticallyUpdate</code></td><td>false</td></tr>
+<tr><td><code>SUEnableAutomaticChecks</code></td><td>true</td></tr>
+<tr><td><code>SUFeedURL</code></td><td>https://airstats.app/appcast.xml</td></tr>
+<tr><td><code>SUPublicEDKey</code></td><td>Qhygt891m7jN7eTbSK4OKLjHwzU9HEOvRyJtSoib8kM=</td></tr>
+<tr><td><code>SUScheduledCheckInterval</code></td><td>604800</td></tr></tbody></table>
+  <h4>PkgInfo</h4><table><thead><tr><th>Claim</th><th>Value</th></tr></thead><tbody><tr><td><code>signature</code></td><td>APPL</td></tr>
+<tr><td><code>os_type</code></td><td>????</td></tr></tbody></table>
+  <h4>Nested packages <span>5</span></h4>
+  <table><thead><tr><th>Path</th><th>Kind</th><th>Declared identifier</th><th>Version</th></tr></thead><tbody><tr>
+        <td><code>Contents/Frameworks/Sparkle.framework</code></td>
+        <td>framework</td>
+        <td>—</td>
+        <td>—</td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Updater.app</code></td>
+        <td>app</td>
+        <td>org.sparkle-project.Sparkle.Updater</td>
+        <td>2.9.5</td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Downloader.xpc</code></td>
+        <td>xpc-service</td>
+        <td>org.sparkle-project.DownloaderService</td>
+        <td>2.9.5</td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Installer.xpc</code></td>
+        <td>xpc-service</td>
+        <td>org.sparkle-project.InstallerLauncher</td>
+        <td>2.9.5</td>
+      </tr>
+<tr>
+        <td><code>Contents/Resources/AirStats_AirStatUI.bundle</code></td>
+        <td>bundle</td>
+        <td>—</td>
+        <td>—</td>
+      </tr></tbody></table>
+  <h4>Largest members <span>104 shown</span></h4>
+  <table><thead><tr><th>Member</th><th>Kind</th><th>Format</th><th>Architectures</th><th>Size</th><th>SHA-256</th></tr></thead>
+  <tbody><tr>
+        <td><code>Contents/MacOS/AirStats</code></td>
+        <td>code</td>
+        <td>mach-o</td>
+        <td>arm64</td>
+        <td>5.57 MiB</td>
+        <td><code>48b1bcb118bb…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Sparkle</code></td>
+        <td>code</td>
+        <td>mach-o</td>
+        <td>arm64, x86_64</td>
+        <td>954.9 KiB</td>
+        <td><code>43809f295b55…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Autoupdate</code></td>
+        <td>code</td>
+        <td>mach-o</td>
+        <td>arm64, x86_64</td>
+        <td>708.7 KiB</td>
+        <td><code>422844d91284…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Updater.app/Contents/MacOS/Updater</code></td>
+        <td>code</td>
+        <td>mach-o</td>
+        <td>arm64, x86_64</td>
+        <td>283.6 KiB</td>
+        <td><code>a6cbbc619f61…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Resources/AppIcon.icns</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>261.8 KiB</td>
+        <td><code>9082f8e5fccd…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Installer.xpc/Contents/MacOS/Installer</code></td>
+        <td>code</td>
+        <td>mach-o</td>
+        <td>arm64, x86_64</td>
+        <td>218.1 KiB</td>
+        <td><code>2e78dac05f85…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Downloader.xpc/Contents/MacOS/Downloader</code></td>
+        <td>code</td>
+        <td>mach-o</td>
+        <td>arm64, x86_64</td>
+        <td>184.4 KiB</td>
+        <td><code>e97332d4408c…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Resources/AirStats_AirStatUI.bundle/Logo.png</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>154.8 KiB</td>
+        <td><code>a56bb3750cfc…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/SUUpdatePermissionPrompt.nib/keyedobjects-101300.nib</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>24.8 KiB</td>
+        <td><code>35149511ba9d…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/SUUpdatePermissionPrompt.nib/keyedobjects-110000.nib</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>24.8 KiB</td>
+        <td><code>b35425caab26…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SPUUpdaterDelegate.h</code></td>
+        <td>other</td>
+        <td>—</td>
+        <td>—</td>
+        <td>23.0 KiB</td>
+        <td><code>20ea4bf5273e…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/_CodeSignature/CodeResources</code></td>
+        <td>manifest</td>
+        <td>—</td>
+        <td>—</td>
+        <td>22.8 KiB</td>
+        <td><code>2ee201d1436c…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SPUUpdater.h</code></td>
+        <td>other</td>
+        <td>—</td>
+        <td>—</td>
+        <td>19.8 KiB</td>
+        <td><code>a30b876dc722…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SUAppcastItem.h</code></td>
+        <td>other</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18.4 KiB</td>
+        <td><code>95e15231e396…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/SUUpdateAlert.nib</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18.1 KiB</td>
+        <td><code>3987a333da7c…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SPUUserDriver.h</code></td>
+        <td>other</td>
+        <td>—</td>
+        <td>—</td>
+        <td>16.2 KiB</td>
+        <td><code>db9fe6cf78ac…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SUUpdaterDelegate.h</code></td>
+        <td>other</td>
+        <td>—</td>
+        <td>—</td>
+        <td>13.4 KiB</td>
+        <td><code>a1a08c33fd41…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/SUStatus.nib</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>12.7 KiB</td>
+        <td><code>bba15dd37a26…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Updater.app/Contents/Resources/SUStatus.nib</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>12.7 KiB</td>
+        <td><code>bba15dd37a26…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/vi.lproj/Sparkle.strings</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>12.1 KiB</td>
+        <td><code>2b3b4acbadf5…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/de.lproj/Sparkle.strings</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>11.3 KiB</td>
+        <td><code>311035a15227…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SPUStandardUserDriverDelegate.h</code></td>
+        <td>other</td>
+        <td>—</td>
+        <td>—</td>
+        <td>11.0 KiB</td>
+        <td><code>d906e549f7b1…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/it.lproj/Sparkle.strings</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>10.7 KiB</td>
+        <td><code>56a7445c1b68…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/cs.lproj/Sparkle.strings</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>10.5 KiB</td>
+        <td><code>99e66decf9bc…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/pt-BR.lproj/Sparkle.strings</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>9.7 KiB</td>
+        <td><code>0292cadc2acf…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/he.lproj/Sparkle.strings</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>9.4 KiB</td>
+        <td><code>1d795bd7329d…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/nl.lproj/Sparkle.strings</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>9.3 KiB</td>
+        <td><code>ca9adf34fb93…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/ja.lproj/Sparkle.strings</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>8.5 KiB</td>
+        <td><code>e404910028af…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/fr.lproj/Sparkle.strings</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>7.7 KiB</td>
+        <td><code>3d554dcd167b…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/ko.lproj/Sparkle.strings</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>7.6 KiB</td>
+        <td><code>a6269eb3f5a0…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/zh_TW.lproj/Sparkle.strings</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>7.4 KiB</td>
+        <td><code>76321e1dd844…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/zh_CN.lproj/Sparkle.strings</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>7.3 KiB</td>
+        <td><code>e7f543b92977…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/es.lproj/Sparkle.strings</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>6.9 KiB</td>
+        <td><code>047b9affd0e9…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SUUpdater.h</code></td>
+        <td>other</td>
+        <td>—</td>
+        <td>—</td>
+        <td>6.7 KiB</td>
+        <td><code>96f6f598d582…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/zh_HK.lproj/Sparkle.strings</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>6.3 KiB</td>
+        <td><code>3fc210132f33…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/hr.lproj/Sparkle.strings</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>6.2 KiB</td>
+        <td><code>920041380a08…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/tr.lproj/Sparkle.strings</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>6.0 KiB</td>
+        <td><code>b040d3f02d34…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/ro.lproj/Sparkle.strings</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>6.0 KiB</td>
+        <td><code>b2bf064222c3…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/pt-PT.lproj/Sparkle.strings</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>5.8 KiB</td>
+        <td><code>fc958532d26a…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/Base.lproj/Sparkle.strings</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>5.8 KiB</td>
+        <td><code>b2177e620301…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/el.lproj/Sparkle.strings</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>5.8 KiB</td>
+        <td><code>638981a4f095…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/uk.lproj/Sparkle.strings</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>5.7 KiB</td>
+        <td><code>ff44d58635b3…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/ru.lproj/Sparkle.strings</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>5.6 KiB</td>
+        <td><code>7193af28eb2a…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/fa.lproj/Sparkle.strings</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>5.6 KiB</td>
+        <td><code>ed9dda9e271f…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/sk.lproj/Sparkle.strings</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>5.5 KiB</td>
+        <td><code>e158daaa4f3f…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/nn.lproj/Sparkle.strings</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>5.5 KiB</td>
+        <td><code>1db8c6853a55…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/sl.lproj/Sparkle.strings</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>5.5 KiB</td>
+        <td><code>c62770c604a6…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SPUStandardUpdaterController.h</code></td>
+        <td>other</td>
+        <td>—</td>
+        <td>—</td>
+        <td>5.5 KiB</td>
+        <td><code>f45dfdf23156…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/nb.lproj/Sparkle.strings</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>5.4 KiB</td>
+        <td><code>ef6f0dcae90c…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/pl.lproj/Sparkle.strings</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>5.3 KiB</td>
+        <td><code>5c54b3f8e1eb…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/th.lproj/Sparkle.strings</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>5.2 KiB</td>
+        <td><code>4b6c8dc2ab69…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/sv.lproj/Sparkle.strings</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>5.0 KiB</td>
+        <td><code>4a21ad5bcf8d…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/da.lproj/Sparkle.strings</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>4.8 KiB</td>
+        <td><code>8d0ff69b7946…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/hu.lproj/Sparkle.strings</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>4.3 KiB</td>
+        <td><code>cc2a16e4d487…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/is.lproj/Sparkle.strings</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>3.9 KiB</td>
+        <td><code>403feba50341…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SUVersionDisplayProtocol.h</code></td>
+        <td>other</td>
+        <td>—</td>
+        <td>—</td>
+        <td>3.7 KiB</td>
+        <td><code>3f23c4fb9bbd…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/ar.lproj/Sparkle.strings</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>3.5 KiB</td>
+        <td><code>441182787471…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/ca.lproj/Sparkle.strings</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>3.4 KiB</td>
+        <td><code>7ed0d5ca3006…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SPUUpdaterSettings.h</code></td>
+        <td>other</td>
+        <td>—</td>
+        <td>—</td>
+        <td>3.3 KiB</td>
+        <td><code>ad7bdfc71977…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SUErrors.h</code></td>
+        <td>other</td>
+        <td>—</td>
+        <td>—</td>
+        <td>3.2 KiB</td>
+        <td><code>e7e84fa6ef85…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/fi.lproj/Sparkle.strings</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>3.2 KiB</td>
+        <td><code>c14af9bac3fc…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/_CodeSignature/CodeResources</code></td>
+        <td>manifest</td>
+        <td>—</td>
+        <td>—</td>
+        <td>3.1 KiB</td>
+        <td><code>c36dd75ba681…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SUUpdatePermissionResponse.h</code></td>
+        <td>other</td>
+        <td>—</td>
+        <td>—</td>
+        <td>2.5 KiB</td>
+        <td><code>f9355c8044c7…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Updater.app/Contents/_CodeSignature/CodeResources</code></td>
+        <td>manifest</td>
+        <td>—</td>
+        <td>—</td>
+        <td>2.4 KiB</td>
+        <td><code>25328c7eccf8…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Updater.app/Contents/Info.plist</code></td>
+        <td>manifest</td>
+        <td>—</td>
+        <td>—</td>
+        <td>2.3 KiB</td>
+        <td><code>6ac94950afcf…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Downloader.xpc/Contents/_CodeSignature/CodeResources</code></td>
+        <td>manifest</td>
+        <td>—</td>
+        <td>—</td>
+        <td>2.1 KiB</td>
+        <td><code>6686de10a28a…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Installer.xpc/Contents/_CodeSignature/CodeResources</code></td>
+        <td>manifest</td>
+        <td>—</td>
+        <td>—</td>
+        <td>2.1 KiB</td>
+        <td><code>6686de10a28a…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SPUUserUpdateState.h</code></td>
+        <td>other</td>
+        <td>—</td>
+        <td>—</td>
+        <td>2.0 KiB</td>
+        <td><code>59f95e933f8b…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/CodeResources</code></td>
+        <td>manifest</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.8 KiB</td>
+        <td><code>4fed0697988b…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SUStandardVersionComparator.h</code></td>
+        <td>other</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.8 KiB</td>
+        <td><code>7d407b9ce721…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Downloader.xpc/Contents/Info.plist</code></td>
+        <td>manifest</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.7 KiB</td>
+        <td><code>5a5aece9c51e…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/PrivateHeaders/SUAppcastItem+Private.h</code></td>
+        <td>other</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.6 KiB</td>
+        <td><code>642ecbeecb32…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Installer.xpc/Contents/Info.plist</code></td>
+        <td>manifest</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.6 KiB</td>
+        <td><code>6da903cae63a…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Info.plist</code></td>
+        <td>manifest</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.4 KiB</td>
+        <td><code>d5a92d051e38…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/Info.plist</code></td>
+        <td>manifest</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.3 KiB</td>
+        <td><code>7fcee058e4e4…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SUAppcast.h</code></td>
+        <td>other</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.3 KiB</td>
+        <td><code>251d6ffa7cbc…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SPUStandardUserDriver.h</code></td>
+        <td>other</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.3 KiB</td>
+        <td><code>0a0e476b6193…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/PrivateHeaders/SUInstallerLauncher+Private.h</code></td>
+        <td>other</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.2 KiB</td>
+        <td><code>cb2e9c465f08…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SPUDownloadData.h</code></td>
+        <td>other</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.2 KiB</td>
+        <td><code>58184c2c068a…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Headers/Sparkle.h</code></td>
+        <td>other</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.1 KiB</td>
+        <td><code>3a442a32eb22…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/PrivateHeaders/SPUAppcastItemStateResolver.h</code></td>
+        <td>other</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.1 KiB</td>
+        <td><code>1c3be298008c…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/PrivateHeaders/SPUStandardUserDriver+Private.h</code></td>
+        <td>other</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.1 KiB</td>
+        <td><code>acc764e731fe…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SPUUpdatePermissionRequest.h</code></td>
+        <td>other</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.1 KiB</td>
+        <td><code>8c227246c2ea…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SUVersionComparisonProtocol.h</code></td>
+        <td>other</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1011 B</td>
+        <td><code>28bbb424ac7a…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SPUAppcastSigningValidationStatus.h</code></td>
+        <td>other</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1007 B</td>
+        <td><code>513d4607ac9b…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SPUUpdateCheck.h</code></td>
+        <td>other</td>
+        <td>—</td>
+        <td>—</td>
+        <td>874 B</td>
+        <td><code>1f7d05da2e46…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Modules/module.private.modulemap</code></td>
+        <td>other</td>
+        <td>—</td>
+        <td>—</td>
+        <td>833 B</td>
+        <td><code>db1d60f57b43…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/PrivateHeaders/SPUInstallationType.h</code></td>
+        <td>other</td>
+        <td>—</td>
+        <td>—</td>
+        <td>828 B</td>
+        <td><code>52a1a445f58e…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/PrivateHeaders/SPUUserAgent+Private.h</code></td>
+        <td>other</td>
+        <td>—</td>
+        <td>—</td>
+        <td>751 B</td>
+        <td><code>0c3ea7c6aaba…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/PrivateHeaders/SPUGentleUserDriverReminders.h</code></td>
+        <td>other</td>
+        <td>—</td>
+        <td>—</td>
+        <td>475 B</td>
+        <td><code>f56d9d277f16…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Headers/SUExport.h</code></td>
+        <td>other</td>
+        <td>—</td>
+        <td>—</td>
+        <td>302 B</td>
+        <td><code>5cef024266c5…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Resources/ReleaseNotesColorStyle.css</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>231 B</td>
+        <td><code>76bd6999758f…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Modules/module.modulemap</code></td>
+        <td>other</td>
+        <td>—</td>
+        <td>—</td>
+        <td>95 B</td>
+        <td><code>2bcae1eb66d5…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/B/Updater.app/Contents/PkgInfo</code></td>
+        <td>manifest</td>
+        <td>—</td>
+        <td>—</td>
+        <td>8 B</td>
+        <td><code>82502191c948…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/PkgInfo</code></td>
+        <td>manifest</td>
+        <td>—</td>
+        <td>—</td>
+        <td>8 B</td>
+        <td><code>82502191c948…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Autoupdate</code></td>
+        <td>link</td>
+        <td>—</td>
+        <td>—</td>
+        <td>0 B</td>
+        <td><code>—</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Headers</code></td>
+        <td>link</td>
+        <td>—</td>
+        <td>—</td>
+        <td>0 B</td>
+        <td><code>—</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Modules</code></td>
+        <td>link</td>
+        <td>—</td>
+        <td>—</td>
+        <td>0 B</td>
+        <td><code>—</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/PrivateHeaders</code></td>
+        <td>link</td>
+        <td>—</td>
+        <td>—</td>
+        <td>0 B</td>
+        <td><code>—</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Resources</code></td>
+        <td>link</td>
+        <td>—</td>
+        <td>—</td>
+        <td>0 B</td>
+        <td><code>—</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Sparkle</code></td>
+        <td>link</td>
+        <td>—</td>
+        <td>—</td>
+        <td>0 B</td>
+        <td><code>—</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Updater.app</code></td>
+        <td>link</td>
+        <td>—</td>
+        <td>—</td>
+        <td>0 B</td>
+        <td><code>—</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/Versions/Current</code></td>
+        <td>link</td>
+        <td>—</td>
+        <td>—</td>
+        <td>0 B</td>
+        <td><code>—</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Sparkle.framework/XPCServices</code></td>
+        <td>link</td>
+        <td>—</td>
+        <td>—</td>
+        <td>0 B</td>
+        <td><code>—</code></td>
+      </tr></tbody></table>
+  
+  <section class="limitations"><h3>Limitations</h3><ul><li>A package inventory hashes each inventoried member; it does not open archives, parse code signatures, or establish where any member came from.</li><li>Manifest values are self-reported by the target; none were checked against a signature, notarization ticket or entitlements.</li><li>Symbolic links were recorded with their target text but were never followed, opened or hashed.</li><li>The tree fingerprint is computed over relative member paths, sizes and hashes, so it does not depend on where the package is mounted.</li></ul></section>
+<footer>Generated by TraceForge. Evidence is content-addressed and locally authenticated. Verify with <code>tforge evidence verify ev_19f2674909d4a320a2a389a4a22b986bbdead0c9361ca154db1aacdad135b227</code>.</footer>
+</div>
+</body>
+</html>

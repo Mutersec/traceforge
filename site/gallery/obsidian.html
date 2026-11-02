@@ -1,0 +1,2181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>TraceForge Evidence ev_2060636de9420</title>
+<style>
+:root { color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #070b10; color: #dbe7f3; font: 14px/1.6 Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 36px 24px 64px; }
+header { display: flex; align-items: center; justify-content: space-between; gap: 20px; border-bottom: 1px solid #203041; padding-bottom: 22px; }
+.brand { display: flex; align-items: center; gap: 14px; }
+.brand h1 { margin: 0; font-size: 24px; letter-spacing: -.03em; }
+.brand p { margin: 2px 0 0; color: #7f93a8; }
+.badge { border: 1px solid #2b4a5e; color: #5eead4; border-radius: 999px; padding: 5px 10px; font-size: 12px; font-weight: 700; }
+.badge.ok { border-color: #1f6f5c; background: #0c2c25; }
+.badge.warn { border-color: #7a5a1d; background: #2a220c; color: #fbbf24; }
+h2 { font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: #7f93a8; margin: 34px 0 12px; }
+h3 { margin: 0 0 8px; }
+h4 { margin: 0 0 8px; font-size: 13px; }
+h4 span { color: #5eead4; margin-left: 6px; }
+.summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.summary div { background: #0d151e; border: 1px solid #203041; border-radius: 10px; padding: 14px; }
+.summary span { display: block; color: #7f93a8; font-size: 11px; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 6px; }
+.summary strong { font-size: 15px; }
+.slice { border: 1px solid #203041; border-radius: 12px; padding: 20px; margin: 16px 0; background: #0a1118; }
+.slice-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.slice-head h3 { margin: 0; font-size: 20px; color: #c4b5fd; }
+.pill { border: 1px solid #2b3e52; border-radius: 999px; color: #a9bad0; padding: 2px 8px; font-size: 11px; }
+.mitigations { display: flex; flex-direction: column; gap: 6px; margin: 0 0 14px; }
+.mitigation { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.mitigation > span { color: #7f93a8; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; min-width: 96px; }
+.mitigation.ok code { background: #0c2c25; color: #5eead4; }
+.mitigation.warn code { background: #2a220c; color: #fbbf24; }
+.mitigation.muted code { background: #12202d; color: #7f93a8; }
+.stats { display: flex; gap: 26px; margin: 16px 0; }
+.stats div { display: flex; flex-direction: column; }
+.stats strong { font-size: 22px; }
+.stats span { color: #7f93a8; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
+table { width: 100%; border-collapse: collapse; margin: 14px 0; }
+th { text-align: left; color: #7f93a8; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; border-bottom: 1px solid #203041; padding: 8px 6px; }
+td { border-bottom: 1px solid #16212c; padding: 7px 6px; color: #b7c6d8; }
+code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+code { background: #12202d; color: #b8f7ea; padding: 1px 5px; border-radius: 4px; font-size: .92em; }
+.symbol-grid, .change-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 18px; }
+.symbol-block, .change { background: #0d151e; border: 1px solid #203041; border-radius: 10px; padding: 14px; min-width: 0; }
+ul { margin: 0; padding-left: 18px; color: #b7c6d8; }
+li { margin: 3px 0; overflow-wrap: anywhere; }
+.muted { color: #7f93a8 !important; }
+.limitations { border: 1px solid #3b3020; background: #19150c; border-radius: 10px; padding: 16px; margin-top: 18px; }
+.limitations h3 { color: #fbbf24; }
+.ok { color: #5eead4; } .warn { color: #fbbf24; }
+pre { overflow: auto; background: #0d151e; border: 1px solid #203041; border-radius: 10px; padding: 16px; }
+footer { color: #56697d; font-size: 12px; border-top: 1px solid #16212c; margin-top: 40px; padding-top: 18px; }
+@media (max-width: 800px) { .summary, .symbol-grid, .change-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 520px) { .summary, .symbol-grid, .change-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="brand"><svg width="42" height="42" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="112" fill="#0b0f14"/><path d="M144 336 256 144l112 192-112 48z" fill="none" stroke="#5eead4" stroke-width="22" stroke-linejoin="round"/><path d="M176 320h160M208 256h96" stroke="#fbbf24" stroke-width="22" stroke-linecap="round"/></svg><div><h1>TraceForge Evidence</h1><p>app · traceforge 0.2.0</p></div></div>
+  <span class="badge ok">identity verified</span>
+</header>
+<h2>Record</h2>
+<div class="summary">
+  <div><span>Evidence ID</span><strong class="mono">ev_2060636de94207c12cd…</strong></div>
+  <div><span>Input SHA-256</span><strong class="mono">d018c5c536e162527560a1…</strong></div>
+  <div><span>Input size</span><strong>513.63 MiB</strong></div>
+  <div><span>Limitations</span><strong>5</strong></div>
+</div>
+<p class="muted">/Applications/Obsidian.app · related: /Applications/Obsidian.app/Contents/Info.plist, /Applications/Obsidian.app/Contents/MacOS/Obsidian</p>
+
+<h2>Result</h2>
+
+  <section class="summary">
+    <div><span>Package</span><strong>app · macos</strong></div>
+    <div><span>Members</span><strong>278 files / 322 dirs</strong></div>
+    <div><span>Total size</span><strong>513.63 MiB</strong></div>
+    <div><span>Tree SHA-256</span><strong class="mono">d018c5c536e162527560a188…</strong></div>
+  </section>
+  <p class="muted">/Applications/Obsidian.app · 14 links recorded, never followed</p>
+  <div class="mitigations"><span class="pill">archive 2</span> <span class="pill">code 18</span> <span class="pill">link 14</span> <span class="pill">manifest 24</span> <span class="pill">other 4</span> <span class="pill">resource 228</span> <span class="pill">script 2</span><span class="pill">arm64 18</span> <span class="pill">x86_64 18</span></div>
+  <h4>Declared executable</h4>
+  <p><code>Contents/MacOS/Obsidian</code> <code class="muted">cd0cc4be064d…</code></p>
+  <h4>Manifest claims <span>34 of 40</span></h4>
+  <p class="muted">Contents/Info.plist · xml · 5.7 KiB · <code>7760bcb6e0d3c55a…</code></p>
+  <table><thead><tr><th>Claim</th><th>Value</th></tr></thead><tbody><tr><td><code>CFBundleIdentifier</code></td><td>md.obsidian</td></tr>
+<tr><td><code>CFBundleName</code></td><td>Obsidian</td></tr>
+<tr><td><code>CFBundleDisplayName</code></td><td>Obsidian</td></tr>
+<tr><td><code>CFBundleExecutable</code></td><td>Obsidian</td></tr>
+<tr><td><code>CFBundleShortVersionString</code></td><td>1.13.7</td></tr>
+<tr><td><code>CFBundleVersion</code></td><td>1.13.7</td></tr>
+<tr><td><code>CFBundlePackageType</code></td><td>APPL</td></tr>
+<tr><td><code>CFBundleInfoDictionaryVersion</code></td><td>6.0</td></tr>
+<tr><td><code>LSMinimumSystemVersion</code></td><td>12.0</td></tr>
+<tr><td><code>LSApplicationCategoryType</code></td><td>public.app-category.productivity</td></tr>
+<tr><td><code>CFBundleIconFile</code></td><td>icon.icns</td></tr>
+<tr><td><code>DTSDKName</code></td><td>macosx15.5</td></tr>
+<tr><td><code>DTSDKBuild</code></td><td>24F74</td></tr>
+<tr><td><code>DTCompiler</code></td><td>com.apple.compilers.llvm.clang.1_0</td></tr>
+<tr><td><code>NSHumanReadableCopyright</code></td><td>Copyright © Dynalist Inc.</td></tr>
+<tr><td><code>DTXcode</code></td><td>1640</td></tr>
+<tr><td><code>DTXcodeBuild</code></td><td>16F6</td></tr>
+<tr><td><code>ITSAppUsesNonExemptEncryption</code></td><td>false</td></tr>
+<tr><td><code>NSAppleEventsUsageDescription</code></td><td>A feature in Obsidian is requesting access to use AppleScript.</td></tr>
+<tr><td><code>NSAudioCaptureUsageDescription</code></td><td>This app needs access to audio capture</td></tr>
+<tr><td><code>NSBluetoothAlwaysUsageDescription</code></td><td>This app needs access to Bluetooth</td></tr>
+<tr><td><code>NSBluetoothPeripheralUsageDescription</code></td><td>This app needs access to Bluetooth</td></tr>
+<tr><td><code>NSCalendarsUsageDescription</code></td><td>A feature in Obsidian is requesting access to your calendars.</td></tr>
+<tr><td><code>NSCameraUsageDescription</code></td><td>A feature in Obsidian is requesting access to your camera.</td></tr>
+<tr><td><code>NSContactsUsageDescription</code></td><td>A feature in Obsidian is requesting access to your contacts.</td></tr>
+<tr><td><code>NSHighResolutionCapable</code></td><td>true</td></tr>
+<tr><td><code>NSMainNibFile</code></td><td>MainMenu</td></tr>
+<tr><td><code>NSMicrophoneUsageDescription</code></td><td>A feature in Obsidian is requesting access to your microphone.</td></tr>
+<tr><td><code>NSPrefersDisplaySafeAreaCompatibilityMode</code></td><td>false</td></tr>
+<tr><td><code>NSPrincipalClass</code></td><td>AtomApplication</td></tr>
+<tr><td><code>NSQuitAlwaysKeepsWindows</code></td><td>false</td></tr>
+<tr><td><code>NSRemindersUsageDescription</code></td><td>A feature in Obsidian is requesting access to your reminders.</td></tr>
+<tr><td><code>NSRequiresAquaSystemAppearance</code></td><td>false</td></tr>
+<tr><td><code>NSSupportsAutomaticGraphicsSwitching</code></td><td>true</td></tr></tbody></table>
+  <h4>PkgInfo</h4><table><thead><tr><th>Claim</th><th>Value</th></tr></thead><tbody><tr><td><code>signature</code></td><td>APPL</td></tr>
+<tr><td><code>os_type</code></td><td>????</td></tr></tbody></table>
+  <h4>Nested packages <span>8</span></h4>
+  <table><thead><tr><th>Path</th><th>Kind</th><th>Declared identifier</th><th>Version</th></tr></thead><tbody><tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework</code></td>
+        <td>framework</td>
+        <td>—</td>
+        <td>—</td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Mantle.framework</code></td>
+        <td>framework</td>
+        <td>—</td>
+        <td>—</td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Obsidian Helper (GPU).app</code></td>
+        <td>app</td>
+        <td>md.obsidian.helper.GPU</td>
+        <td>1.13.7</td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Obsidian Helper (Plugin).app</code></td>
+        <td>app</td>
+        <td>md.obsidian.helper.Plugin</td>
+        <td>1.13.7</td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Obsidian Helper (Renderer).app</code></td>
+        <td>app</td>
+        <td>md.obsidian.helper.Renderer</td>
+        <td>1.13.7</td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Obsidian Helper.app</code></td>
+        <td>app</td>
+        <td>md.obsidian.helper</td>
+        <td>1.13.7</td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/ReactiveObjC.framework</code></td>
+        <td>framework</td>
+        <td>—</td>
+        <td>—</td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Squirrel.framework</code></td>
+        <td>framework</td>
+        <td>—</td>
+        <td>—</td>
+      </tr></tbody></table>
+  <h4>Largest members <span>250 shown</span></h4>
+  <table><thead><tr><th>Member</th><th>Kind</th><th>Format</th><th>Architectures</th><th>Size</th><th>SHA-256</th></tr></thead>
+  <tbody><tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Electron Framework</code></td>
+        <td>code</td>
+        <td>mach-o</td>
+        <td>arm64, x86_64</td>
+        <td>378.91 MiB</td>
+        <td><code>123398869e4b…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Resources/obsidian.asar</code></td>
+        <td>archive</td>
+        <td>—</td>
+        <td>—</td>
+        <td>24.59 MiB</td>
+        <td><code>a52a7daf1e24…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Libraries/libvk_swiftshader.dylib</code></td>
+        <td>code</td>
+        <td>mach-o</td>
+        <td>arm64, x86_64</td>
+        <td>20.26 MiB</td>
+        <td><code>84c602e9ed21…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Libraries/libGLESv2.dylib</code></td>
+        <td>code</td>
+        <td>mach-o</td>
+        <td>arm64, x86_64</td>
+        <td>12.47 MiB</td>
+        <td><code>dc1d1c1d5323…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/icudtl.dat</code></td>
+        <td>other</td>
+        <td>—</td>
+        <td>—</td>
+        <td>10.37 MiB</td>
+        <td><code>bd8c145abdf3…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/resources.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>6.90 MiB</td>
+        <td><code>e731ae2c1447…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Libraries/libffmpeg.dylib</code></td>
+        <td>code</td>
+        <td>mach-o</td>
+        <td>arm64, x86_64</td>
+        <td>4.58 MiB</td>
+        <td><code>87b7c624d7af…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Helpers/chrome_crashpad_handler</code></td>
+        <td>code</td>
+        <td>mach-o</td>
+        <td>arm64, x86_64</td>
+        <td>2.42 MiB</td>
+        <td><code>9ee76e3db4a5…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ml.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.62 MiB</td>
+        <td><code>050d2d90f1c5…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ta.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.61 MiB</td>
+        <td><code>3cb751632eaf…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/kn.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.58 MiB</td>
+        <td><code>d9af3b1e07d2…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/te.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.49 MiB</td>
+        <td><code>d704827ce8c8…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/hi.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.45 MiB</td>
+        <td><code>1412a9268704…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/bn.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.39 MiB</td>
+        <td><code>db48fef7b807…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/gu.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.37 MiB</td>
+        <td><code>063f0b84f31f…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/mr.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.34 MiB</td>
+        <td><code>55fe72e98ee4…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/th.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.25 MiB</td>
+        <td><code>c7bfaf79de94…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/el.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.19 MiB</td>
+        <td><code>2f24a3f23e45…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/uk.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.11 MiB</td>
+        <td><code>bb419b3942f6…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ru.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.10 MiB</td>
+        <td><code>015787e4ba5f…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/bg.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.08 MiB</td>
+        <td><code>8b3ac363890a…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ar.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.04 MiB</td>
+        <td><code>b4b3abd80164…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sr.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.02 MiB</td>
+        <td><code>efa4342e2d48…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/fa.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>997.7 KiB</td>
+        <td><code>88ed8d98a8b5…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ur.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>980.2 KiB</td>
+        <td><code>7a87ce07d150…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/am.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>967.6 KiB</td>
+        <td><code>4e638c738182…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/he.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>872.9 KiB</td>
+        <td><code>1658e55bbccb…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ja.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>790.7 KiB</td>
+        <td><code>252c58d83b56…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/vi.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>776.8 KiB</td>
+        <td><code>17f099e06718…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/ReactiveObjC.framework/Versions/A/ReactiveObjC</code></td>
+        <td>code</td>
+        <td>mach-o</td>
+        <td>arm64, x86_64</td>
+        <td>746.5 KiB</td>
+        <td><code>23ef0c4a934d…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/lt.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>731.3 KiB</td>
+        <td><code>85bb4cd5721a…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/lv.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>728.1 KiB</td>
+        <td><code>b86251a9d1fa…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/v8_context_snapshot.arm64.bin</code></td>
+        <td>other</td>
+        <td>—</td>
+        <td>—</td>
+        <td>722.7 KiB</td>
+        <td><code>2942f397de09…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/v8_context_snapshot.x86_64.bin</code></td>
+        <td>other</td>
+        <td>—</td>
+        <td>—</td>
+        <td>722.7 KiB</td>
+        <td><code>674848fe695c…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/hu.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>717.2 KiB</td>
+        <td><code>28e3b7211f01…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/fr.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>716.9 KiB</td>
+        <td><code>e770019d50bf…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sk.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>709.8 KiB</td>
+        <td><code>21a87dd9d451…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/cs.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>698.3 KiB</td>
+        <td><code>8db6e0317639…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/pl.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>697.5 KiB</td>
+        <td><code>1a69bd53975c…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/fil.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>696.5 KiB</td>
+        <td><code>4eafa0fb8c95…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Resources/icon.icns</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>688.8 KiB</td>
+        <td><code>313153fc79bb…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ro.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>682.5 KiB</td>
+        <td><code>90aeeb6123ee…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sl.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>679.4 KiB</td>
+        <td><code>5839f0aabfa0…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/de.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>672.8 KiB</td>
+        <td><code>28bc3810ce24…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ko.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>672.7 KiB</td>
+        <td><code>2ad63bf1160b…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ca.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>672.2 KiB</td>
+        <td><code>cfa30f0253e2…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/hr.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>671.3 KiB</td>
+        <td><code>b843bf027294…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/es_419.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>663.5 KiB</td>
+        <td><code>54694f413d67…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/es.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>660.0 KiB</td>
+        <td><code>26eb80e1a05c…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/pt_PT.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>657.6 KiB</td>
+        <td><code>f982931e574c…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/tr.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>654.5 KiB</td>
+        <td><code>a28cdd6e8500…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/pt_BR.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>654.0 KiB</td>
+        <td><code>13229ca43c15…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/it.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>649.5 KiB</td>
+        <td><code>ab2788babb0b…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sw.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>644.0 KiB</td>
+        <td><code>ec299c56cb61…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ms.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>627.5 KiB</td>
+        <td><code>a093da686a8d…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/da.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>625.9 KiB</td>
+        <td><code>b7aa5f34f2a5…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/nl.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>623.4 KiB</td>
+        <td><code>469478646d97…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/fi.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>614.6 KiB</td>
+        <td><code>478d83cd4a19…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sv.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>605.8 KiB</td>
+        <td><code>94230392e866…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/et.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>603.0 KiB</td>
+        <td><code>bd785a3b306d…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/nb.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>597.8 KiB</td>
+        <td><code>d8e54f0aed18…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/id.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>596.5 KiB</td>
+        <td><code>0174ef624808…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/af.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>596.1 KiB</td>
+        <td><code>ab08034ea007…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/zh_CN.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>555.7 KiB</td>
+        <td><code>ec94ddac539f…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/en.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>550.9 KiB</td>
+        <td><code>8c0c93b649c7…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/zh_TW.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>548.2 KiB</td>
+        <td><code>b990a04a5044…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/en_GB.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>544.1 KiB</td>
+        <td><code>99b3e84ed704…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Obsidian Helper (Plugin).app/Contents/MacOS/Obsidian Helper (Plugin)</code></td>
+        <td>code</td>
+        <td>mach-o</td>
+        <td>arm64, x86_64</td>
+        <td>457.7 KiB</td>
+        <td><code>87e5830532a7…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Obsidian Helper (Renderer).app/Contents/MacOS/Obsidian Helper (Renderer)</code></td>
+        <td>code</td>
+        <td>mach-o</td>
+        <td>arm64, x86_64</td>
+        <td>457.7 KiB</td>
+        <td><code>a78a4d0058e8…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Obsidian Helper (GPU).app/Contents/MacOS/Obsidian Helper (GPU)</code></td>
+        <td>code</td>
+        <td>mach-o</td>
+        <td>arm64, x86_64</td>
+        <td>457.7 KiB</td>
+        <td><code>2261f0dfef6a…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Obsidian Helper.app/Contents/MacOS/Obsidian Helper</code></td>
+        <td>code</td>
+        <td>mach-o</td>
+        <td>arm64, x86_64</td>
+        <td>457.7 KiB</td>
+        <td><code>a91b27388e5a…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Squirrel.framework/Versions/A/Squirrel</code></td>
+        <td>code</td>
+        <td>mach-o</td>
+        <td>arm64, x86_64</td>
+        <td>319.9 KiB</td>
+        <td><code>3f5c8ca78e6f…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Squirrel.framework/Versions/A/Resources/ShipIt</code></td>
+        <td>code</td>
+        <td>mach-o</td>
+        <td>arm64, x86_64</td>
+        <td>285.6 KiB</td>
+        <td><code>a38cbe621a25…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Mantle.framework/Versions/A/Mantle</code></td>
+        <td>code</td>
+        <td>mach-o</td>
+        <td>arm64, x86_64</td>
+        <td>285.5 KiB</td>
+        <td><code>2937684a1de9…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Libraries/libEGL.dylib</code></td>
+        <td>code</td>
+        <td>mach-o</td>
+        <td>arm64, x86_64</td>
+        <td>203.6 KiB</td>
+        <td><code>f60920ae1c63…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/chrome_200_percent.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>192.3 KiB</td>
+        <td><code>b42323e72254…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Resources/app.asar.unpacked/node_modules/get-fonts/binding.node</code></td>
+        <td>code</td>
+        <td>mach-o</td>
+        <td>arm64, x86_64</td>
+        <td>180.6 KiB</td>
+        <td><code>9cfb10fb2b9d…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Resources/app.asar.unpacked/node_modules/btime/binding.node</code></td>
+        <td>code</td>
+        <td>mach-o</td>
+        <td>arm64, x86_64</td>
+        <td>141.5 KiB</td>
+        <td><code>b3182723164d…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/MacOS/obsidian-cli</code></td>
+        <td>code</td>
+        <td>mach-o</td>
+        <td>arm64, x86_64</td>
+        <td>132.6 KiB</td>
+        <td><code>0d6bd88e09f6…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/chrome_100_percent.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>117.0 KiB</td>
+        <td><code>a2bf32eceeab…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/MacOS/Obsidian</code></td>
+        <td>code</td>
+        <td>mach-o</td>
+        <td>arm64, x86_64</td>
+        <td>100.0 KiB</td>
+        <td><code>cd0cc4be064d…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/_CodeSignature/CodeResources</code></td>
+        <td>manifest</td>
+        <td>—</td>
+        <td>—</td>
+        <td>84.0 KiB</td>
+        <td><code>7b1c6080eb16…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Resources/app.asar</code></td>
+        <td>archive</td>
+        <td>—</td>
+        <td>—</td>
+        <td>71.8 KiB</td>
+        <td><code>3dfb4e9735c3…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/_CodeSignature/CodeResources</code></td>
+        <td>manifest</td>
+        <td>—</td>
+        <td>—</td>
+        <td>8.6 KiB</td>
+        <td><code>c88ca3b0ca45…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Info.plist</code></td>
+        <td>manifest</td>
+        <td>—</td>
+        <td>—</td>
+        <td>5.7 KiB</td>
+        <td><code>7760bcb6e0d3…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Squirrel.framework/Versions/A/_CodeSignature/CodeResources</code></td>
+        <td>manifest</td>
+        <td>—</td>
+        <td>—</td>
+        <td>2.6 KiB</td>
+        <td><code>cdb7c23c2369…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Mantle.framework/Versions/A/_CodeSignature/CodeResources</code></td>
+        <td>manifest</td>
+        <td>—</td>
+        <td>—</td>
+        <td>2.4 KiB</td>
+        <td><code>2c537f248600…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/ReactiveObjC.framework/Versions/A/_CodeSignature/CodeResources</code></td>
+        <td>manifest</td>
+        <td>—</td>
+        <td>—</td>
+        <td>2.4 KiB</td>
+        <td><code>0a5b2d1e208c…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/CodeResources</code></td>
+        <td>manifest</td>
+        <td>—</td>
+        <td>—</td>
+        <td>2.3 KiB</td>
+        <td><code>b0da85074243…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Obsidian Helper (GPU).app/Contents/_CodeSignature/CodeResources</code></td>
+        <td>manifest</td>
+        <td>—</td>
+        <td>—</td>
+        <td>2.1 KiB</td>
+        <td><code>6686de10a28a…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Obsidian Helper (Plugin).app/Contents/_CodeSignature/CodeResources</code></td>
+        <td>manifest</td>
+        <td>—</td>
+        <td>—</td>
+        <td>2.1 KiB</td>
+        <td><code>6686de10a28a…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Obsidian Helper (Renderer).app/Contents/_CodeSignature/CodeResources</code></td>
+        <td>manifest</td>
+        <td>—</td>
+        <td>—</td>
+        <td>2.1 KiB</td>
+        <td><code>6686de10a28a…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Obsidian Helper.app/Contents/_CodeSignature/CodeResources</code></td>
+        <td>manifest</td>
+        <td>—</td>
+        <td>—</td>
+        <td>2.1 KiB</td>
+        <td><code>6686de10a28a…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/MainMenu.nib</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>2.0 KiB</td>
+        <td><code>4b2168de2d6d…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Squirrel.framework/Versions/A/Resources/Info.plist</code></td>
+        <td>manifest</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.8 KiB</td>
+        <td><code>a190797cee69…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/ReactiveObjC.framework/Versions/A/Resources/Info.plist</code></td>
+        <td>manifest</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.7 KiB</td>
+        <td><code>30f658ced275…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Resources/app.asar.unpacked/node_modules/btime/index.js</code></td>
+        <td>script</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.7 KiB</td>
+        <td><code>7ade5c334d6e…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Obsidian Helper (Renderer).app/Contents/Info.plist</code></td>
+        <td>manifest</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.6 KiB</td>
+        <td><code>f156bb6bf2fe…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Obsidian Helper (Plugin).app/Contents/Info.plist</code></td>
+        <td>manifest</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.6 KiB</td>
+        <td><code>be82b4cea075…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Obsidian Helper (GPU).app/Contents/Info.plist</code></td>
+        <td>manifest</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.6 KiB</td>
+        <td><code>a0907c5e1ea5…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Mantle.framework/Versions/A/Resources/Info.plist</code></td>
+        <td>manifest</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.6 KiB</td>
+        <td><code>ab7b18089e9e…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Obsidian Helper.app/Contents/Info.plist</code></td>
+        <td>manifest</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.6 KiB</td>
+        <td><code>f1a22f36a865…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/Info.plist</code></td>
+        <td>manifest</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.5 KiB</td>
+        <td><code>c9fb73f0b44d…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Resources/app.asar.unpacked/node_modules/get-fonts/fontsMac.mm</code></td>
+        <td>other</td>
+        <td>—</td>
+        <td>—</td>
+        <td>761 B</td>
+        <td><code>0a1a83b87b2b…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Resources/app.asar.unpacked/node_modules/btime/package.json</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>407 B</td>
+        <td><code>0db31b9e4d25…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Resources/app.asar.unpacked/node_modules/get-fonts/package.json</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>339 B</td>
+        <td><code>be584f0765f4…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Resources/app.asar.unpacked/node_modules/get-fonts/index.js</code></td>
+        <td>script</td>
+        <td>—</td>
+        <td>—</td>
+        <td>115 B</td>
+        <td><code>b44255cd3525…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Libraries/vk_swiftshader_icd.json</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>110 B</td>
+        <td><code>d717d915e31e…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/af_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/af_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/af_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/am_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/am_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/am_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ar_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ar_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ar_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/bg_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/bg_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/bg_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/bn_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/bn_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/bn_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ca_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ca_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ca_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/cs_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/cs_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/cs_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/da_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/da_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/da_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/de_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/de_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/de_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/el_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/el_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/el_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/en_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/en_GB_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/en_GB_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/en_GB_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/en_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/en_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/es_419_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/es_419_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/es_419_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/es_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/es_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/es_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/et_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/et_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/et_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/fa_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/fa_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/fa_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/fi_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/fi_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/fi_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/fil_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/fil_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/fil_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/fr_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/fr_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/fr_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/gu_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/gu_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/gu_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/he_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/he_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/he_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/hi_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/hi_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/hi_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/hr_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/hr_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/hr_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/hu_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/hu_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/hu_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/id_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/id_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/id_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/it_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/it_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/it_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ja_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ja_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ja_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/kn_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/kn_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/kn_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ko_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ko_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ko_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/lt_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/lt_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/lt_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/lv_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/lv_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/lv_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ml_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ml_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ml_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/mr_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/mr_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/mr_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ms_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ms_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ms_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/nb_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/nb_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/nb_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/nl_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/nl_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/nl_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/pl_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/pl_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/pl_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/pt_BR_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/pt_BR_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/pt_BR_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/pt_PT_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/pt_PT_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/pt_PT_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ro_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ro_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ro_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ru_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ru_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ru_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sk_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sk_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sk_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sl_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sl_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sl_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sr_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sr_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sr_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sv_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sv_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sv_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sw_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sw_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sw_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ta_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ta_MASCULINE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ta_NEUTER.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/te_FEMININE.lproj/locale.pak</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>18 B</td>
+        <td><code>ca73097bd968…</code></td>
+      </tr></tbody></table>
+  <p class="muted">42 further members are in the record JSON, and in the tree fingerprint.</p>
+  <section class="limitations"><h3>Limitations</h3><ul><li>2 archive members were counted and hashed but not opened (for example app.asar, obsidian.asar).</li><li>A package inventory hashes each inventoried member; it does not open archives, parse code signatures, or establish where any member came from.</li><li>Manifest values are self-reported by the target; none were checked against a signature, notarization ticket or entitlements.</li><li>Symbolic links were recorded with their target text but were never followed, opened or hashed.</li><li>The tree fingerprint is computed over relative member paths, sizes and hashes, so it does not depend on where the package is mounted.</li></ul></section>
+<footer>Generated by TraceForge. Evidence is content-addressed and locally authenticated. Verify with <code>tforge evidence verify ev_2060636de94207c12cdf6bd4b898183aba495319120f1dea9f7db126bb032c87</code>.</footer>
+</div>
+</body>
+</html>
