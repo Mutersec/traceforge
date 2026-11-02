@@ -134,6 +134,11 @@
   section linking the four reports. No `src/` or `test/` change, no new
   dependency, no network.
 
+- CI fix: the per-ref concurrency group was declared at job level, so the four
+  matrix legs shared one group and cancelled each other — observed on the first
+  run of this branch, where only `ubuntu-latest · node 22` finished and the other
+  three legs were cancelled at ~32 s. Moved to workflow level.
+
 - Documentation accuracy pass: the README no longer claims a report can be
   re-verified by "anyone with this repository" — verification recomputes the
   stored record, so `evidence verify` answers `invalid or missing` without the
