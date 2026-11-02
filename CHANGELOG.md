@@ -65,6 +65,35 @@
   largest members and nested packages in the standalone HTML report.
 - Existing schemas are untouched: stored Evidence records keep authenticating
   and single-file Evidence IDs are unchanged.
+- Hardened CI matrix: the `ci` workflow now runs ubuntu-latest × macos-latest
+  against Node 22 and 24 (four legs, `fail-fast: false`, 15-minute job
+  timeout, `contents: read`, ref-scoped `concurrency` with
+  `cancel-in-progress`), and feature branches under `feat/*` and `feat/**`
+  trigger it on push. Each leg runs `npm run check`, then a live smoke set:
+  a synthetic bundle through `tforge app --no-save`, `scan`/`inspect --only`/
+  `diff`/`report` against the runner's own `/bin/ls` with the report size
+  logged, and an MCP stdio session whose answers are parsed as JSON to assert
+  exactly six tools in order and every tool text at or below 256 KiB.
+- Signed-Evidence CI smoke: `evidence keygen`, scan (saved), `sign`, `verify
+  --public-key` and `verify-all` run against a throwaway store under the
+  runner temp directory — keys never leave it, no workflow uploads artifacts,
+  and a final `always()` step deletes the temp stores; `verify-all` exits 1 on
+  any invalid record, so a broken store fails the job. Determinism is asserted
+  by scanning the same binary twice and comparing Evidence IDs.
+- Benchmark gate `scripts/bench-gate.mjs` (dependency-free, reads the
+  `bench/benchmark.mjs` JSON from stdin): CI fails when median exceeds
+  `--max-median-ms` (env `TFORGE_BENCH_MAX_MEDIAN_MS`, default 10 ms) or p95
+  exceeds `--max-p95-ms` (default 25 ms) on 25 pinned iterations, printing the
+  measured and expected numbers; the measurement is also written to the job
+  step summary. Honest scope: this is a smoke ceiling, not a cross-run
+  regression comparison — shared-runner noise forced wide absolute limits and
+  no baseline artifact is retained yet (see `bench/README.md`).
+- Package gates on every leg: `scripts/package-audit.mjs` parses
+  `npm pack --dry-run --json` and fails if `dist/`, `README.md`, `LICENSE` or
+  `assets/` are missing or if `.traceforge`, `keys/`, any `*.pem`, `SABAH.md`
+  or `test/` would ship; `npm publish --dry-run` is a required step (verified
+  offline — the dry run performs no registry call), and it exercises the
+  `prepublishOnly` check the real release path would run.
 
 ## 0.2.0
 

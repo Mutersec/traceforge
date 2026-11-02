@@ -1,20 +1,33 @@
 name: ci
 
 on:
-  push:
-    branches: [main]
   pull_request:
+  push:
+    branches:
+      - main
+      # GitHub Actions branch filters are glob patterns, not regex: `*` does
+      # not cross `/`, while `**` does. `feat/**` already matches single-segment
+      # branches like feat/0.3-mvp, but the split `*`/`**` behaviour is spread
+      # across GitHub's docs rather than stated as a guarantee, so both forms
+      # are listed. The overlap is harmless: a matching branch triggers once.
+      - "feat/*"
+      - "feat/**"
 
 permissions:
   contents: read
 
 jobs:
   test:
-    name: node ${{ matrix.node }}
-    runs-on: ubuntu-latest
+    name: ${{ matrix.os }} · node ${{ matrix.node }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    concurrency:
+      group: ci-${{ github.ref }}
+      cancel-in-progress: true
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-latest, macos-latest]
         node: [22, 24]
     steps:
       - uses: actions/checkout@v7
@@ -23,8 +36,167 @@ jobs:
           node-version: ${{ matrix.node }}
           cache: npm
       - run: npm ci
-      - run: npm run typecheck
-      - run: npm test
-      - run: npm run build
-      - name: CLI smoke test
-        run: node dist/cli.js scan /bin/ls --no-save
+
+      # One command covers the three gates the old workflow ran separately:
+      # tsc --noEmit, vitest run, and the build that every smoke step below
+      # needs. Tests early-return on the wrong platform, so the Darwin-only
+      # Mach-O/bundle/signing/paging bodies run on the macOS leg and the
+      # Linux ELF body runs on the Ubuntu leg; both legs must stay green.
+      - name: Typecheck, tests and build (npm run check)
+        run: npm run check
+
+      # Synthetic bundle instead of a real /Applications app: the runner image
+      # owns those and any of them could move. /bin/ls and /usr/bin/true exist
+      # on ubuntu-latest and macos-latest alike.
+      - name: Smoke · synthetic package via app --no-save
+        run: |
+          set -eo pipefail
+          app="$RUNNER_TEMP/tf-smoke"
+          rm -rf "$app"
+          mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
+          cp /bin/ls "$app/Contents/MacOS/ls"
+          printf 'x' > "$app/Contents/Resources/notes.txt"
+          node dist/cli.js app "$app" --no-save 2>&1 | tee "$RUNNER_TEMP/smoke-app.txt"
+          grep -Eq 'ev_[a-f0-9]{64}' "$RUNNER_TEMP/smoke-app.txt" || {
+            echo "app smoke: no evidence id in output"; exit 1;
+          }
+
+      - name: Smoke · scan, inspect --only, diff
+        run: |
+          node dist/cli.js scan /bin/ls --no-save
+          node dist/cli.js inspect /bin/ls --no-save --only sections
+          node dist/cli.js diff /bin/ls /usr/bin/true --no-save
+
+      - name: Smoke · HTML report size
+        run: |
+          node dist/cli.js report /bin/ls --out "$RUNNER_TEMP/tf-smoke.html" --no-save
+          bytes=$(wc -c < "$RUNNER_TEMP/tf-smoke.html" | tr -d ' ')
+          echo "report bytes: $bytes"
+          [ "$bytes" -gt 1024 ] || { echo "report is smaller than 1 KiB"; exit 1; }
+
+      - name: Smoke · MCP stdio (six tools in order, 256 KiB ceiling)
+        run: |
+          set -eo pipefail
+          app="$RUNNER_TEMP/tf-smoke"
+          in="$RUNNER_TEMP/mcp-in.jsonl"
+          out="$RUNNER_TEMP/mcp-out.jsonl"
+          {
+            printf '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18"}}\n'
+            printf '{"jsonrpc":"2.0","id":2,"method":"tools/list"}\n'
+            printf '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"inspect_package","arguments":{"path":"%s","detail":"complete"}}}\n' "$app"
+            printf '{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"inspect_binary","arguments":{"path":"/bin/ls","detail":"complete"}}}\n'
+          } > "$in"
+          node dist/cli.js mcp --store "$RUNNER_TEMP/tf-mcp/evidence" < "$in" > "$out"
+          # Parsed as JSON, never grepped: the six tool names must appear in
+          # exactly this order, and every tool text answer must stay within
+          # MAX_TOOL_TEXT_BYTES (262144) with the byte count logged.
+          node -e '
+          const fs = require("node:fs");
+          const lines = fs.readFileSync(process.argv[1], "utf8").split("\n").filter((l) => l.trim().length > 0).map((l) => JSON.parse(l));
+          const byId = new Map(lines.map((m) => [m.id, m]));
+          const init = byId.get(1);
+          if (!init || !init.result || !init.result.serverInfo) throw new Error("initialize response missing serverInfo");
+          if (!init.result.capabilities || !init.result.capabilities.tools || !init.result.capabilities.resources) throw new Error("initialize must advertise tools and resources capabilities");
+          const expected = ["scan_binary", "inspect_binary", "inspect_package", "compare_binaries", "get_evidence", "list_evidence"];
+          const names = ((byId.get(2) || {}).result || {}).tools || [];
+          const got = names.map((t) => t.name);
+          if (got.length !== 6) throw new Error("tools/list returned " + got.length + " tools, expected exactly 6: " + JSON.stringify(got));
+          for (let i = 0; i < 6; i += 1) if (got[i] !== expected[i]) throw new Error("tools/list order mismatch at " + i + ": got " + got[i] + ", expected " + expected[i]);
+          console.log("tools/list ok, exactly 6 tools in order: " + got.join(", "));
+          const MAX = 262144;
+          for (const id of [3, 4]) {
+            const msg = byId.get(id);
+            if (!msg || !msg.result || !msg.result.content || !msg.result.content[0]) throw new Error("tool answer " + id + " missing content");
+            if (msg.result.isError) throw new Error("tool " + id + " answered isError: " + msg.result.content[0].text.slice(0, 200));
+            const bytes = Buffer.byteLength(msg.result.content[0].text, "utf8");
+            if (bytes > MAX) throw new Error("tool answer " + id + " is " + bytes + " bytes > " + MAX + " (MAX_TOOL_TEXT_BYTES)");
+            console.log("tool answer id=" + id + " bytes=" + bytes + " (<= " + MAX + " MAX_TOOL_TEXT_BYTES)");
+          }
+          console.log("mcp smoke ok");
+          ' "$out"
+
+      # All key material lives under $RUNNER_TEMP/tf-signing and is deleted by
+      # the final step; nothing in this workflow uploads artifacts, so private
+      # keys can never reach the artifact store. The scan runs twice on purpose:
+      # identical ids prove content-addressed determinism on this host. The id
+      # itself is not pinned to ev_4881... here because runner /bin/ls differs
+      # per OS and image; the pinned value is verified on developer machines
+      # (see README Development).
+      - name: Smoke · signed evidence lifecycle in a temp store
+        run: |
+          set -eo pipefail
+          base="$RUNNER_TEMP/tf-signing"
+          store="$base/evidence"
+          rm -rf "$base"
+          mkdir -p "$base"
+          node dist/cli.js evidence keygen --store "$store" --json > "$base/keygen.json"
+          node dist/cli.js scan /bin/ls --store "$store" --json > "$base/scan1.json"
+          node dist/cli.js scan /bin/ls --store "$store" --json > "$base/scan2.json"
+          node -e '
+          const fs = require("node:fs");
+          const a = JSON.parse(fs.readFileSync(process.argv[1], "utf8")).evidence_id;
+          const b = JSON.parse(fs.readFileSync(process.argv[2], "utf8")).evidence_id;
+          if (a !== b) throw new Error("non-deterministic scan ids: " + a + " != " + b);
+          console.log("deterministic scan id: " + a);
+          ' "$base/scan1.json" "$base/scan2.json"
+          id=$(node -e 'console.log(JSON.parse(require("fs").readFileSync(process.argv[1], "utf8")).evidence_id)' "$base/scan1.json")
+          node dist/cli.js evidence sign "$id" --store "$store" --json > "$base/sign.json"
+          pub=$(node -e 'console.log(JSON.parse(require("fs").readFileSync(process.argv[1], "utf8")).public_key)' "$base/keygen.json")
+          node dist/cli.js evidence verify "$id" --store "$store" --public-key "$pub" --json > "$base/verify.json"
+          node -e '
+          const v = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"));
+          if (v.verified !== true || v.self_reported !== false) throw new Error("external-key verify failed: " + JSON.stringify(v));
+          console.log("signed · verified by " + v.key_fingerprint + " against the external public key");
+          ' "$base/verify.json"
+          # verify-all exits 1 when any record fails authentication, so a
+          # broken store turns this step red without extra glue.
+          node dist/cli.js evidence verify-all --store "$store" --json > "$base/verify-all.json"
+          node -e '
+          const r = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"));
+          if (r.invalid.length !== 0) throw new Error("verify-all found invalid records: " + JSON.stringify(r.invalid));
+          if (r.signed < 1) throw new Error("expected at least one signed record, got " + r.signed);
+          console.log(r.valid + " valid · " + r.invalid.length + " invalid · " + r.signed + " signed");
+          ' "$base/verify-all.json"
+
+      # Smoke ceiling, NOT a cross-run regression gate: the thresholds are wide
+      # on purpose because shared runners differ per boot and there is no
+      # retained benchmark baseline to compare against yet. See bench/README.md.
+      - name: Benchmark smoke ceiling (gate)
+        env:
+          BENCH_ITERATIONS: "25"
+        run: |
+          set -eo pipefail
+          npm run bench --silent | tee "$RUNNER_TEMP/bench.json" | node scripts/bench-gate.mjs
+      - name: Benchmark measurement to step summary
+        if: always()
+        run: |
+          if [ -s "$RUNNER_TEMP/bench.json" ]; then
+            {
+              echo "### Benchmark gate"
+              echo
+              echo "Smoke ceiling (median ≤ 10 ms, p95 ≤ 25 ms) — not a cross-run regression comparison."
+              echo
+              echo '```json'
+              cat "$RUNNER_TEMP/bench.json"
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Package content audit (npm pack --dry-run)
+        run: |
+          set -eo pipefail
+          npm pack --dry-run --json | node scripts/package-audit.mjs
+
+      # Verified offline on a developer machine (npm 11.19.0): the pack listing
+      # needs no registry and `publish --dry-run` succeeded with the registry
+      # pointed at a dead address, so this step stays required. It re-runs
+      # prepublishOnly -> npm run check, which is slow on purpose: publish
+      # gating must check what the hook actually does.
+      - name: npm publish --dry-run
+        run: npm publish --dry-run
+
+      - name: Remove temp stores and signing keys
+        if: always()
+        run: |
+          rm -rf "${RUNNER_TEMP:?}/tf-smoke" "${RUNNER_TEMP:?}/tf-mcp" "${RUNNER_TEMP:?}/tf-signing" \
+                 "${RUNNER_TEMP:?}/tf-smoke.html" "${RUNNER_TEMP:?}/mcp-in.jsonl" "${RUNNER_TEMP:?}/mcp-out.jsonl"

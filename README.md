@@ -311,12 +311,31 @@ npm run typecheck
 npm test
 npm run build
 npm run check      # typecheck + tests + build
+
+# the same gates CI runs, locally
+BENCH_ITERATIONS=25 npm run bench --silent | node scripts/bench-gate.mjs
+npm pack --dry-run --json | node scripts/package-audit.mjs
+npm publish --dry-run          # offline: packs, runs prepublishOnly, publishes nothing
 ```
 
 Tests cover synthetic ELF/PE/WASM fixtures, synthetic bundle trees with XML and
 binary property lists, parser limits, Evidence integrity, Ed25519 signing and
 tamper detection, bundle round-trips, MCP protocol and a real macOS Mach-O and
-a real installed bundle when run on Darwin. CI runs on Node 22 and 24.
+a real installed bundle when run on Darwin. CI runs the matrix
+ubuntu-latest × macos-latest on Node 22 and 24 (fail-fast off): `npm run
+check`, a live smoke set (synthetic package through `app --no-save`, then
+`scan`/`inspect --only`/`diff`/`report` on the runner's own `/bin/ls`, an MCP
+stdio session asserting the six tool names in order and the 256 KiB answer
+ceiling, and the full keygen → sign → verify lifecycle in a throwaway store
+whose keys are deleted at job end and never uploaded), the benchmark smoke
+ceiling above, and the package gates. Platform guards matter for reading CI:
+the real Mach-O, real-bundle, live-CLI-signing and live-paging test bodies
+early-return on Linux (they run on the macOS leg), and the real-ELF test
+early-returns on macOS (it runs on the Ubuntu leg) — so four red-free legs do
+not mean the same test bodies ran on each. `scan /bin/ls` on this machine must
+still hash to `ev_4881c15a0c4ae521f75e89d77d9abaca2cb5b6f68f32ce74cd005e58beb15e2a`;
+CI instead proves determinism by scanning the runner's own `/bin/ls` twice and
+comparing ids, because runner binaries differ per image.
 
 ## Performance
 
@@ -329,7 +348,11 @@ Measured on an Apple Silicon arm64 host with Node 24, 25 iterations over a
 
 The benchmark is local and parser-only; it does not execute the target or use a
 network. Reproduce with `npm run bench -- /bin/ls`. These numbers are a starting
-point, not a cross-tool comparison.
+point, not a cross-tool comparison. CI runs the benchmark too, but its gate is
+a wide smoke ceiling (median ≤ 10 ms, p95 ≤ 25 ms on 25 iterations), not a
+regression comparison: shared-runner noise makes one CI sample unfit to catch a
+real slowdown, and no baseline artifact is retained to compare against yet. See
+[bench/README.md](bench/README.md).
 
 ## License
 
