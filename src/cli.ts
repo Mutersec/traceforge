@@ -1,11 +1,20 @@
 #!/usr/bin/env node
-import { stat } from "node:fs/promises";
+import { readFile, stat } from "node:fs/promises";
 import { parseArgs } from "node:util";
+import { resolve } from "node:path";
 
 import { summarizePackage } from "./core/app.js";
 import { compare, inspect, scanBinary, scanPackage } from "./core/operations.js";
 import { EvidenceStore } from "./core/evidence.js";
 import { writeEvidenceReport } from "./core/report.js";
+import type { EvidenceSignatureReport } from "./core/report.js";
+import {
+  SignatureStore,
+  generateSigningKeyPair,
+  readSignatureFields,
+  signEvidenceRecord,
+} from "./core/signature.js";
+import type { SignatureVerifyOptions } from "./core/signature.js";
 import { TraceForgeError } from "./core/errors.js";
 import type { AppInventory, ComparisonResult, EvidenceRecord } from "./core/types.js";
 import { runMcpServer } from "./mcp/server.js";
@@ -21,11 +30,13 @@ Usage:
   tforge diff <left> <right> [--json] [--store <dir>] [--no-save]
   tforge evidence list
   tforge evidence show <evidence_id>
-  tforge evidence verify <evidence_id>
+  tforge evidence verify <evidence_id> [--public-key <path>] [--signature <path>]
   tforge evidence verify-all
+  tforge evidence keygen [--name <label>]
+  tforge evidence sign <evidence_id> [--private-key <path>]
   tforge evidence export <bundle.json>
   tforge evidence import <bundle.json>
-  tforge report <path|package|evidence_id> [--out <file>]
+  tforge report <path|package|evidence_id> [--out <file>] [--signature <path>] [--public-key <path>]
   tforge mcp
   tforge version
 
@@ -39,6 +50,15 @@ Packages:
 Evidence:
   Every scan, inspect, app and diff writes a deterministic content-addressed
   record to .traceforge/evidence unless --no-save is used.
+
+Signing:
+  tforge evidence keygen writes an Ed25519 key pair to .traceforge/keys.
+  tforge evidence sign writes a detached signature sidecar per record to
+  .traceforge/signatures. verify checks that the record bytes have not
+  changed since that key signed them. A signature proves who signed and
+  that the content is unchanged — never where a file came from, and never
+  when it was signed. Keys and signatures live under .traceforge/, which
+  git ignores.
 
 Exit codes:
   0 success, 1 user/input error, 2 internal error.
@@ -278,6 +298,61 @@ const diffHuman = (result: ComparisonResult, enabled: boolean): void => {
   }
 };
 
+const readKeyFile = async (path: string, kind: "private" | "public"): Promise<string> => {
+  try {
+    return await readFile(resolve(path), "utf8");
+  } catch (cause) {
+    throw new TraceForgeError(
+      "invalid_input",
+      `Cannot read the ${kind} key file ${path}. Run \`tforge evidence keygen\` or pass an existing ${kind} key.`,
+      { cause },
+    );
+  }
+};
+
+const signatureReportFor = async (
+  store: EvidenceStore,
+  record: EvidenceRecord,
+  signaturePath: string | undefined,
+  publicKeyPath: string | undefined,
+): Promise<EvidenceSignatureReport | undefined> => {
+  if (signaturePath === undefined && publicKeyPath === undefined) return undefined;
+  const signatures = new SignatureStore(store);
+  const options: SignatureVerifyOptions = {};
+  if (signaturePath !== undefined) options.path = resolve(signaturePath);
+  if (publicKeyPath !== undefined)
+    options.publicKeyPem = await readKeyFile(publicKeyPath, "public");
+  const sidecarPath = options.path ?? signatures.pathFor(record.evidence_id);
+  try {
+    const result = await signatures.verify(record.evidence_id, options);
+    return {
+      status: "verified",
+      message: result.external_key
+        ? "Verified against the public key supplied on the command line."
+        : "Verified against the public key embedded in the signature file.",
+      algorithm: result.signature.algorithm,
+      key_fingerprint: result.fingerprint,
+      record_sha256: result.signature.record_sha256,
+      self_reported: !result.external_key,
+    };
+  } catch (error) {
+    const fields = await readSignatureFields(sidecarPath);
+    return {
+      status: "failed",
+      message:
+        error instanceof TraceForgeError
+          ? error.message
+          : "The signature could not be checked.",
+      algorithm: fields === null || fields.algorithm === null ? "—" : fields.algorithm,
+      key_fingerprint:
+        fields === null || fields.key_fingerprint === null ? "—" : fields.key_fingerprint,
+      record_sha256:
+        fields === null || fields.record_sha256 === null ? "—" : fields.record_sha256,
+      self_reported: publicKeyPath === undefined,
+    };
+  }
+};
+
 const main = async (): Promise<number> => {
   const parsed = parseArgs({
     args: process.argv.slice(2),
@@ -288,6 +363,10 @@ const main = async (): Promise<number> => {
       arch: { type: "string" },
       out: { type: "string" },
       "no-save": { type: "boolean", default: false },
+      "private-key": { type: "string" },
+      "public-key": { type: "string" },
+      signature: { type: "string" },
+      name: { type: "string" },
       debug: { type: "boolean", default: false },
       help: { type: "boolean", short: "h", default: false },
       version: { type: "boolean", short: "v", default: false },
@@ -354,9 +433,16 @@ const main = async (): Promise<number> => {
           ? (await scanPackage(subject, store, VERSION)).record
           : (await inspect(subject, store, VERSION)).record;
     }
+    const signatureReport = await signatureReportFor(
+      reportStore,
+      record,
+      parsed.values.signature,
+      parsed.values["public-key"],
+    );
     const out = await writeEvidenceReport(
       record,
       parsed.values.out ?? "traceforge-report.html",
+      signatureReport,
     );
     if (parsed.values.json) print({ path: out, evidence_id: record.evidence_id }, true);
     else
@@ -380,13 +466,85 @@ const main = async (): Promise<number> => {
   if (command === "evidence") {
     const subcommand = args[0];
     const evidenceStore = new EvidenceStore(parsed.values.store);
+    const signatures = new SignatureStore(evidenceStore);
+    if (subcommand === "keygen") {
+      const pair = generateSigningKeyPair();
+      const paths = await signatures.putKeyPair(pair, parsed.values.name);
+      if (parsed.values.json)
+        print(
+          {
+            fingerprint: pair.fingerprint,
+            algorithm: "ed25519",
+            private_key: paths.private_path,
+            public_key: paths.public_path,
+          },
+          true,
+        );
+      else {
+        simpleHeader("Ed25519 key", useColor);
+        process.stdout.write(`${color(useColor, "2", "fingerprint")} ${pair.fingerprint}\n`);
+        process.stdout.write(`${color(useColor, "2", "private key")} ${paths.private_path}\n`);
+        process.stdout.write(`${color(useColor, "2", "public key")}  ${paths.public_path}\n`);
+        process.stdout.write(
+          `\n${color(useColor, "33", "Keep the private key offline.")} Anyone who holds it can sign records as you; share only the public key.\n`,
+        );
+      }
+      return 0;
+    }
+    if (subcommand === "sign") {
+      const signId = args[1];
+      if (signId === undefined)
+        throw new TraceForgeError("invalid_input", "evidence sign needs an Evidence ID");
+      const record = await evidenceStore.get(signId);
+      const privateKeyPath =
+        parsed.values["private-key"] ?? (await signatures.defaultPrivateKeyPath());
+      const privateKeyPem = await readKeyFile(privateKeyPath, "private");
+      const signature = signEvidenceRecord(record, privateKeyPem, VERSION);
+      const sidecar = await signatures.put(signature);
+      if (parsed.values.json) print(signature, true);
+      else {
+        process.stdout.write(`${color(useColor, "2", "evidence")}  ${signature.evidence_id}\n`);
+        process.stdout.write(`${color(useColor, "2", "key")}       ${signature.key_fingerprint}\n`);
+        process.stdout.write(`${color(useColor, "2", "signature")} ${sidecar}\n`);
+      }
+      return 0;
+    }
     if (subcommand === "verify-all") {
       const verified = await evidenceStore.verifyAll();
-      if (parsed.values.json) print(verified, true);
+      const records = await evidenceStore.list();
+      let signed = 0;
+      const signatureErrors: { evidence_id: string; error: string }[] = [];
+      for (const summary of records) {
+        try {
+          await signatures.verify(summary.evidence_id);
+          signed += 1;
+        } catch (error) {
+          if (error instanceof TraceForgeError && error.code === "signature_not_found")
+            continue;
+          signatureErrors.push({
+            evidence_id: summary.evidence_id,
+            error: error instanceof TraceForgeError ? error.message : "The signature could not be checked.",
+          });
+        }
+      }
+      const unsigned = records.length - signed;
+      if (parsed.values.json)
+        print(
+          {
+            valid: verified.valid,
+            invalid: verified.invalid,
+            signed,
+            unsigned,
+            signature_errors: signatureErrors,
+          },
+          true,
+        );
       else
         process.stdout.write(
           `${verified.valid} valid · ${verified.invalid.length} invalid\n` +
-            verified.invalid.map((id) => `  ${id}\n`).join(""),
+            verified.invalid.map((id) => `  ${id}\n`).join("") +
+            `${signed} signed · ${unsigned} unsigned\n` +
+            signatureErrors.map((item) => `  ${item.evidence_id} ${item.error}\n`).join(""),
         );
       return verified.invalid.length === 0 ? 0 : 1;
     }
@@ -423,9 +581,37 @@ const main = async (): Promise<number> => {
       return 0;
     }
     if (subcommand === "verify") {
-      const valid = await evidenceStore.verify(id);
-      process.stdout.write(valid ? "valid\n" : "invalid or missing\n");
-      return valid ? 0 : 1;
+      const publicKeyPath = parsed.values["public-key"];
+      const signaturePath = parsed.values.signature;
+      if (publicKeyPath === undefined && signaturePath === undefined) {
+        const valid = await evidenceStore.verify(id);
+        process.stdout.write(valid ? "valid\n" : "invalid or missing\n");
+        return valid ? 0 : 1;
+      }
+      const options: SignatureVerifyOptions = {};
+      if (signaturePath !== undefined) options.path = resolve(signaturePath);
+      if (publicKeyPath !== undefined)
+        options.publicKeyPem = await readKeyFile(publicKeyPath, "public");
+      const result = await signatures.verify(id, options);
+      if (parsed.values.json)
+        print(
+          {
+            evidence_id: id,
+            verified: true,
+            key_fingerprint: result.fingerprint,
+            record_sha256: result.signature.record_sha256,
+            self_reported: !result.external_key,
+          },
+          true,
+        );
+      else {
+        process.stdout.write(`signed · verified by ${result.fingerprint}\n`);
+        if (!result.external_key)
+          process.stdout.write(
+            `${color(useColor, "33", "self-reported key")} · the public key was read from the signature file itself, so this is not third-party confirmation; pass --public-key to check against a key you hold.\n`,
+          );
+      }
+      return 0;
     }
     throw new TraceForgeError("invalid_input", "Unknown evidence subcommand");
   }

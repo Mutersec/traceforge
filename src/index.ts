@@ -12,6 +12,17 @@ export { EvidenceStore, createEvidenceRecord } from "./core/evidence.js";
 export { TraceForgeError } from "./core/errors.js";
 export { parsePlist, plistEncoding, scalarClaim } from "./core/plist.js";
 export {
+  SignatureStore,
+  SIGNATURE_PREFIX,
+  generateSigningKeyPair,
+  keyFingerprint,
+  loadSignatureFile,
+  readSignatureFields,
+  recordSha256,
+  signEvidenceRecord,
+  signatureMessage,
+} from "./core/signature.js";
+export {
   compare,
   inspect,
   scanBinary,
@@ -37,4 +48,13 @@ export type {
 } from "./core/types.js";
 export type { PackageOptions, PackageSummary } from "./core/app.js";
 export type { PlistDocument, PlistEncoding, PlistValue } from "./core/plist.js";
+export type {
+  EvidenceSignature,
+  GeneratedKeyPair,
+  KeyPairPaths,
+  SignatureFields,
+  SignatureVerification,
+  SignatureVerifyOptions,
+} from "./core/signature.js";
+export type { EvidenceSignatureReport } from "./core/report.js";
 export { handleMcpMessage, runMcpServer } from "./mcp/server.js";

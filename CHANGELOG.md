@@ -2,6 +2,28 @@
 
 ## Unreleased (0.3.0 work)
 
+- Signed Evidence: `tforge evidence keygen`, `sign` and `verify --public-key`
+  use Ed25519 from Node's own `crypto` — no new dependencies. Keys are PKCS#8
+  and SPKI PEMs under `.traceforge/keys`, sidecars under
+  `.traceforge/signatures`, every file atomic and owner-only (0600).
+- A signature covers the ASCII message `traceforge.signature.v1\n` plus the
+  SHA-256 of the record's canonical JSON, so it cannot be replayed against a
+  bare hash or another schema. Ed25519 is deterministic: the same key and
+  record always produce the same signature. Timestamps are deliberately not
+  hashed — hashed content must stay deterministic.
+- Verification distinguishes every failure: missing sidecar, malformed
+  sidecar, record bytes changed since signing, record identity broken, wrong
+  public key, and a signature that does not verify. `evidence verify` without
+  signature flags and the `N valid · M invalid` line of `verify-all` are
+  unchanged; `verify-all` adds a `X signed · Y unsigned` line and unsigned is
+  never an error.
+- `tforge report` gains an optional Signature section when `--signature` or
+  `--public-key` is given: verified/failed badge, key fingerprint,
+  `record_sha256`, and the honest line that a signature proves who signed and
+  non-change, not origin. An embedded key is rendered as self-reported.
+- A signature proves no time, no revocation and no OS keyring protection: the
+  0600 file mode is the only guard on a private key. See
+  [docs/signing.md](docs/signing.md).
 - `tforge app <package>`: recursive inventory of an `.app`, `.framework` or
   directory. Every member keeps its own path, size, streaming SHA-256, kind,
   detected format and architecture labels read from a 64 KiB header window.

@@ -92,8 +92,10 @@ node dist/cli.js scan /bin/ls
 | `diff <left> <right>` | Compare two binaries by identity, sections, symbols and mitigation changes. |
 | `evidence list` | List local Evidence summaries. |
 | `evidence show <id>` | Read one authenticated record. |
-| `evidence verify <id>` | Recompute and verify a record. |
-| `evidence verify-all` | Verify every local record. |
+| `evidence verify <id>` | Recompute and verify a record. With `--public-key <path>` or `--signature <path>`, also check its Ed25519 signature. |
+| `evidence verify-all` | Verify every local record, and count signed vs unsigned. |
+| `evidence keygen` | Create an Ed25519 signing key pair in `.traceforge/keys`. |
+| `evidence sign <id>` | Write a detached signature sidecar for one record. |
 | `evidence export <path>` | Export a deterministic bundle. |
 | `evidence import <path>` | Authenticate and merge a bundle. |
 | `report <path\|package\|id>` | Write a standalone HTML Evidence report. |
@@ -104,6 +106,38 @@ Use `--out report.html` with `report`; `npm run demo` runs the whole showcase.
 
 Evidence is written to `.traceforge/evidence` by default. Use `--no-save` for a
 one-shot inspection.
+
+## Signing
+
+```console
+$ tforge evidence keygen
+TraceForge · Ed25519 key
+
+fingerprint pk_786bbd87c43f5f088dafb5f9ab7ed0b6765b5a11bf60fbaea819da88714205a4
+private key /Users/emirhan/Desktop/TraceForge/.traceforge/keys/pk_786bbd87c43f5f088dafb5f9ab7ed0b6765b5a11bf60fbaea819da88714205a4.pem
+public key  /Users/emirhan/Desktop/TraceForge/.traceforge/keys/pk_786bbd87c43f5f088dafb5f9ab7ed0b6765b5a11bf60fbaea819da88714205a4.pub.pem
+
+Keep the private key offline. Anyone who holds it can sign records as you; share only the public key.
+
+$ tforge evidence sign ev_4881c15a0c4ae521f75e89d77d9abaca2cb5b6f68f32ce74cd005e58beb15e2a
+evidence  ev_4881c15a0c4ae521f75e89d77d9abaca2cb5b6f68f32ce74cd005e58beb15e2a
+key       pk_786bbd87c43f5f088dafb5f9ab7ed0b6765b5a11bf60fbaea819da88714205a4
+signature /Users/emirhan/Desktop/TraceForge/.traceforge/signatures/ev_4881c15a0c4ae521f75e89d77d9abaca2cb5b6f68f32ce74cd005e58beb15e2a.sig.json
+
+$ tforge evidence verify ev_4881c15a0c4ae521f75e89d77d9abaca2cb5b6f68f32ce74cd005e58beb15e2a --public-key .traceforge/keys/pk_786bbd87c43f5f088dafb5f9ab7ed0b6765b5a11bf60fbaea819da88714205a4.pub.pem
+signed · verified by pk_786bbd87c43f5f088dafb5f9ab7ed0b6765b5a11bf60fbaea819da88714205a4
+```
+
+A detached Ed25519 sidecar binds one key to one record and proves the record
+bytes have not changed since it was signed. Signatures use Node's own crypto;
+there are still zero runtime dependencies. The signed message is the ASCII
+prefix `traceforge.signature.v1\n` plus the SHA-256 of the record's canonical
+JSON — deterministic, no timestamp, nothing random. If you change the record,
+`verify` fails with `The record changed after it was signed`. Keys and
+sidecars live under `.traceforge/`, which git ignores, and are written 0600.
+What a signature does not prove — no time, no revocation, no origin, and an
+embedded key is only self-reported — is spelled out in
+[docs/signing.md](docs/signing.md).
 
 ## Inspecting a whole application
 
@@ -237,6 +271,8 @@ adapters never re-interpret parser facts.
   a 64 KiB header window, and manifests from a 4 MiB read.
 - Bounds, counts and string lengths are checked before allocation.
 - Evidence is written atomically with owner-only permissions.
+- Signing keys are written 0600 under the git-ignored `.traceforge/` tree; the
+  file mode is the only guard, so keep the private key offline.
 - The tool does not execute, attach to, or modify targets.
 
 See [SECURITY.md](SECURITY.md) for reporting and [docs/roadmap.md](docs/roadmap.md)
@@ -253,9 +289,9 @@ npm run check      # typecheck + tests + build
 ```
 
 Tests cover synthetic ELF/PE/WASM fixtures, synthetic bundle trees with XML and
-binary property lists, parser limits, Evidence integrity, bundle round-trips,
-MCP protocol and a real macOS Mach-O and a real installed bundle when run on
-Darwin. CI runs on Node 22 and 24.
+binary property lists, parser limits, Evidence integrity, Ed25519 signing and
+tamper detection, bundle round-trips, MCP protocol and a real macOS Mach-O and
+a real installed bundle when run on Darwin. CI runs on Node 22 and 24.
 
 ## Performance
 

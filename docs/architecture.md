@@ -11,6 +11,8 @@ flowchart TB
   OPS --> PARSER[format parsers]
   OPS --> EVIDENCE[Evidence identity]
   EVIDENCE --> STORE[local store]
+  SIGN[Ed25519 signatures] --> STORE
+  SIGN --> KEYS[key files]
   PKG --> PLIST[property lists]
   PKG --> PARSER
   PARSER --> MACHO[Mach-O]
@@ -31,6 +33,10 @@ flowchart TB
   inventories and comparisons.
 - `src/core/evidence.ts` owns canonical content hashing, atomic persistence and
   authentication.
+- `src/core/signature.ts` owns Ed25519 keys, the signed-message format and the
+  detached sidecar store beside the record tree. It reads record bytes but
+  never reinterprets them; the domain-separated message and the verification
+  order are documented in [docs/signing.md](signing.md).
 - `src/core/operations.ts` is the shared application workflow used by both
   adapters.
 - `src/cli.ts` and `src/mcp/server.ts` only parse transport input and present
