@@ -32,14 +32,18 @@ git clone https://github.com/Mutersec/traceforge.git
 cd traceforge
 npm ci
 npm run build
-node dist/cli.js app /Applications/SomeApp.app          # inventory the whole bundle
-node dist/cli.js report /Applications/SomeApp.app --out report.html
+node dist/cli.js app /Applications/Obsidian.app         # inventory the whole bundle
+node dist/cli.js report /Applications/Obsidian.app --out report.html
 open report.html                                        # the evidence, offline, in a browser
 ```
 
-Every report carries a content-addressed `evidence_id`; anyone with this
-repository can re-verify it with `node dist/cli.js evidence verify <id>`. No
-network, no account, no execution of the target.
+Every report carries a content-addressed `evidence_id`. The HTML alone is not
+verifiable by someone else: verification recomputes the identity from the stored
+record, so hand over the record too — `evidence export` writes a portable
+bundle and `evidence import` authenticates it (`evidence verify <id>` answers
+`invalid or missing` when the record is absent). A signature closes the gap
+without moving the whole store: `evidence sign <id>` plus `evidence verify <id>
+--public-key <file>`. No network, no account, no execution of the target.
 
 *A plain-Turkish, jargon-free guide to reading a report — what each line
 proves and what it does not — lives in
@@ -244,6 +248,13 @@ member/section tables sit in a horizontally scrollable `.table-wrap`, and long
 paths and hashes use `overflow-wrap: anywhere`, so a 177-character member path
 or the 64-hex Evidence ID in the footer never breaks the layout on a phone or a
 narrow window.
+
+One limit worth stating plainly: the HTML itself is not tamper-evident. It
+carries no script and does not embed the full canonical record, so verification
+reads the stored record, not the page. Send the record (`evidence export`) or a
+signature (`evidence sign`) alongside the report if the recipient must be able
+to detect an edit. Measured on this machine: editing a committed gallery report
+changed nothing for `evidence verify`, which still reported `valid`.
 
 ![TraceForge Evidence report](assets/report.png)
 

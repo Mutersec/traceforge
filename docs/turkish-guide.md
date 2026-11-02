@@ -30,14 +30,21 @@ neyi **kanıtlar**, neyi **kanıtlamaz**.
 
 ### 1. Kanıt Kimliği (Evidence ID)
 
-- **Hangi satır:** başlık altındaki kartlardan ilki; `ev_` ile başlayan 68
-  karakterlik değer. Raporun alt bilgisinde (footer) tam hali bir kez daha
-  yazar.
-- **Ne kanıtlar:** bu raporun içeriği ile kimliği birbirine kenetlenmiştir;
-  `tforge evidence verify <id>` komutu aynı değeri yeniden üretir. Rapor
-  dosyasının bir karakteri bile değişse doğrulama düşer.
+- **Hangi satır:** başlık altındaki kartlardan ilki; `ev_` ile başlayan 67
+  karakterlik değer (`ev_` + 64 onaltılık rakam). Raporun alt bilgisinde (footer)
+  tam hali bir kez daha yazar.
+- **Ne kanıtlar:** kimlik, kaydın (JSON) içeriğinden üretilir;
+  `tforge evidence verify <id>` o içeriği yeniden hesaplar. **Kanıt kaydının**
+  bir karakteri bile değişse doğrulama düşer. Bunu bu gece ölçtüm: kayda tek
+  satır ekleyince `signature_mismatch`, geri yükleyince `signed · verified` aldım.
 - **Ne kanıtlamaz:** tek başına "bu dosya iyidir/kötüdür" demez. Sadece "bu
-  kayıt şudur ve değişmemiştir" der.
+  kayıt şudur ve değişmemiştir" der. Bir de şu önemli sınır: **HTML raporunun
+  kendisi tahrilata karşı korumalı değildir.** Raporun içinde betik yok ve
+  kanonik kaydın tamamı gömülü değil; o yüzden HTML dosyasını biri ellersen
+  bunu ancak kaydı veya imzayı yanında götürerek yakalayabilirsin
+  (`evidence export` / `evidence sign`). Bu gece deneyim: galeri HTML'inde bir
+  etiketi değiştirdim, `evidence verify` yine `valid` dedi — çünkü doğrulanan
+  şey HTML değil kayıttı.
 
 ### 2. Girdi SHA-256'sı (input SHA-256)
 

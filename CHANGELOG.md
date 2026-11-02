@@ -134,6 +134,13 @@
   section linking the four reports. No `src/` or `test/` change, no new
   dependency, no network.
 
+- Documentation accuracy pass: the README no longer claims a report can be
+  re-verified by "anyone with this repository" — verification recomputes the
+  stored record, so `evidence verify` answers `invalid or missing` without the
+  record, and the HTML page itself is not tamper-evident. The Turkish guide now
+  states that limit explicitly and corrects the Evidence ID length to 67
+  characters. Measured both claims before writing them.
+
 ## 0.2.0
 
 - Per-slice `security` summary with one cross-format mitigation vocabulary
