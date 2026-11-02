@@ -141,6 +141,10 @@ error [signature_mismatch]: The record changed after it was signed (record hash 
 Commit zinciri (`feat/0.3-mvp`):
 
 ```
+c1f2652 test: stop pinning a host-specific Evidence ID
+93b298d ci: move the concurrency group from job level to workflow level
+bdf1407 docs: state what a report can and cannot prove
+4bb64f3 docs: add morning handoff report (SABAH.md)
 91692b3 feat: release 0.3.0 docs, Turkish guide and report overflow fix
 0feea81 feat: add evidence gallery built from installed applications
 8a434f8 ci: run matrix on ubuntu and macos with benchmark and package gates
@@ -151,12 +155,41 @@ aa8a9a9 docs: add morning handoff report (SABAH.md)
 f79eadb feat: checkpoint uncommitted 0.2.0 inspection work
 ```
 
+### GitHub'ın koşumundan gerçek satırlar (run 41520910832, dört bacak yeşil)
+
+```text
+macos-latest · node 22   Test Files 5 passed (5)
+macos-latest · node 22   tools/list ok, exactly 6 tools in order:
+                         scan_binary, inspect_binary, inspect_package,
+                         compare_binaries, get_evidence, list_evidence
+macos-latest · node 22   tool answer id=3 bytes=2233 (<= 262144)
+macos-latest · node 22   tool answer id=4 bytes=15063 (<= 262144)
+macos-latest · node 22   deterministic scan id:
+                         ev_406547ca6a1a583e8abf56fac45ebaf018f2d5d824e9fe1ba72848e13a5531d5
+macos-latest · node 22   signed · verified by pk_9683f692aa81221ce8423406daea69aa8b5d…
+                         against the external public key
+macos-latest · node 22   1 valid · 0 invalid · 1 signed
+macos-latest · node 22   bench-gate: ok · median 0.525 ms <= 10 ms · p95 1.221 ms <= 25 ms
+macos-latest · node 24   bench-gate: ok · median 1.301 ms <= 10 ms · p95 2.508 ms <= 25 ms
+macos-latest · node 24   package-audit: ok · required content present,
+                         nothing forbidden in the tarball
+macos-latest · node 22   npm notice Publishing to https://registry.npmjs.org/
+                         with tag latest and default access (dry-run)
+```
+
+O `ev_406547ca…` değerine dikkat: GitHub'ın macOS makinesinin `/bin/ls`'i seninkinden
+farklı, o yüzden kayıt numarası da farklı. Bu, düzelttiğimiz hatanın kendisiydi ve
+artık testler makineye özel bir numara sabitlemiyor.
+
 ## 7) Sırada tek karar senin
 
-Dal GitHub'da; CI dört bacakta (ubuntu + macOS × Node 22 + 24) ilk kez koşacak.
-Yeşilse `main`'e PR açmayı konuşuruz; kırmızıysa sebebi log'dan çıkarıp düzeltirim.
-Yayın (`npm publish`, tag, release) için tek kelimen gerekiyor — o gelene kadar
-yayınlama tarafına dokunmuyorum.
+Dal GitHub'da ve **CI dört bacakta da yeşil** (ubuntu + macOS × Node 22 + 24; koşum
+41520910832). `main`'e dokunmadım, tag/release/`npm publish` yapmadım.
+
+Sıradaki tek karar: bu dalı `main`'e PR olarak açayım mı? Açarsan korunan kollar ve
+iki OS koşumuyla girer; açmazsan dal olduğu gibi durur ve sen istediğin zaman
+`gh pr create` ile tek komutla açılır. Yayın tarafı (npm, tag) için ayrıca tek
+kelimeni bekliyorum.
 
 ---
 
