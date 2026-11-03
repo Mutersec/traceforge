@@ -147,7 +147,7 @@ node dist/cli.js evidence keygen
 node dist/cli.js evidence sign ev_72e61605858e30e40a66f858b0ca1d3e74c934cb39f6acced07abf9226dd6b0e
 # evidence  ev_72e61605858e30e40a66f858b0ca1d3e74c934cb39f6acced07abf9226dd6b0e
 # key       pk_786bbd87c43f5f088dafb5f9ab7ed0b6765b5a11bf60fbaea819da88714205a4
-# signature /Users/emirhan/Desktop/TraceForge/.traceforge/signatures/ev_72e61605858e30e40a66f858b0ca1d3e74c934cb39f6acced07abf9226dd6b0e.sig.json
+# signature ./.traceforge/signatures/ev_72e61605858e30e40a66f858b0ca1d3e74c934cb39f6acced07abf9226dd6b0e.sig.json
 
 # 3) Karşı taraf, SAKLADIĞI açık anahtarla doğrulasın:
 node dist/cli.js evidence verify ev_72e61605858e30e40a66f858b0ca1d3e74c934cb39f6acced07abf9226dd6b0e --public-key .traceforge/keys/pk_786bbd87c43f5f088dafb5f9ab7ed0b6765b5a11bf60fbaea819da88714205a4.pub.pem

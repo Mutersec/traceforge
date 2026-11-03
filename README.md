@@ -146,15 +146,15 @@ $ tforge evidence keygen
 TraceForge · Ed25519 key
 
 fingerprint pk_786bbd87c43f5f088dafb5f9ab7ed0b6765b5a11bf60fbaea819da88714205a4
-private key /Users/emirhan/Desktop/TraceForge/.traceforge/keys/pk_786bbd87c43f5f088dafb5f9ab7ed0b6765b5a11bf60fbaea819da88714205a4.pem
-public key  /Users/emirhan/Desktop/TraceForge/.traceforge/keys/pk_786bbd87c43f5f088dafb5f9ab7ed0b6765b5a11bf60fbaea819da88714205a4.pub.pem
+private key ./.traceforge/keys/pk_786bbd87c43f5f088dafb5f9ab7ed0b6765b5a11bf60fbaea819da88714205a4.pem
+public key  ./.traceforge/keys/pk_786bbd87c43f5f088dafb5f9ab7ed0b6765b5a11bf60fbaea819da88714205a4.pub.pem
 
 Keep the private key offline. Anyone who holds it can sign records as you; share only the public key.
 
 $ tforge evidence sign ev_72e61605858e30e40a66f858b0ca1d3e74c934cb39f6acced07abf9226dd6b0e
 evidence  ev_72e61605858e30e40a66f858b0ca1d3e74c934cb39f6acced07abf9226dd6b0e
 key       pk_786bbd87c43f5f088dafb5f9ab7ed0b6765b5a11bf60fbaea819da88714205a4
-signature /Users/emirhan/Desktop/TraceForge/.traceforge/signatures/ev_72e61605858e30e40a66f858b0ca1d3e74c934cb39f6acced07abf9226dd6b0e.sig.json
+signature ./.traceforge/signatures/ev_72e61605858e30e40a66f858b0ca1d3e74c934cb39f6acced07abf9226dd6b0e.sig.json
 
 $ tforge evidence verify ev_72e61605858e30e40a66f858b0ca1d3e74c934cb39f6acced07abf9226dd6b0e --public-key .traceforge/keys/pk_786bbd87c43f5f088dafb5f9ab7ed0b6765b5a11bf60fbaea819da88714205a4.pub.pem
 signed · verified by pk_786bbd87c43f5f088dafb5f9ab7ed0b6765b5a11bf60fbaea819da88714205a4
@@ -237,7 +237,7 @@ failing. `tforge report SomeApp.app` renders the same record as HTML.
 
 ```console
 $ tforge report /bin/ls --out traceforge-report.html
-TraceForge report → /Users/emirhan/Desktop/TraceForge/traceforge-report.html
+TraceForge report → ./traceforge-report.html
 Evidence ev_4395c41a8d44a30761004a29fa7cbeefe77330f9bf1e74587a01b8c632729d76
 ```
 
