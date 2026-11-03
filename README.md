@@ -80,8 +80,11 @@ Slices
 Evidence ev_72e61605858e30e40a66f858b0ca1d3e74c934cb39f6acced07abf9226dd6b0e (scan)
 ```
 
-*Every console block in this README is real output, captured on 2026-11-02 on
-an Apple Silicon MacBook (darwin/arm64, Node v24.20.0).*
+*Every console block in this README is real output, captured on an Apple
+Silicon MacBook (darwin/arm64, Node v24.20.0). The two blocks that read
+`/tmp/traceforge-gallery` targets reproduce byte for byte on any machine
+(`node scripts/gallery.mjs` builds those targets); the rest were captured on
+2026-11-02 on the 0.3.0 build and belong to this host.*
 
 ## Why TraceForge
 
