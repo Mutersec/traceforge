@@ -32,8 +32,8 @@ git clone https://github.com/Mutersec/traceforge.git
 cd traceforge
 npm ci
 npm run build
-node dist/cli.js app /Applications/Obsidian.app         # inventory the whole bundle
-node dist/cli.js report /Applications/Obsidian.app --out report.html
+node dist/cli.js scan /bin/ls                         # identify a native binary
+node dist/cli.js report /bin/ls --out report.html    # render it as one HTML report
 open report.html                                        # the evidence, offline, in a browser
 ```
 
@@ -187,41 +187,64 @@ embedded key is only self-reported — is spelled out in
 ## Inspecting a whole application
 
 ```console
-$ tforge app /Applications/AirStats.app
+$ node dist/cli.js app /tmp/traceforge-gallery/DemoApp.app
 
 TraceForge · app · app
 
-path       /Applications/AirStats.app
+path       /tmp/traceforge-gallery/DemoApp.app
 layout     macos
-members    95 files · 65 dirs · 9 links · 8.8 MiB
-tree       c575f6ca4c51bbee69890d25513242b68cbeb1c3ea9043a18d66c023944bcb6e
-kinds      code 6 · link 9 · manifest 13 · other 32 · resource 44
-architectures arm64 6 · x86_64 5
+members    18 files · 21 dirs · 5 links · 5.1 KiB
+tree       1acdc995fc0b75edeb3ae4c6c5f01e4c2a40a3b3fe495aec186506ef6c5dd6fd
+kinds      code 6 · link 5 · manifest 11 · resource 1
+architectures arm64 6
 
-Manifest Contents/Info.plist · xml · 21 keys
-  sha256     d5a92d051e38802d4caa6320aed420f0ee9a4c10e7897cc43a29a0aec6bbdfc1
-  CFBundleIdentifier            com.airstat.AirStats
-  CFBundleName                  AirStats
-  CFBundleDisplayName           AirStats
-  CFBundleExecutable            AirStats
-  CFBundleShortVersionString    1.3.2
-  CFBundleVersion               8
+Manifest Contents/Info.plist · xml · 8 keys
+  sha256     aa9b64bc08d7f304b81f9509b554c787940b3cf62af2893907c77e3248652218
+  CFBundleIdentifier            com.example.demo.app
+  CFBundleName                  DemoApp
+  CFBundleExecutable            DemoApp
+  CFBundleShortVersionString    2.0.0
+  CFBundleVersion               200
   CFBundlePackageType           APPL
-  …
+  LSMinimumSystemVersion        12.0
+  NSHumanReadableCopyright      Copyright 2026 Example Labs. Synthetic demo data.
+  PkgInfo                      signature=APPL os_type=????
+
+Declared executable Contents/MacOS/DemoApp present
+
+Largest code members 6 mach-o · 0 wasm · 0 elf · 0 pe
+  Contents/Frameworks/DemoFramework.framework/Versions/A/DemoFramework     136 B  mach-o arm64
+  Contents/Frameworks/DemoFramework.framework/Versions/A/Updater.app/Contents/MacOS/Updater     136 B  mach-o arm64
+  Contents/Frameworks/DemoFramework.framework/Versions/A/XPCServices/Downloader.xpc/Contents/MacOS/Downloader     136 B  mach-o arm64
+  Contents/Frameworks/DemoFramework.framework/Versions/A/XPCServices/Installer.xpc/Contents/MacOS/Installer     136 B  mach-o arm64
+  Contents/MacOS/DemoApp                                         136 B  mach-o arm64
+  Contents/Resources/DemoUI.bundle/Contents/MacOS/DemoUI         136 B  mach-o arm64
 
 Nested packages 5
-  Contents/Frameworks/Sparkle.framework
-    framework  no declared identifier
-  Contents/Frameworks/Sparkle.framework/Versions/B/Updater.app
-    app  org.sparkle-project.Sparkle.Updater
-  Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Downloader.xpc
-    xpc-service  org.sparkle-project.DownloaderService
-  Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Installer.xpc
-    xpc-service  org.sparkle-project.InstallerLauncher
-  Contents/Resources/AirStats_AirStatUI.bundle
-    bundle  no declared identifier
-Evidence ev_8e6ff9bf617a35853592297b528301e9908549ef212861c4bed9bfc22ecb378e (app)
+  Contents/Frameworks/DemoFramework.framework
+    framework  com.example.demo.framework
+  Contents/Frameworks/DemoFramework.framework/Versions/A/Updater.app
+    app  com.example.demo.updater
+  Contents/Frameworks/DemoFramework.framework/Versions/A/XPCServices/Downloader.xpc
+    xpc-service  com.example.demo.downloader
+  Contents/Frameworks/DemoFramework.framework/Versions/A/XPCServices/Installer.xpc
+    xpc-service  com.example.demo.installer
+  Contents/Resources/DemoUI.bundle
+    bundle  com.example.demo.ui
+
+Limitations
+  - A package inventory hashes each inventoried member; it does not open archives, parse code signatures, or establish where any member came from.
+  - Manifest values are self-reported by the target; none were checked against a signature, notarization ticket or entitlements.
+  - Symbolic links were recorded with their target text but were never followed, opened or hashed.
+  - The tree fingerprint is computed over relative member paths, sizes and hashes, so it does not depend on where the package is mounted.
+Evidence ev_4ad427e3ed0d1029153bd4d19e8d4407f283aacbede5a533e00f0f5221224e9a (app)
 ```
+
+*The `/tmp/traceforge-gallery/DemoApp.app` target above is one of the synthetic
+demo packages `scripts/gallery.mjs` builds (see
+[Evidence gallery](#evidence-gallery)); run that script once and this exact
+command reproduces this exact output on any machine. Point the same `app`
+command at any real `.app` or `.framework` directory you own.*
 
 Every member of the package gets its own SHA-256, size and format label; the
 `tree` line is a fingerprint over those member identities, so a directory has an
@@ -259,33 +282,37 @@ changed nothing for `evidence verify`, which still reported `valid`.
 ![TraceForge Evidence report](assets/report.png)
 
 See [docs/demo.md](docs/demo.md) for a three-minute non-technical and technical
-demo script, and the [Evidence gallery](#evidence-gallery) for four real reports.
+demo script, and the [Evidence gallery](#evidence-gallery) for four reports of
+script-built demo packages.
 
 ## Evidence gallery
 
-Four standalone HTML reports, written by `tforge report` against applications
-really installed on one Apple Silicon MacBook, then committed unchanged. Open
-any file in a browser: it fetches nothing and runs nothing.
+Four standalone HTML reports, written by `tforge report` against four synthetic
+demo packages that `scripts/gallery.mjs` builds itself under one fixed,
+username-free path (`/tmp/traceforge-gallery`), then committed unchanged. Every
+machine that runs the script regenerates the same bytes and the same Evidence
+IDs — no application needs to be installed for the gallery to be reproducible.
+Open any file in a browser: it fetches nothing and runs nothing.
 
 | Report | Path | What it proves |
 |---|---|---|
-| AirStats | [`examples/gallery/airstats.html`](examples/gallery/airstats.html) | An app that contains other apps: 5 nested packages, including a Sparkle `Updater.app` and two `.xpc` services. |
-| Obsidian | [`examples/gallery/obsidian.html`](examples/gallery/obsidian.html) | A real 378.9 MiB member hashed in one pass, with the `.asar` archives counted but honestly not opened. |
-| Qoder | [`examples/gallery/qoder.html`](examples/gallery/qoder.html) | The walk hitting its 5,000-member cap and writing the stop into `limitations`. |
-| Riot Client | [`examples/gallery/riot-client.html`](examples/gallery/riot-client.html) | A symlinked bundle root with a non-ASCII (`İ`) path resolved and carried through. |
+| DemoApp | [`examples/gallery/demo-app.html`](examples/gallery/demo-app.html) | An app that contains other apps: 5 nested packages, including a framework version tree whose `Current` alias is recorded but never followed, an inner `Updater.app` and two `.xpc` services. |
+| HeavyKit | [`examples/gallery/heavy-kit.html`](examples/gallery/heavy-kit.html) | A 8,388,608-byte (8.00 MiB) member hashed in one pass, with the `.asar`, `.car` and `.zip` members counted but honestly not opened. |
+| WideApp | [`examples/gallery/wide-app.html`](examples/gallery/wide-app.html) | The walk hitting its 5,000-member cap on a 5,007-file tree and writing the stop into `limitations`. |
+| Demo İstemci | [`examples/gallery/linked-client.html`](examples/gallery/linked-client.html) | A symlinked bundle root with a non-ASCII (`İ`, `ç`, `ğ`) path resolved and carried through, and two bundles declaring the same identifier. |
 
 Each also exists under `site/gallery/` for the live site. The four Evidence IDs
 and exact byte sizes are pinned in
-[examples/README.md](examples/README.md). Regenerate the whole set with the
-CLI-only script:
+[examples/README.md](examples/README.md). Regenerate the whole set — fixtures
+included — with one command:
 
 ```sh
-node scripts/gallery.mjs          # writes examples/gallery + site/gallery
-node scripts/gallery.mjs --check  # fresh run in a temp dir, byte-compared, writes nothing
+node scripts/gallery.mjs          # builds /tmp/traceforge-gallery, writes examples/gallery + site/gallery
+node scripts/gallery.mjs --check  # fresh run in a temp dir, byte-compared, keeps the repository clean
 ```
 
 Budget: one report ≤ 700 KiB, gallery total ≤ 2 MiB. On this bump the four
-reports are `37,577 / 81,587 / 83,914 / 79,604 B` (282,682 B total), each well
+reports are `15,206 / 9,997 / 64,092 / 12,280 B` (101,575 B total), each well
 under the cap.
 
 ## Determinism
@@ -320,8 +347,10 @@ record includes the tool version. Two facts follow, and both are real:
 
   ⚠ When you bump the version, every example ID in this README, in `docs/`, in
   the CHANGELOG, and in the gallery must be regenerated after the bump — an old
-  ID will not reproduce on the new build. The gallery script re-runs the CLI, so
-  it always emits current-version IDs.
+  ID will not reproduce on the new build. The gallery script rebuilds its own
+  synthetic targets and re-runs the CLI, so it always emits current-version IDs
+  — and, because the targets are generated from fixed bytes at a fixed
+  username-free path, the same IDs on every machine.
 
 
 ## MCP
@@ -370,11 +399,80 @@ One answer per big binary or package should never balloon into MiB of JSON.
   and `traceforge://store` — counts and state only, key files are never read.
 
 ```console
-$ tforge app /Applications/Obsidian.app --json --only files --limit 2
-{ "evidence_id": "ev_eb9eb2ef46957214978eba85c1278b5b34ef2b32c869dd28dc1522aaa6e2b271",
+$ node dist/cli.js app /tmp/traceforge-gallery/WideApp.app --json --only files --limit 2
+{
+  "evidence_id": "ev_b204eb46a39655c8927ee52cff2b2a0349500584746f8e902b43bee9b9f26b91",
   "detail": "complete",
-  "page": { "limit": 2, "returned": 2, "next_cursor": "2", "total": 292 },
-  "inventory": { "...": "2 of 292 members" }, "omitted": ["manifest", "nested", "limitations"] }
+  "page": {
+    "limit": 2,
+    "returned": 2,
+    "next_cursor": "2",
+    "total": 5000
+  },
+  "inventory": {
+    "schema": "traceforge.app.inventory.v1",
+    "path": "/tmp/traceforge-gallery/WideApp.app",
+    "kind": "app",
+    "layout": "macos",
+    "tree_sha256": "8d8ea26886f78d8499e41a2512d517f513cebb9c01f3d127ed52370810bca926",
+    "total_bytes": 145770,
+    "counts": {
+      "files": 5000,
+      "directories": 4,
+      "links": 0,
+      "special": 0,
+      "unreadable": 0,
+      "executable": 1,
+      "total_bytes": 145770,
+      "hashed_bytes": 145770,
+      "by_kind": {
+        "code": 1,
+        "manifest": 2,
+        "other": 4997
+      },
+      "by_format": {
+        "mach-o": 1,
+        "unknown": 4999
+      },
+      "architectures": {
+        "arm64": 1
+      }
+    },
+    "files": [
+      {
+        "path": "Contents/Info.plist",
+        "size": 713,
+        "sha256": "a4b2985e0def718e194b769c7a719b2e7c66bbdf05ef9bc34b8f9397b7b4956e",
+        "kind": "manifest",
+        "format": "unknown",
+        "executable": false,
+        "architectures": [],
+        "file_types": [],
+        "link_target": null
+      },
+      {
+        "path": "Contents/MacOS/WideApp",
+        "size": 136,
+        "sha256": "fe00877c17b9aed6506f988790893f1ddf34e1470130cd6c2b2a71ffb3da2ca1",
+        "kind": "code",
+        "format": "mach-o",
+        "executable": true,
+        "architectures": [
+          "arm64"
+        ],
+        "file_types": [
+          "executable"
+        ],
+        "link_target": null
+      }
+    ]
+  },
+  "omitted": [
+    "manifest",
+    "nested",
+    "limitations"
+  ]
+}
 ```
 
 Paging is a transport convenience, not an evidence boundary.

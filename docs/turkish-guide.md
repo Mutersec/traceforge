@@ -2,8 +2,9 @@
 
 Bu belge jargonsuz yazıldı; teknik terimler parantezde veriliyor. Komutların
 kendisi İngilizce kalır çünkü aynen yazılacakları şekil odur. Tüm örnek çıktılar
-2026-11-02'de, bu MacBook'ta (darwin/arm64, Node v24.20.0) ve sürüm 0.3.0 ile
-gerçekten koşularak alınmıştır.
+bu MacBook'ta (darwin/arm64, Node v24.20.0) ve sürüm 0.3.0 ile gerçekten
+koşularak alınmıştır; galeri raporları hariç — onlar `node scripts/gallery.mjs`
+ile her makinede bayt bayt yeniden üretilebilir.
 
 ## Bu araç ne işe yarıyor?
 
@@ -80,15 +81,15 @@ neyi **kanıtlar**, neyi **kanıtlamaz**.
 
 - **Hangi satır:** "Provenance claims" tablosu; `.app` paketlerinde ayrıca
   "Manifest claims" (Info.plist) tablosu (`CFBundleIdentifier`, sürüm,
-  `LSMinimumSystemVersion`, `SUFeedURL` gibi).
+  `LSMinimumSystemVersion`, `NSHumanReadableCopyright` gibi).
 - **Ne kanıtlar:** dosyanın kendisi hakkında **kendi kendine beyan ettiği**
-  etiketleri olduğu gibi kaydeder. "Bu paket adının com.airstat.AirStats
+  etiketleri olduğu gibi kaydeder. "Bu paket adının com.example.demo.app
   olduğunu söylüyor" satırı, gerçek bir kimlik denetimi değil, bir **iddia**
   satırıdır.
 - **Ne kanıtlamaz:** Apple kod imzasını (code signature) ya da noter onayını
   (notarization) kontrol etmeyiz. Bir paket kimliğini başkasınınkiyle
   yazmış olabilir — rapor bunu "iddia" etiketiyle taşıdığı için okuyan
-  yanılmaz. Galerideki Riot raporu iki ayrı pakette aynı kimlik
+  yanılmaz. Galerideki `linked-client.html` raporu iki ayrı pakette aynı kimlik
   iddiasını gösterir; bunu ancak oynan (declared) demeyi kabul edersen
   görürsün.
 
@@ -176,23 +177,26 @@ anahtar sunucuda değil, sadece senin diskindedir.
 
 ## Galerideki dört rapor neyi gösteriyor
 
-`examples/gallery/` (site için aynıları `site/gallery/` altında):
+`examples/gallery/` (site için aynıları `site/gallery/` altında). Dört hedef de
+gerçek bir kurulu uygulama değil: `scripts/gallery.mjs` onları
+`/tmp/traceforge-gallery` altında sabit baytlardan kendisi üretiyor, bu yüzden
+raporlar her makinede aynı kimlikle yeniden üretilebiliyor.
 
-| Rapor | Uygulama | Tek cümlelik anlamı |
+| Rapor | Demo hedefi | Tek cümlelik anlamı |
 |---|---|---|
-| `airstats.html` | AirStats 1.3.2 | İçinde başka uygulamalar taşıyan uygulama: Sparkle.framework, onun iç `Updater.app`'ı ve iki `.xpc` hizmeti; 95 dosya, 8.8 MiB. |
-| `obsidian.html` | Obsidian | Gerçek hacim: tek bir üye 397.316.032 bayt (378.9 MiB) tek geçişte parmak izlendi; `app.asar` ve `obsidian.asar` sayıldı ama **içi açılmadı** — sınır kutuda yazılı. |
-| `qoder.html` | Qoder | Yürüyüş 5.000 üye sınırına çarptı ve bunu Limitations kutusuna yazdı; "durduk" demeyi bilen araç güvenilir araçtır. |
-| `riot-client.html` | Riot Client | `/Applications/Riot İstemcisi.app` aslında bir bağ (alias); Türkçe büyük "İ" içeren yol ve içinden çıkan 1.261.55 MiB hedef paket sorunsuz taşındı. |
+| `demo-app.html` | DemoApp 2.0.0 | İçinde başka paketler taşıyan paket: `DemoFramework.framework`, onun iç `Updater.app`'ı ve iki `.xpc` hizmeti; 5 iç içe paket, 18 dosya, 5.1 KiB. |
+| `heavy-kit.html` | HeavyKit 3.2.1 | Hacim testi: tek bir üye 8.388.608 bayt (8.00 MiB) tek geçişte parmak izlendi; `app.asar`, `assets.zip` ve `cache.car` sayıldı ama **içi açılmadı** — sınır kutuda yazılı. |
+| `wide-app.html` | WideApp 0.9.0 | 5.007 üyelik ağaçta yürüyüş 5.000 üye sınırına çarptı ve bunu Limitations kutusuna yazdı; "durduk" demeyi bilen araç güvenilir araçtır. |
+| `linked-client.html` | Demo İstemci 0.3.0 | `/tmp/traceforge-gallery/Demo İstemci.app` aslında bir bağ (alias); Türkçe büyük "İ" içeren yol ve `İçeriler/çalışma-günlüğü.txt` gibi Türkçe adlar sorunsuz taşındı, üstelik iki paket aynı kimliği iddia ediyor. |
 
 Her raporun kanıt kimliği (0.3.0 ile üretildiler, `--check` ile tekrar
 üretilebilirler):
 
 ```text
-ev_8e6ff9bf617a35853592297b528301e9908549ef212861c4bed9bfc22ecb378e  airstats.html   37,577 B
-ev_eb9eb2ef46957214978eba85c1278b5b34ef2b32c869dd28dc1522aaa6e2b271  obsidian.html   81,587 B
-ev_0b118594dcb68fb100202ac6d5b3a23af53a134defe83d175566e2fe07f0239b  qoder.html      83,914 B
-ev_0ccd1730f2396f46aed6b8f0d96892ccd0d6ca57dc7fd0f4fc76838c23ee5096  riot-client.html 79,604 B
+ev_4ad427e3ed0d1029153bd4d19e8d4407f283aacbede5a533e00f0f5221224e9a  demo-app.html       15,206 B
+ev_8f4518f0e088c4fea7b42a9b3e64b5fa9f544aa41dbbada4a35dea6f0eaea7ef  heavy-kit.html       9,997 B
+ev_b204eb46a39655c8927ee52cff2b2a0349500584746f8e902b43bee9b9f26b91  wide-app.html       64,092 B
+ev_761ff4508e786ca378b9e2fed921f8b2291ade9895abef32dfcb174d300b8cf3  linked-client.html  12,280 B
 ```
 
 ## Sık sorulanlar

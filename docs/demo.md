@@ -10,11 +10,14 @@ Open a terminal in the repository (built with `npm run build`) and run, in
 order:
 
 ```sh
-# 1. What is actually inside an installed app? (nothing is executed)
-node dist/cli.js app /Applications/AirStats.app
+# 1. What is actually inside a package? (nothing is executed)
+node dist/cli.js app /tmp/traceforge-gallery/DemoApp.app
+#    ^ that target is one of the synthetic demo packages scripts/gallery.mjs
+#      builds; run `node scripts/gallery.mjs` once first. Any real .app or
+#      .framework directory you own works just as well.
 
 # 2. Turn that inventory into one standalone HTML report and open it
-node dist/cli.js report /Applications/AirStats.app --out report.html
+node dist/cli.js report /tmp/traceforge-gallery/DemoApp.app --out report.html
 open report.html
 
 # 3. Prove the record is tamper-evident: sign it, then verify it
@@ -44,7 +47,8 @@ home. Re-run any command and the Evidence ID is identical."
 
 For a non-technical guest, add the live site
 (<https://mutersec.github.io/traceforge/>) first and the gallery
-("four reports from one real machine") instead of steps 3–4.
+("four reports regenerated from script-built demo targets on any machine")
+instead of steps 3–4.
 
 ## For a technical guest (5 minutes)
 

@@ -54,7 +54,7 @@ Optional agent ergonomics:
 ### `inspect_package`
 
 ```json
-{ "path": "/Applications/Obsidian.app", "detail": "summary" }
+{ "path": "/tmp/traceforge-gallery/DemoApp.app", "detail": "summary" }
 ```
 
 Recursively inventories a package directory: one entry per member with size,

@@ -162,57 +162,57 @@
 
       <section id="gallery">
         <div class="section-head">
-          <h2>Four reports from one real machine</h2>
-          <p>Not mockups. Each page below was written by <code>tforge report</code> about an application installed on a single Apple Silicon MacBook, then committed unchanged. Open one: it is a standalone page that fetches nothing and runs nothing.</p>
+          <h2>Four reports, reproducible on any machine</h2>
+          <p>Not mockups. <code>scripts/gallery.mjs</code> builds four synthetic demo packages under one fixed, username-free path (<code>/tmp/traceforge-gallery</code>), and each page below was written by <code>tforge report</code> against them, then committed unchanged. Rerun the script on any machine and every byte — and every Evidence ID — comes back identical. Open one: it is a standalone page that fetches nothing and runs nothing.</p>
         </div>
         <div class="gallery-grid">
           <article class="card report-card">
             <div class="icon">01</div>
-            <h3>AirStats <span class="ver">1.3.2 · build 8</span></h3>
-            <p>95 files, 8.78 MiB — and an app that contains other apps. The report lists <strong>5 nested packages</strong>: <code>Sparkle.framework</code>, its inner <code>Updater.app</code>, and two <code>.xpc</code> services, each labelled with the identifier its own manifest declares.</p>
+            <h3>DemoApp <span class="ver">2.0.0 · build 200</span></h3>
+            <p>18 files, 5.1 KiB — and an app that contains other apps. The report lists <strong>5 nested packages</strong>: <code>DemoFramework.framework</code> (its classic version tree leaves five aliases recorded, never followed), its inner <code>Updater.app</code>, and two <code>.xpc</code> services, each labelled with the identifier its own manifest declares.</p>
             <dl class="facts">
-              <dt>Members</dt><dd>95 files · 65 dirs</dd>
+              <dt>Members</dt><dd>18 files · 21 dirs</dd>
               <dt>Nested</dt><dd>5 packages</dd>
-              <dt>Report</dt><dd>37,577 B</dd>
-              <dt>Evidence</dt><dd>ev_8e6ff9bf617a3585359…</dd>
+              <dt>Report</dt><dd>15,206 B</dd>
+              <dt>Evidence</dt><dd>ev_4ad427e3ed0d1029153…</dd>
             </dl>
-            <a class="button small" href="gallery/airstats.html">Open AirStats report <span>→</span></a>
+            <a class="button small" href="gallery/demo-app.html">Open DemoApp report <span>→</span></a>
           </article>
           <article class="card report-card">
             <div class="icon">02</div>
-            <h3>Obsidian <span class="ver">real workload</span></h3>
-            <p>One member is <strong>397,316,032 bytes</strong> — 378.9 MiB of Electron Framework — and the whole report is still 81 KB. Its Limitations box says plainly that <code>app.asar</code> and <code>obsidian.asar</code> were hashed but <strong>not opened</strong>.</p>
+            <h3>HeavyKit <span class="ver">3.2.1 · archive boundary</span></h3>
+            <p>One member is <strong>8,388,608 bytes</strong> — 8.00 MiB — hashed in a single pass, and the whole report is still 9,997 bytes. Its Limitations box says plainly that <code>app.asar</code>, <code>assets.zip</code> and <code>cache.car</code> were counted and hashed but <strong>not opened</strong>.</p>
             <dl class="facts">
-              <dt>Members</dt><dd>278 files · 322 dirs</dd>
-              <dt>Total</dt><dd>513.63 MiB</dd>
-              <dt>Report</dt><dd>81,587 B</dd>
-              <dt>Evidence</dt><dd>ev_eb9eb2ef46957214978…</dd>
+              <dt>Members</dt><dd>8 files · 4 dirs</dd>
+              <dt>Total</dt><dd>9.13 MiB</dd>
+              <dt>Report</dt><dd>9,997 B</dd>
+              <dt>Evidence</dt><dd>ev_8f4518f0e088c4fea7b…</dd>
             </dl>
-            <a class="button small" href="gallery/obsidian.html">Open Obsidian report <span>→</span></a>
+            <a class="button small" href="gallery/heavy-kit.html">Open HeavyKit report <span>→</span></a>
           </article>
           <article class="card report-card">
             <div class="icon">03</div>
-            <h3>Qoder <span class="ver">0.4.11 · limit hit</span></h3>
-            <p>Bigger than the inventory budget, so the walk stopped and <strong>said so</strong>: “The walk stopped at the 5,000 member limit; later members are absent from the inventory and from the tree fingerprint.” Exactly 5,000 members carry a format label — 57 Mach-O, 20 ELF, 12 PE, 4 WebAssembly inside one macOS app.</p>
+            <h3>WideApp <span class="ver">0.9.0 · limit hit</span></h3>
+            <p>A 5,007-member tree is bigger than the inventory budget, so the walk stopped and <strong>said so</strong>: “The walk stopped at the 5,000 member limit; later members are absent from the inventory and from the tree fingerprint.” Exactly 5,000 members were recorded — 1 Mach-O, 4,999 unknown format — and the stop sits in the report's Limitations box.</p>
             <dl class="facts">
-              <dt>Members</dt><dd>4,975 files · 1,241 dirs</dd>
-              <dt>Limitations</dt><dd>7, including the stop</dd>
-              <dt>Report</dt><dd>83,914 B</dd>
-              <dt>Evidence</dt><dd>ev_0b118594dcb68fb1002…</dd>
+              <dt>Members</dt><dd>5,000 files · 4 dirs</dd>
+              <dt>Limitations</dt><dd>4, including the stop</dd>
+              <dt>Report</dt><dd>64,092 B</dd>
+              <dt>Evidence</dt><dd>ev_b204eb46a39655c8927…</dd>
             </dl>
-            <a class="button small" href="gallery/qoder.html">Open Qoder report <span>→</span></a>
+            <a class="button small" href="gallery/wide-app.html">Open WideApp report <span>→</span></a>
           </article>
           <article class="card report-card">
             <div class="icon">04</div>
-            <h3>Riot Client <span class="ver">alias · non-ASCII path</span></h3>
-            <p><code>/Applications/Riot İstemcisi.app</code> is only an alias, and its name carries a dotted capital <strong>İ</strong>. TraceForge inventoried what it points to — 1,261.55 MiB across 256 files — recorded the path you gave, and never followed the 14 links inside. The outer bundle and a nested one <strong>declare the same identifier</strong>.</p>
+            <h3>Demo İstemci <span class="ver">alias · non-ASCII path</span></h3>
+            <p><code>/tmp/traceforge-gallery/Demo İstemci.app</code> is only an alias, and its name carries a dotted capital <strong>İ</strong>; inside, the walk reaches <code>İçeriler/çalışma-günlüğü.txt</code>. TraceForge inventoried what the alias points to — 10 files across 12 directories — recorded the path you gave, and never followed the 5 links inside. The outer bundle and a nested one <strong>declare the same identifier</strong>.</p>
             <dl class="facts">
-              <dt>Members</dt><dd>256 files · 118 dirs</dd>
-              <dt>Total</dt><dd>1,261.55 MiB hashed</dd>
-              <dt>Report</dt><dd>79,604 B</dd>
-              <dt>Evidence</dt><dd>ev_0ccd1730f2396f46aed…</dd>
+              <dt>Members</dt><dd>10 files · 12 dirs</dd>
+              <dt>Links</dt><dd>5 recorded, never followed</dd>
+              <dt>Report</dt><dd>12,280 B</dd>
+              <dt>Evidence</dt><dd>ev_761ff4508e786ca378b…</dd>
             </dl>
-            <a class="button small" href="gallery/riot-client.html">Open Riot Client report <span>→</span></a>
+            <a class="button small" href="gallery/linked-client.html">Open Demo İstemci report <span>→</span></a>
           </article>
         </div>
         <div class="gallery-foot">
@@ -221,14 +221,15 @@
             <div class="terminal">
               <div><span class="prompt">❯</span> node scripts/gallery.mjs</div>
               <div class="muted">TraceForge · evidence gallery</div>
-              <div>ok   airstats <span class="muted">37,577 B</span> <span class="violet">ev_8e6ff9bf617a3585359…</span></div>
-              <div>ok   obsidian <span class="muted">81,587 B</span> <span class="violet">ev_eb9eb2ef46957214978…</span></div>
-              <div>ok   qoder <span class="muted">83,914 B</span> <span class="violet">ev_0b118594dcb68fb1002…</span></div>
-              <div>ok   riot-client <span class="muted">79,604 B</span> <span class="violet">ev_0ccd1730f2396f46aed…</span></div>
-              <div class="muted">4 artifact(s) · 282,682 B · cap 700 KiB each, 2 MiB total</div>
+              <div class="muted">fixtures: 4 synthetic demo packages built under /tmp/traceforge-gallery</div>
+              <div>ok   demo-app <span class="muted">15,206 B</span> <span class="violet">ev_4ad427e3ed0d1029153…</span></div>
+              <div>ok   heavy-kit <span class="muted">9,997 B</span> <span class="violet">ev_8f4518f0e088c4fea7b…</span></div>
+              <div>ok   wide-app <span class="muted">64,092 B</span> <span class="violet">ev_b204eb46a39655c8927…</span></div>
+              <div>ok   linked-client <span class="muted">12,280 B</span> <span class="violet">ev_761ff4508e786ca378b…</span></div>
+              <div class="muted">4 artifact(s) · 101,575 B · cap 700 KiB each, 2 MiB total</div>
               <div class="amber">gallery: ok</div>
             </div>
-            <p style="color:var(--muted);font-size:14px;margin-top:16px">The script only calls the CLI — it renders no HTML of its own — then rejects any report over its size cap, audits every tag before keeping the file, and <code>--check</code> re-runs the whole set and byte-compares it. <a href="https://github.com/Mutersec/traceforge/blob/main/examples/README.md">Full gallery notes</a>.</p>
+            <p style="color:var(--muted);font-size:14px;margin-top:16px">The script builds its own demo targets from fixed bytes, then only calls the CLI — it renders no HTML of its own — rejects any report over its size cap, audits every tag before keeping the file, and <code>--check</code> re-runs the whole set and byte-compares it. <a href="https://github.com/Mutersec/traceforge/blob/main/examples/README.md">Full gallery notes</a>.</p>
             <p style="color:var(--muted);font-size:13px">One honest note: inside a report, the member tables are wider than a phone screen, so they scroll sideways inside their own wrapper — nothing overflows a box any more, and long paths and hashes break where they must. The record is complete; only the layout is the limit.</p>
           </div>
           <div class="honest">

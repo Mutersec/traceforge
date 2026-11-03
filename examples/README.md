@@ -1,97 +1,102 @@
 # Evidence gallery
 
-Four HTML reports, made by TraceForge on one Apple Silicon MacBook, about four
-applications that are really installed on it. Nothing was staged: each report is
-the output of a single command, and every number below was read back out of the
-report itself.
+Four HTML reports made by TraceForge. The four targets are **synthetic demo
+packages that `scripts/gallery.mjs` builds itself** under one fixed absolute
+path (`/tmp/traceforge-gallery`) before calling the real CLI on them. Nothing
+renders HTML by hand: each report is the output of a single
+`node dist/cli.js report <package>` run, and every number below was read back
+out of the report itself. Because the targets are generated from fixed bytes at
+a username-free path, the reports and their Evidence IDs reproduce byte for
+byte on any machine — you do not need any particular application installed.
 
 Open any file in this folder in a browser. It is one standalone page — no
 scripts, no stylesheets, no fonts fetched from anywhere, no internet needed.
 Nothing on the page can run.
 
-| Report | The application | What it shows |
+| Report | The demo target | What it shows |
 |---|---|---|
-| [`airstats.html`](gallery/airstats.html) | AirStats 1.3.2 (8) | an app that contains other apps |
-| [`obsidian.html`](gallery/obsidian.html) | Obsidian | one 378.9 MiB file inside a bundle |
-| [`qoder.html`](gallery/qoder.html) | Qoder 0.4.11 | the walk hitting its 5,000-member limit and saying so |
-| [`riot-client.html`](gallery/riot-client.html) | Riot Client | a path that is only an alias, and a Turkish folder name |
+| [`demo-app.html`](gallery/demo-app.html) | DemoApp 2.0.0 (200) | an app that contains other apps |
+| [`heavy-kit.html`](gallery/heavy-kit.html) | HeavyKit 3.2.1 (321) | one 8,388,608-byte member inside a bundle, and archives left closed |
+| [`wide-app.html`](gallery/wide-app.html) | WideApp 0.9.0 (90) | the walk hitting its 5,000-member limit and saying so |
+| [`linked-client.html`](gallery/linked-client.html) | Demo İstemci 0.3.0 (30) | a path that is only an alias, and a Turkish folder name |
 
 Every report carries an Evidence ID. Those four, and the exact byte sizes, are
 the whole point of this folder: they are reproducible with
 `node scripts/gallery.mjs` (see [Regenerating](#regenerating)).
 
 ```console
-ev_8e6ff9bf617a35853592297b528301e9908549ef212861c4bed9bfc22ecb378e   airstats.html    37,577 B
-ev_eb9eb2ef46957214978eba85c1278b5b34ef2b32c869dd28dc1522aaa6e2b271   obsidian.html    81,587 B
-ev_0b118594dcb68fb100202ac6d5b3a23af53a134defe83d175566e2fe07f0239b   qoder.html       83,914 B
-ev_0ccd1730f2396f46aed6b8f0d96892ccd0d6ca57dc7fd0f4fc76838c23ee5096   riot-client.html 79,604 B
+ev_4ad427e3ed0d1029153bd4d19e8d4407f283aacbede5a533e00f0f5221224e9a   demo-app.html       15,206 B
+ev_8f4518f0e088c4fea7b42a9b3e64b5fa9f544aa41dbbada4a35dea6f0eaea7ef   heavy-kit.html       9,997 B
+ev_b204eb46a39655c8927ee52cff2b2a0349500584746f8e902b43bee9b9f26b91   wide-app.html       64,092 B
+ev_761ff4508e786ca378b9e2fed921f8b2291ade9895abef32dfcb174d300b8cf3   linked-client.html  12,280 B
 ```
 
-## 1. `airstats.html` — an app that contains other apps
+## 1. `demo-app.html` — an app that contains other apps
 
-AirStats is a small menu-bar app: **95 files, 65 directories, 8.78 MiB**. The
-report lists its **5 nested packages**, and each one is labelled with the
-identifier its own manifest declares:
+DemoApp is a small demo bundle: **18 files, 21 directories, 5 symbolic
+links, 5.1 KiB**. The report lists its **5 nested packages**, and each one is
+labelled with the identifier its own manifest declares:
 
-- `Contents/Frameworks/Sparkle.framework` — the update library
-- `…/Sparkle.framework/Versions/B/Updater.app` — `org.sparkle-project.Sparkle.Updater`
-- `…/XPCServices/Downloader.xpc` — `org.sparkle-project.DownloaderService`
-- `…/XPCServices/Installer.xpc` — `org.sparkle-project.InstallerLauncher`
-- `Contents/Resources/AirStats_AirStatUI.bundle`
+- `Contents/Frameworks/DemoFramework.framework` — `com.example.demo.framework`
+- `…/DemoFramework.framework/Versions/A/Updater.app` — `com.example.demo.updater`
+- `…/Versions/A/XPCServices/Downloader.xpc` — `com.example.demo.downloader`
+- `…/Versions/A/XPCServices/Installer.xpc` — `com.example.demo.installer`
+- `Contents/Resources/DemoUI.bundle` — `com.example.demo.ui`
 
 An updater that ships its own nested app and two XPC services is exactly the
-kind of structure a flat file listing misses. The report also shows the
-`SUFeedURL` claim (`https://airstats.app/appcast.xml`) straight from the
-framework's own metadata — the address the app would phone home to for updates,
-recorded as a claim, not as an observation.
+kind of structure a flat file listing misses. The framework uses the classic
+macOS version layout — the real bytes live under `Versions/A`, while names like
+`Current`, the framework binary, `Info.plist` and `Resources` are aliases (five
+of them in this tree, `Versions/Current` included). The report records every
+alias with its target text and never follows it, so the inventory names each
+file once.
 
 **Why it matters:** you can see what is inside a bundle, not just that it exists.
 
-## 2. `obsidian.html` — a real workload, and an honest boundary
+## 2. `heavy-kit.html` — a big workload, and an honest boundary
 
-Obsidian is **278 files, 322 directories, 513.63 MiB**. The largest member is
-`Contents/Frameworks/Electron Framework.framework/Versions/A/Electron Framework`
-at **397,316,032 bytes** — 378.9 MiB, hashed in one pass, and it is one row in a
-report that is only 81 KB.
+HeavyKit is **8 files, 4 directories, 9.13 MiB**. The largest member is
+`Contents/Frameworks/HeavyEngine` at **8,388,608 bytes** — 8.00 MiB, hashed in
+one pass, and it is one row in a report that is only 9,997 bytes.
 
-The report's Limitations box states that **2 archive members were counted and
-hashed but not opened** (`app.asar`, `obsidian.asar`, the second one 25,787,463
-bytes). TraceForge does not pretend to have looked inside them.
+The report's Limitations box states that **3 archive members were counted and
+hashed but not opened** (`app.asar`, `assets.zip`, `cache.car`; the first is
+1,048,576 bytes). TraceForge does not pretend to have looked inside them.
 
-**Why it matters:** the tool is useful on real software at real sizes, and it
-draws its boundary in words you can read instead of failing silently.
+**Why it matters:** the walk handles multi-megabyte members without loading them
+into memory twice, and it draws its boundary in words you can read instead of
+failing silently.
 
-## 3. `qoder.html` — the limit fired, and that is the evidence
+## 3. `wide-app.html` — the limit fired, and that is the evidence
 
-Qoder is bigger than the inventory budget. The report shows
-**4,975 files, 1,241 directories, 705.59 MiB**, and its Limitations box says:
+WideApp carries 5,007 members — more than the inventory budget. The report shows
+**5,000 files, 4 directories, 142.4 KiB**, and its Limitations box says:
 
 > The walk stopped at the 5,000 member limit; later members are absent from the
 > inventory and from the tree fingerprint.
 
-Exactly **5,000 members carry a format label**: 4,907 unknown, 57 Mach-O, 20
-ELF, 12 PE, 4 WebAssembly. Inside one macOS `.app`, the report finds Windows
-binaries (`…/vendor/wintun/bin/amd64/wintun.dll`) and Linux/Android ones
-(`…/appium-ios-tuntap/prebuilds/linux-x64/appium-ios-tuntap.node`).
+Exactly **5,000 members were recorded** — by format: 1 Mach-O (the declared
+executable) and 4,999 unknown; by kind: code 1, manifest 2, other 4,997. The 7
+members beyond the cap stay unrecorded on purpose, and the report says so.
 
 **Why it matters:** a tool that never stops is a tool that will one day stop
 without telling you. Here the stop is written into the record, and the tree
 fingerprint is computed over what was actually inventoried.
 
-## 4. `riot-client.html` — an alias, and a name that is not ASCII
+## 4. `linked-client.html` — an alias, and a name that is not ASCII
 
-`/Applications/Riot İstemcisi.app` is not a folder. It is an alias pointing at
-`/Users/Shared/Riot Games/Riot Client.app`, and its name contains a dotted
-capital **İ**. TraceForge inventoried what the alias points to —
-**256 files, 118 directories, 1,261.55 MiB** — recorded the path you actually
-asked for, and hashed 1.2 GiB of members without following the 14 symbolic
-links inside the bundle (each link is written down with its target text, never
-opened).
+`/tmp/traceforge-gallery/Demo İstemci.app` is not a folder. It is a symlink
+pointing at `Paketler/Demo İstemci.app`, and its name contains a dotted capital
+**İ**; inside, the tree reaches through `Contents/Resources/İçeriler/` to a file
+named `çalışma-günlüğü.txt`. TraceForge inventoried what the alias points to —
+**10 files, 12 directories, 5 symbolic links, 2.6 KiB** — recorded the path you
+actually asked for, and hashed every regular member without following the links
+(each link is written down with its target text, never opened).
 
 The report also shows something worth a second look: the outer bundle and the
-nested `Contents/Frameworks/Riot Client.app` **declare the same identifier**,
-`com.riotgames.RiotGames.RiotClient`. Two bundles, one name. That is a fact you
-can only see once the inventory is recursive.
+nested `Contents/Frameworks/Demo İstemci.app` **declare the same identifier**,
+`com.example.demo.istemci`. Two bundles, one name. That is a fact you can only
+see once the inventory is recursive.
 
 **Why it matters:** real filesystems have aliases, non-English names and
 duplicated identities. The record handles all three and keeps its promise that
@@ -111,22 +116,23 @@ Top to bottom, every report has the same shape:
 
 **On a phone, and on a narrow window:** the summary cards at the top fit any
 screen, and the member tables no longer break the page. F4 measured the old
-behaviour in headless Chrome at a 390 px viewport — `airstats.html` laid out
-1,348 px wide and the footer's Evidence ID overflowed its own box — and 0.3.0
-closed it in the report renderer (`src/core/report.ts`): every wide table now
-sits in a horizontally scrollable `.table-wrap`, and `td code` and `footer *`
-get `overflow-wrap: anywhere`, so a member path like
-`Contents/Resources/app.asar.unpacked/node_modules/aoq-electron-sdk/prebuilds/darwin-universal/AoqClientSdk.framework/Versions/A/Frameworks/openhevc.framework/Versions/A/openhevc`
-(177 characters) stays inside its cell and the footer ID inside the page. The
-table test is locked in `test/report.test.ts`. A wide table is still a wide
-table — it scrolls sideways — but nothing overflows a box any more, and the
-record content is identical: the fix changed rendered HTML bytes only, never a
-hashed record.
+behaviour in headless Chrome at a 390 px viewport before the gallery was
+switched to synthetic targets — a real report laid out 1,348 px wide and the
+footer's Evidence ID overflowed its own box — and 0.3.0 closed it in the report
+renderer (`src/core/report.ts`): every wide table now sits in a horizontally
+scrollable `.table-wrap`, and `td code` and `footer *` get
+`overflow-wrap: anywhere`, so a member path like
+`Contents/Frameworks/DemoFramework.framework/Versions/A/XPCServices/Downloader.xpc/Contents/MacOS/Downloader`
+(107 characters in this gallery) stays inside its cell and the footer ID inside
+the page. The table test is locked in `test/report.test.ts`. A wide table is
+still a wide table — it scrolls sideways — but nothing overflows a box any more,
+and the record content is identical: the fix changed rendered HTML bytes only,
+never a hashed record.
 
 Confirm any of them locally:
 
 ```sh
-node dist/cli.js evidence verify ev_0b118594dcb68fb100202ac6d5b3a23af53a134defe83d175566e2fe07f0239b
+node dist/cli.js evidence verify ev_b204eb46a39655c8927ee52cff2b2a0349500584746f8e902b43bee9b9f26b91
 node dist/cli.js evidence verify-all
 ```
 
@@ -135,31 +141,37 @@ node dist/cli.js evidence verify-all
 Saying this out loud is part of the product:
 
 - **No origin.** Nothing here checks an Apple code signature or a notarization
-  ticket. The manifest values (`CFBundleIdentifier`, versions, `SUFeedURL`) are
-  **self-reported by the target** and labelled as claims.
+  ticket. The manifest values (`CFBundleIdentifier`, versions, copyright) are
+  **self-reported by the target** and labelled as claims. In these four reports
+  every claim is a known-false-by-construction demo value — which is exactly
+  how the tool treats a stranger's bundle: record what it says, not what it is.
 - **No contents.** Archives are hashed, not opened. A bundle could hide anything
   inside `app.asar` and this report would say so rather than guess.
-- **No behaviour.** No target was executed, launched or attached to. A report
-  describes bytes, not what the software does when it runs.
-- **Not complete**, in the one case where a limit applied — and the Qoder report
-  is the case where it did.
+- **No behaviour.** No target was executed, launched or attached to — the demo
+  targets are deliberately not runnable binaries. A report describes bytes, not
+  what the software does when it runs.
+- **Not complete**, in the one case where a limit applied — and the WideApp
+  report is the case where it did.
 
 ## Regenerating
 
 ```sh
 npm run build
-node scripts/gallery.mjs              # writes examples/gallery + site/gallery
-node scripts/gallery.mjs --check      # fresh run in a temp dir, byte-compared, writes nothing
-node scripts/gallery.mjs --only qoder # one target
-node scripts/gallery.mjs --audit site/gallery/airstats.html
+node scripts/gallery.mjs              # builds the demo targets, writes examples/gallery + site/gallery
+node scripts/gallery.mjs --check      # fresh run in a temp dir, byte-compared, keeps the repository clean
+node scripts/gallery.mjs --only wide-app # one target
+node scripts/gallery.mjs --audit site/gallery/demo-app.html
 ```
 
-The script only calls `node dist/cli.js report <package>`; it renders no HTML of
-its own. It enforces the gallery budget — **one report ≤ 700 KiB, gallery total
-≤ 2 MiB** (the four reports here are 282,682 bytes counted once) — and if a
-report ever came back over its cap it would be dropped and replaced by the
-plain-text `tforge app <package> --no-save` transcript instead, because the
-stopping point is the evidence in that case.
+The script builds the four synthetic demo packages under
+`/tmp/traceforge-gallery` from fixed bytes (it never copies a file out of an
+installed application), then only calls
+`node dist/cli.js report <package>`; it renders no HTML of its own. It enforces
+the gallery budget — **one report ≤ 700 KiB, gallery total ≤ 2 MiB** (the four
+reports here are 101,575 bytes counted once) — and if a report ever came back
+over its cap it would be dropped and replaced by the plain-text
+`tforge app <package> --no-save` transcript instead, because the stopping point
+is the evidence in that case.
 
 Each generated file is also audited before it is kept: the auditor parses every
 tag in the HTML and fails the run on a disallowed tag, a `src=`/`href=` style
@@ -170,6 +182,7 @@ was scanned, and the report escaped all of it (`grep -c "<script"` → `0`, and
 the strings appear on the page as visible text). The injected copy that adds a
 real `<script>`/`<img onerror>`/`<link href>` is rejected with exit 1.
 
-Reports are byte-stable for the same input: `--check` regenerates all four and
-compares them to the committed files, which is how this folder can be trusted
-after an app updates — rerun it and drift is reported instead of hidden.
+Reports are byte-stable for the same input: `--check` rebuilds the fixtures,
+regenerates all four and compares them to the committed files, which is how
+this folder stays trustworthy after any change — rerun it and drift is reported
+instead of hidden.

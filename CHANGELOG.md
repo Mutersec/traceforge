@@ -1,5 +1,27 @@
 # Changelog
 
+## Unreleased
+
+- Gallery reproducibility and brand-neutral docs: the evidence gallery no
+  longer points at applications installed on the author's machine.
+  `scripts/gallery.mjs` now builds four synthetic demo packages itself under
+  one fixed, username-free absolute path (`/tmp/traceforge-gallery`) —
+  DemoApp (nested framework version tree with recorded aliases, an inner
+  `Updater.app`, two `.xpc` services), HeavyKit (three archive members counted
+  but not opened, plus one 8,388,608-byte member hashed in one pass), WideApp
+  (a 5,007-file tree that fires the 5,000-member walk cap into `limitations`)
+  and Demo İstemci (a symlinked bundle root with non-ASCII names and two
+  bundles declaring the same identifier) — and regenerates the reports from
+  those targets with the real CLI. Machine code members are rebuilt from the
+  same fixed-byte synthetic Mach-O pattern the test suite uses, so no copied
+  system binary can drift with an OS update; `--check` now reproduces byte for
+  byte on any host. The old gallery HTML was removed. Third-party product
+  names were generalized away in `README.md`, `docs/`, `examples/README.md`,
+  `site/index.html` and the 0.3.0 entry above (history kept, wording corrected);
+  every pasted console block, Evidence ID and byte figure in the gallery docs
+  is real output of the regenerated 0.3.0 build. No `src/` or `test/` change,
+  no new dependency, no network, no target executed.
+
 ## 0.3.0 — 2026-11-02
 
 - Report layout fix: wide Evidence-report tables (sections, provenance claims,
@@ -118,11 +140,12 @@
   offline — the dry run performs no registry call), and it exercises the
   `prepublishOnly` check the real release path would run.
 - Evidence gallery: four standalone HTML reports produced by `tforge report`
-  against applications really installed on one Apple Silicon Mac — AirStats
-  (5 nested packages, incl. a Sparkle `Updater.app` and two `.xpc` services),
-  Obsidian (a 397,316,032-byte member, archives hashed but not opened), Qoder
-  (the 5,000-member walk cap firing and written into `limitations`) and Riot
-  Client (a symlinked bundle root with a non-ASCII path, 1,261.55 MiB hashed).
+  against applications really installed on one Apple Silicon Mac — one with
+  5 nested packages (incl. an updater framework's inner `Updater.app` and two
+  `.xpc` services), one with a 397,316,032-byte member (archives counted and
+  hashed but not opened), one where the 5,000-member walk cap fired and was
+  written into `limitations`, and one behind a symlinked bundle root with a
+  non-ASCII path (1,261.55 MiB hashed).
   `scripts/gallery.mjs` regenerates them by calling the CLI only — it renders no
   HTML itself — enforces a 700 KiB per-report and 2 MiB total budget, replaces
   any over-cap report with the `tforge app --no-save` transcript instead, audits
