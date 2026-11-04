@@ -50,6 +50,22 @@ jobs:
       - name: Typecheck, tests and build (npm run check)
         run: npm run check
 
+      # The gallery's claim is "the same bytes on every machine" - --check is
+      # the only way that claim can be tested: it rebuilds the four synthetic
+      # fixtures under /tmp/traceforge-gallery, regenerates every report into a
+      # throwaway .cache dir and byte-compares against the committed mirror in
+      # examples/gallery. It needs dist/cli.js, so it runs right after the
+      # build. The committed HTML carries /tmp/traceforge-gallery 16 times per
+      # mirror as a literal path because src/core/report.ts resolves lexically
+      # (resolve(), no realpath): macOS never rewrites it to /private/tmp and
+      # Linux has no such symlink at all - so the only drift left to catch here
+      # is ordering/symlink-text class drift, which is exactly what the second
+      # OS is for. --check exits 1 and prints the drifted files; keep it red
+      # and hand the finding to a human, never paper over it with
+      # continue-on-error.
+      - name: Gallery determinism (scripts/gallery.mjs --check)
+        run: node scripts/gallery.mjs --check
+
       # Synthetic bundle instead of a real /Applications app: the runner image
       # owns those and any of them could move. /bin/ls and /usr/bin/true exist
       # on ubuntu-latest and macos-latest alike.
@@ -71,6 +87,37 @@ jobs:
           node dist/cli.js scan /bin/ls --no-save
           node dist/cli.js inspect /bin/ls --no-save --only sections
           node dist/cli.js diff /bin/ls /usr/bin/true --no-save
+
+      # ELF needs an independent second reader. No macOS developer machine has
+      # GNU readelf (and the local docker daemon was off when this step was
+      # added), so the ubuntu leg is the ONLY place the ELF claims can be
+      # cross-checked - against the runner's real /bin/ls, not a fixture.
+      # scripts/elf-crosscheck.mjs gates the three fields whose counting
+      # conventions both tools share (machine name, section header count with
+      # the SHT_NULL tolerance documented in src/core/elf.ts, and dynamic /
+      # DT_NEEDED presence + library set) and reports - without asserting -
+      # the fields whose conventions differ (entrypoint display, program
+      # header count, ET_DYN label, section names). Exit 1 on any disagreement
+      # or on unrecognized readelf wording; never softened here.
+      - name: ELF cross-check against readelf (/bin/ls, Linux leg)
+        if: runner.os == 'Linux'
+        run: |
+          set -eo pipefail
+          command -v readelf >/dev/null || { echo "readelf is not installed on this runner image"; exit 1; }
+          node dist/cli.js inspect /bin/ls --json --no-save > "$RUNNER_TEMP/elf-tf-inspect.json"
+          readelf -h -d -S /bin/ls > "$RUNNER_TEMP/elf-readelf-ls.txt"
+          status=0
+          node scripts/elf-crosscheck.mjs \
+            --traceforge "$RUNNER_TEMP/elf-tf-inspect.json" \
+            --readelf "$RUNNER_TEMP/elf-readelf-ls.txt" \
+            > "$RUNNER_TEMP/elf-crosscheck.md" || status=$?
+          {
+            echo "## ELF cross-check · readelf vs TraceForge inspect (/bin/ls)"
+            echo
+            cat "$RUNNER_TEMP/elf-crosscheck.md"
+          } >> "$GITHUB_STEP_SUMMARY"
+          cat "$RUNNER_TEMP/elf-crosscheck.md"
+          exit "$status"
 
       - name: Smoke · HTML report size
         run: |
