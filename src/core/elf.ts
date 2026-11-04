@@ -1,17 +1,52 @@
-import { readCString, sectionHash, hex } from "./binary.js";
+import { readCString, sectionHash, hex, securitySummary } from "./binary.js";
 import type { ParsedContainer } from "./binary.js";
 import { TraceForgeError } from "./errors.js";
-import type { SectionInfo, SliceInventory } from "./types.js";
+import type { SectionInfo, SliceIdentity, SliceInventory } from "./types.js";
 
 const SHT_SYMTAB = 2;
 const SHT_STRTAB = 3;
 const SHT_DYNAMIC = 6;
 const SHT_NOTE = 7;
 const SHT_NOBITS = 8;
+const SHT_PROGBITS = 1;
 const SHT_DYNSYM = 11;
 const DT_NEEDED = 1;
+const DT_SONAME = 14;
+const DT_FLAGS = 30;
+const DT_FLAGS_1 = 0x6ffffffb;
+const DF_BIND_NOW = 0x2;
+const DF_1_NOW = 0x1;
+const PT_NULL = 0;
+const PT_LOAD = 1;
+const PT_INTERP = 3;
+const PT_GNU_STACK = 0x6474e551;
+const PT_GNU_RELRO = 0x6474e552;
+const PF_X = 1;
+const PF_W = 2;
 const MAX_SECTIONS = 100_000;
 const MAX_SYMBOLS = 200_000;
+const MAX_PROGRAM_HEADERS = 65_536;
+const OS_ABI_NAMES: Record<number, string> = {
+  0: "sysv",
+  1: "hpux",
+  3: "linux",
+  6: "solaris",
+  7: "aix",
+  9: "freebsd",
+  10: "tru64",
+  12: "openbsd",
+  13: "openvms",
+  14: "nonstop_kernel",
+  15: "cygwin",
+  17: "gnu_hurd",
+  45: "fips-pspabi2",
+  64: "arm-abi",
+  97: "openrisc",
+  247: "bpf",
+  252: "cuda",
+  253: "coreboot",
+  255: "reserved",
+};
 
 interface ElfSection {
   readonly index: number;
@@ -174,6 +209,50 @@ export const parseElf = (buffer: Buffer, _path: string): ParsedContainer => {
   if (stringTableIndex === 0xffff || sectionCount === 0)
     limitations.push("ELF extended section indices or missing section headers limit section names.");
 
+  const programHeaderOffset = bits === 64 ? Number(u64(32)) : u32(28);
+  const programEntrySize = u16(bits === 64 ? 54 : 42);
+  const minimumEntry = bits === 64 ? 56 : 32;
+  let programCount = u16(bits === 64 ? 56 : 44);
+  if (programCount === 0xffff) {
+    programCount =
+      sectionCount > 0 && sectionEntrySize >= minimumEntry
+        ? bits === 64
+          ? u32(sectionOffset + 44)
+          : u32(sectionOffset + 28)
+        : 0;
+    limitations.push("ELF program header count was taken from the PN_XNUM section header.");
+  }
+  const segments = {
+    load: 0,
+    writableExecute: false,
+    interp: null as string | null,
+    gnuStack: null as number | null,
+    gnuRelro: false,
+  };
+  if (
+    programCount > MAX_PROGRAM_HEADERS ||
+    (programCount > 0 &&
+      (programEntrySize < minimumEntry ||
+        programHeaderOffset + programCount * programEntrySize > buffer.length))
+  ) {
+    limitations.push("ELF program headers were out of bounds and were not inspected.");
+  } else {
+    for (let index = 0; index < programCount; index += 1) {
+      const base = programHeaderOffset + index * programEntrySize;
+      const type = u32(base);
+      const flags = bits === 64 ? u32(base + 4) : u32(base + 24);
+      const fileOffset = bits === 64 ? Number(u64(base + 8)) : u32(base + 4);
+      const fileSize = bits === 64 ? Number(u64(base + 32)) : u32(base + 16);
+      if (type === PT_NULL) continue;
+      if (type === PT_LOAD) segments.load += 1;
+      if ((flags & PF_W) !== 0 && (flags & PF_X) !== 0) segments.writableExecute = true;
+      if (type === PT_GNU_STACK) segments.gnuStack = flags;
+      if (type === PT_GNU_RELRO) segments.gnuRelro = true;
+      if (type === PT_INTERP && segments.interp === null)
+        segments.interp = readCString(buffer, fileOffset, 4096);
+    }
+  }
+
   const imports = new Set<string>();
   const exports = new Set<string>();
   let symbolCount = 0;
@@ -210,6 +289,8 @@ export const parseElf = (buffer: Buffer, _path: string): ParsedContainer => {
     limitations.push("ELF symbol processing stopped at the safety cap.");
 
   const libraries = new Set<string>();
+  let soname: string | null = null;
+  let bindNow: boolean | null = null;
   const dynamic = namedSections.find((section) => section.type === SHT_DYNAMIC);
   if (dynamic !== undefined) {
     const strings = namedSections[dynamic.link];
@@ -220,18 +301,71 @@ export const parseElf = (buffer: Buffer, _path: string): ParsedContainer => {
       if (base + entrySize > buffer.length) break;
       const tag = bits === 64 ? Number(u64(base)) : u32(base);
       const value = bits === 64 ? Number(u64(base + 8)) : u32(base + 4);
-      if (tag !== DT_NEEDED || strings === undefined) continue;
-      const name = readCString(buffer, strings.offset + value, 4096);
-      if (name !== null && name.length > 0) libraries.add(name);
+      if (tag === 0) break;
+      if (tag === DT_FLAGS) bindNow = (value & DF_BIND_NOW) !== 0;
+      if (tag === DT_FLAGS_1) bindNow = (value & DF_1_NOW) !== 0 || bindNow === true;
+      if ((tag === DT_NEEDED || tag === DT_SONAME) && strings !== undefined) {
+        const name = readCString(buffer, strings.offset + value, 4096);
+        if (name !== null && name.length > 0) {
+          if (tag === DT_NEEDED) libraries.add(name);
+          else soname = name;
+        }
+      }
     }
   } else {
     limitations.push("ELF DT_NEEDED libraries were unavailable without a dynamic section.");
   }
+  if (bindNow === null)
+    limitations.push("ELF BIND_NOW could not be decided without DT_FLAGS or DT_FLAGS_1.");
+
+  const commentSection = namedSections.find(
+    (section) => section.type === SHT_PROGBITS && section.name === ".comment",
+  );
+  const producer =
+    commentSection === undefined
+      ? null
+      : (readCString(buffer, commentSection.offset, 160) ?? "").trim() || null;
+  if (producer !== null)
+    limitations.push("The ELF .comment producer string is a self-reported claim.");
+
 
   const buildSection = namedSections.find(
     (section) => section.type === SHT_NOTE && section.name === ".note.gnu.build-id",
   );
   const buildId = buildSection === undefined ? null : noteBuildId(buffer, buildSection, little);
+  const relocatable = type === 3;
+  limitations.push(
+    "Mitigation names are structural claims from ELF headers, not observed runtime enforcement.",
+  );
+  limitations.push(
+    "ASLR depends on the operating system and loader; only image relocatability was inspected.",
+  );
+  const security = securitySummary([
+    ["pie", relocatable ? "present" : type === 2 ? "absent" : "undetermined"],
+    ["aslr", relocatable ? "present" : type === 2 ? "absent" : "undetermined"],
+    [
+      "nx",
+      segments.gnuStack === null
+        ? segments.writableExecute
+          ? "absent"
+          : "undetermined"
+        : (segments.gnuStack & PF_X) === 0
+          ? "present"
+          : "absent",
+    ],
+    ["relro", segments.gnuRelro ? "present" : "absent"],
+    ["bind-now", bindNow === null ? "undetermined" : bindNow ? "present" : "absent"],
+    [
+      "full-relro",
+      !segments.gnuRelro
+        ? "absent"
+        : bindNow === null
+          ? "undetermined"
+          : bindNow
+            ? "present"
+            : "absent",
+    ],
+  ]);
   const slice: SliceInventory = {
     architecture: machineName(machine),
     bits,
@@ -240,6 +374,15 @@ export const parseElf = (buffer: Buffer, _path: string): ParsedContainer => {
     entrypoint: hex(entry),
     entrypointKind: "virtual-address",
     buildId,
+    security,
+    provenance: {
+      os_abi: OS_ABI_NAMES[buffer[7] ?? 0] ?? `abi_${buffer[7] ?? 0}`,
+      abi_version: String(buffer[8] ?? 0),
+      ...(segments.load === 0 ? {} : { load_segments: String(segments.load) }),
+      ...(segments.interp === null ? {} : { interpreter: segments.interp }),
+      ...(soname === null ? {} : { soname }),
+      ...(producer === null ? {} : { producer }),
+    },
     sections,
     imports: [...imports].sort(),
     exports: [...exports].sort(),
@@ -251,4 +394,32 @@ export const parseElf = (buffer: Buffer, _path: string): ParsedContainer => {
     slices: [slice],
     limitations: [...new Set(limitations)].sort(),
   };
+};
+
+/**
+ * Reads only the ELF identity fields (class, endianness, type, machine).
+ *
+ * Package members are labelled from the first 20 header bytes; no section table
+ * is touched, so a scan stays cheap on a bundle with thousands of members.
+ */
+export const readElfIdentities = (
+  buffer: Buffer,
+  _limitations: string[],
+): readonly SliceIdentity[] => {
+  if (buffer.length < 20)
+    throw new TraceForgeError("parse_error", "ELF header is truncated");
+  const classValue = buffer[4];
+  if (classValue !== 1 && classValue !== 2)
+    throw new TraceForgeError("parse_error", "ELF class is invalid");
+  const little = buffer[5] === 1;
+  if (!little && buffer[5] !== 2)
+    throw new TraceForgeError("parse_error", "ELF endianness is invalid");
+  const u16 = (offset: number): number =>
+    little ? buffer.readUInt16LE(offset) : buffer.readUInt16BE(offset);
+  return [
+    {
+      architecture: machineName(u16(18)),
+      file_type: fileTypeName(u16(16)),
+    },
+  ];
 };

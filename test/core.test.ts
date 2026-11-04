@@ -11,7 +11,8 @@ import { compare, inspect, scanBinary } from "../src/core/operations.js";
 import { renderEvidenceReport, writeEvidenceReport } from "../src/core/report.js";
 import { TraceForgeError } from "../src/core/errors.js";
 import { handleMcpMessage } from "../src/mcp/server.js";
-import { elfFixture, peFixture, wasmFixture } from "./fixtures.js";
+import type { BinaryInventory, SliceInventory } from "../src/core/types.js";
+import { elfFixture, machoFixture, peFixture, wasmFixture } from "./fixtures.js";
 
 const roots: string[] = [];
 const temporaryRoot = async (prefix: string): Promise<string> => {
@@ -98,30 +99,106 @@ it("parses synthetic ELF, PE and WASM fixtures", async () => {
   expect(elf.slices[0]?.sections.map((section) => section.name)).toEqual(
     expect.arrayContaining([".shstrtab", ".text"]),
   );
+  expect(elf.slices[0]?.security.present).toEqual(
+    expect.arrayContaining(["pie", "aslr", "nx", "relro"]),
+  );
+  expect(elf.slices[0]?.security.undetermined).toEqual(
+    expect.arrayContaining(["bind-now", "full-relro"]),
+  );
+  expect(elf.slices[0]?.provenance.os_abi).toBe("linux");
+  expect(elf.slices[0]?.provenance.producer).toBe("GCC: (GNU) 13.2.1");
+  expect(elf.slices[0]?.provenance.interpreter).toBe("/lib64/ld-linux-x86-64.so.2");
+  expect(elf.limitations).toContain(
+    "The ELF .comment producer string is a self-reported claim.",
+  );
   const pe = await inspectBinary(pePath);
   expect(pe.format).toBe("pe");
   expect(pe.slices[0]?.architecture).toBe("x86_64");
   expect(pe.slices[0]?.entrypoint).toBe("0x1000");
   expect(pe.slices[0]?.imports).toContain("KERNEL32.dll!CreateFileA");
   expect(pe.slices[0]?.libraries).toContain("KERNEL32.dll");
+  expect(pe.slices[0]?.security.present).toEqual(
+    expect.arrayContaining(["aslr", "nx", "high-entropy-aslr", "image-isolation"]),
+  );
+  expect(pe.slices[0]?.security.absent).toEqual(
+    expect.arrayContaining(["guard-cf", "code-integrity"]),
+  );
+  expect(pe.slices[0]?.provenance).toMatchObject({
+    linker_version: "14.29",
+    subsystem: "windows-cui",
+    os_version: "6.0",
+    size_of_image: "16384",
+  });
   const wasm = await inspectBinary(wasmPath);
   expect(wasm.format).toBe("wasm");
   expect(wasm.slices[0]?.sections[0]?.name).toBe("custom:meta");
+  expect(wasm.slices[0]?.security).toEqual({
+    present: [],
+    absent: [],
+    undetermined: [],
+  });
+});
+
+it("reads Mach-O mitigations and build-version claims", async () => {
+  const root = await temporaryRoot("traceforge-macho-fixture-");
+  const hardenedPath = join(root, "hardened.macho");
+  const executableStackPath = join(root, "writable.macho");
+  await Promise.all([
+    writeFile(hardenedPath, machoFixture()),
+    writeFile(executableStackPath, machoFixture({ maxProt: 7 })),
+  ]);
+  const hardened = await inspectBinary(hardenedPath);
+  expect(hardened.slices[0]?.architecture).toBe("arm64");
+  expect(hardened.slices[0]?.security.present).toEqual(["nx", "pie"]);
+  expect(hardened.slices[0]?.security.absent).toEqual(["chained-fixups"]);
+  expect(hardened.slices[0]?.provenance).toEqual({
+    platform: "macos",
+    min_os: "13.2.1",
+    sdk: "14.0.0",
+    linker_version: "902.0.0",
+  });
+  const writable = await inspectBinary(executableStackPath);
+  expect(writable.slices[0]?.security.absent).toEqual(expect.arrayContaining(["nx"]));
+  expect(writable.slices[0]?.security.present).toEqual(["pie"]);
+});
+
+it("reports a removed mitigation as a diff change", async () => {
+  const root = await temporaryRoot("traceforge-diff-");
+  const hardenedPath = join(root, "hardened.exe");
+  const strippedPath = join(root, "stripped.exe");
+  await Promise.all([
+    writeFile(hardenedPath, peFixture(0x0160)),
+    writeFile(strippedPath, peFixture(0x0000)),
+  ]);
+  const outcome = await compare(hardenedPath, strippedPath, undefined, "0.2.0");
+  expect(outcome.result.changed).toBe(true);
+  expect(outcome.result.changes.mitigations_removed).toEqual([
+    "x86_64:aslr",
+    "x86_64:high-entropy-aslr",
+    "x86_64:nx",
+  ]);
+  expect(outcome.result.changes.mitigations_added).toEqual([]);
 });
 
 it("scans and diffs a real macOS Mach-O on arm64", async () => {
   if (process.platform !== "darwin") return;
   const root = await temporaryRoot("traceforge-macho-");
   const store = new EvidenceStore(root);
-  const scanned = await scanBinary("/bin/ls", store, "0.1.0");
+  const scanned = await scanBinary("/bin/ls", store, "0.2.0");
   expect(scanned.result.format).toBe("mach-o");
   expect(scanned.result.slices.length).toBeGreaterThan(0);
   expect(scanned.result.slices.some((slice) => slice.architecture.startsWith("arm64"))).toBe(true);
+  expect(
+    scanned.result.slices.every((slice) => slice.mitigations.length > 0),
+  ).toBe(true);
   expect(await store.verify(scanned.record.evidence_id)).toBe(true);
-  const compared = await compare("/bin/ls", "/usr/bin/true", store, "0.1.0");
-  const selected = await inspect("/bin/ls", undefined, "0.1.0", "arm64");
+  const compared = await compare("/bin/ls", "/usr/bin/true", store, "0.2.0");
+  const selected = await inspect("/bin/ls", undefined, "0.2.0", "arm64e");
   expect(selected.result.slices).toHaveLength(1);
-  expect(selected.result.slices[0]?.architecture).toBe("arm64");
+  expect(selected.result.slices[0]?.architecture).toBe("arm64e");
+  await expect(inspect("/bin/ls", undefined, "0.2.0", "sparc64")).rejects.toThrow(
+    /is not present/u,
+  );
   expect(compared.result.changed).toBe(true);
   expect(compared.result.changes.slices_added.length + compared.result.changes.slices_removed.length +
     compared.result.changes.sections_changed.length).toBeGreaterThan(0);
@@ -155,7 +232,7 @@ it("renders a verified report and escapes untrusted strings", async () => {
     "inspect",
     { path: "/tmp/<unsafe>", sha256: "c".repeat(64), size: 4 },
     {
-      schema: "traceforge.inventory.v1",
+      schema: "traceforge.inventory.v2",
       path: "/tmp/<unsafe>",
       sha256: "c".repeat(64),
       size: 4,
@@ -169,6 +246,12 @@ it("renders a verified report and escapes untrusted strings", async () => {
           entrypoint: null,
           entrypointKind: null,
           buildId: null,
+          security: {
+            present: ["<b>aslr</b>"],
+            absent: [],
+            undetermined: ["guard-cf"],
+          } as unknown as SliceInventory["security"],
+          provenance: { producer: "<img src=x onerror=alert(1)>" },
           sections: [],
           imports: ["<img src=x onerror=alert(1)>"],
           exports: [],
@@ -177,15 +260,18 @@ it("renders a verified report and escapes untrusted strings", async () => {
         },
       ],
       limitations: [],
-    },
+    } satisfies BinaryInventory,
     [],
-    "0.1.0",
+    "0.2.0",
   );
   const html = renderEvidenceReport(record);
   expect(html).toContain("identity verified");
   expect(html).toContain(record.evidence_id);
+  expect(html).toContain("Provenance claims");
+  expect(html).toContain("Undetermined");
   expect(html).not.toContain("<script>alert(1)</script>");
   expect(html).not.toContain("<img src=x onerror=alert(1)>");
+  expect(html).not.toContain("<b>aslr</b>");
   const path = join(root, "report.html");
   expect(await writeEvidenceReport(record, path)).toBe(path);
 });
@@ -217,6 +303,7 @@ it("handles an MCP initialize, tools/list and scan call", async () => {
   ).toEqual([
     "scan_binary",
     "inspect_binary",
+    "inspect_package",
     "compare_binaries",
     "get_evidence",
     "list_evidence",

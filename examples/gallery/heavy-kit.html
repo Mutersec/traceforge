@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>TraceForge Evidence ev_8f4518f0e088c</title>
+<style>
+:root { color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #070b10; color: #dbe7f3; font: 14px/1.6 Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 36px 24px 64px; }
+header { display: flex; align-items: center; justify-content: space-between; gap: 20px; border-bottom: 1px solid #203041; padding-bottom: 22px; }
+.brand { display: flex; align-items: center; gap: 14px; }
+.brand h1 { margin: 0; font-size: 24px; letter-spacing: -.03em; }
+.brand p { margin: 2px 0 0; color: #7f93a8; }
+.badge { border: 1px solid #2b4a5e; color: #5eead4; border-radius: 999px; padding: 5px 10px; font-size: 12px; font-weight: 700; }
+.badge.ok { border-color: #1f6f5c; background: #0c2c25; }
+.badge.warn { border-color: #7a5a1d; background: #2a220c; color: #fbbf24; }
+h2 { font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: #7f93a8; margin: 34px 0 12px; }
+h3 { margin: 0 0 8px; }
+h4 { margin: 0 0 8px; font-size: 13px; }
+h4 span { color: #5eead4; margin-left: 6px; }
+.summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.summary div { background: #0d151e; border: 1px solid #203041; border-radius: 10px; padding: 14px; }
+.summary span { display: block; color: #7f93a8; font-size: 11px; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 6px; }
+.summary strong { font-size: 15px; }
+.slice { border: 1px solid #203041; border-radius: 12px; padding: 20px; margin: 16px 0; background: #0a1118; }
+.slice-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.slice-head h3 { margin: 0; font-size: 20px; color: #c4b5fd; }
+.pill { border: 1px solid #2b3e52; border-radius: 999px; color: #a9bad0; padding: 2px 8px; font-size: 11px; }
+.mitigations { display: flex; flex-direction: column; gap: 6px; margin: 0 0 14px; }
+.mitigation { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.mitigation > span { color: #7f93a8; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; min-width: 96px; }
+.mitigation.ok code { background: #0c2c25; color: #5eead4; }
+.mitigation.warn code { background: #2a220c; color: #fbbf24; }
+.mitigation.muted code { background: #12202d; color: #7f93a8; }
+.stats { display: flex; gap: 26px; margin: 16px 0; }
+.stats div { display: flex; flex-direction: column; }
+.stats strong { font-size: 22px; }
+.stats span { color: #7f93a8; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
+table { width: 100%; border-collapse: collapse; margin: 14px 0; }
+.table-wrap { overflow-x: auto; }
+th { text-align: left; color: #7f93a8; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; border-bottom: 1px solid #203041; padding: 8px 6px; }
+td { border-bottom: 1px solid #16212c; padding: 7px 6px; color: #b7c6d8; }
+code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+code { background: #12202d; color: #b8f7ea; padding: 1px 5px; border-radius: 4px; font-size: .92em; }
+code, .mono, td code, footer * { overflow-wrap: anywhere; }
+.symbol-grid, .change-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 18px; }
+.symbol-block, .change { background: #0d151e; border: 1px solid #203041; border-radius: 10px; padding: 14px; min-width: 0; }
+ul { margin: 0; padding-left: 18px; color: #b7c6d8; }
+li { margin: 3px 0; overflow-wrap: anywhere; }
+.muted { color: #7f93a8 !important; }
+.limitations { border: 1px solid #3b3020; background: #19150c; border-radius: 10px; padding: 16px; margin-top: 18px; }
+.limitations h3 { color: #fbbf24; }
+.ok { color: #5eead4; } .warn { color: #fbbf24; }
+pre { overflow: auto; background: #0d151e; border: 1px solid #203041; border-radius: 10px; padding: 16px; }
+footer { color: #56697d; font-size: 12px; border-top: 1px solid #16212c; margin-top: 40px; padding-top: 18px; }
+@media (max-width: 800px) { .summary, .symbol-grid, .change-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 520px) { .summary, .symbol-grid, .change-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="brand"><svg width="42" height="42" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="112" fill="#0b0f14"/><path d="M144 336 256 144l112 192-112 48z" fill="none" stroke="#5eead4" stroke-width="22" stroke-linejoin="round"/><path d="M176 320h160M208 256h96" stroke="#fbbf24" stroke-width="22" stroke-linecap="round"/></svg><div><h1>TraceForge Evidence</h1><p>app · traceforge 0.3.0</p></div></div>
+  <span class="badge ok">identity verified</span>
+</header>
+<h2>Record</h2>
+<div class="summary">
+  <div><span>Evidence ID</span><strong class="mono">ev_8f4518f0e088c4fea7b…</strong></div>
+  <div><span>Input SHA-256</span><strong class="mono">0dd3f2eeac59b6dcc5a402…</strong></div>
+  <div><span>Input size</span><strong>9.13 MiB</strong></div>
+  <div><span>Limitations</span><strong>4</strong></div>
+</div>
+<p class="muted">/tmp/traceforge-gallery/HeavyKit.app · related: /tmp/traceforge-gallery/HeavyKit.app/Contents/Info.plist, /tmp/traceforge-gallery/HeavyKit.app/Contents/MacOS/HeavyKit</p>
+
+<h2>Result</h2>
+
+  <section class="summary">
+    <div><span>Package</span><strong>app · macos</strong></div>
+    <div><span>Members</span><strong>8 files / 4 dirs</strong></div>
+    <div><span>Total size</span><strong>9.13 MiB</strong></div>
+    <div><span>Tree SHA-256</span><strong class="mono">0dd3f2eeac59b6dcc5a40251…</strong></div>
+  </section>
+  <p class="muted">/tmp/traceforge-gallery/HeavyKit.app · 0 links recorded, never followed</p>
+  <div class="mitigations"><span class="pill">archive 3</span> <span class="pill">code 2</span> <span class="pill">manifest 2</span> <span class="pill">resource 1</span><span class="pill">arm64 2</span></div>
+  <h4>Declared executable</h4>
+  <p><code>Contents/MacOS/HeavyKit</code> <code class="muted">fe00877c17b9…</code></p>
+  <h4>Manifest claims <span>8 of 8</span></h4>
+  <p class="muted">Contents/Info.plist · xml · 717 B · <code>57968e9124de76f0…</code></p>
+  <div class="table-wrap"><table><thead><tr><th>Claim</th><th>Value</th></tr></thead><tbody><tr><td><code>CFBundleIdentifier</code></td><td>com.example.heavykit</td></tr>
+<tr><td><code>CFBundleName</code></td><td>HeavyKit</td></tr>
+<tr><td><code>CFBundleExecutable</code></td><td>HeavyKit</td></tr>
+<tr><td><code>CFBundleShortVersionString</code></td><td>3.2.1</td></tr>
+<tr><td><code>CFBundleVersion</code></td><td>321</td></tr>
+<tr><td><code>CFBundlePackageType</code></td><td>APPL</td></tr>
+<tr><td><code>LSMinimumSystemVersion</code></td><td>12.0</td></tr>
+<tr><td><code>NSHumanReadableCopyright</code></td><td>Copyright 2026 Example Labs. Synthetic demo data.</td></tr></tbody></table></div>
+  <h4>PkgInfo</h4><div class="table-wrap"><table><thead><tr><th>Claim</th><th>Value</th></tr></thead><tbody><tr><td><code>signature</code></td><td>APPL</td></tr>
+<tr><td><code>os_type</code></td><td>????</td></tr></tbody></table></div>
+  
+  <h4>Largest members <span>8 shown</span></h4>
+  <div class="table-wrap"><table><thead><tr><th>Member</th><th>Kind</th><th>Format</th><th>Architectures</th><th>Size</th><th>SHA-256</th></tr></thead>
+  <tbody><tr>
+        <td><code>Contents/Frameworks/HeavyEngine</code></td>
+        <td>code</td>
+        <td>mach-o</td>
+        <td>arm64</td>
+        <td>8.00 MiB</td>
+        <td><code>e5a9d40eba2b…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Resources/app.asar</code></td>
+        <td>archive</td>
+        <td>—</td>
+        <td>—</td>
+        <td>1.00 MiB</td>
+        <td><code>a65a9a192e99…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Resources/assets.zip</code></td>
+        <td>archive</td>
+        <td>—</td>
+        <td>—</td>
+        <td>64.0 KiB</td>
+        <td><code>039ade1af576…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Resources/cache.car</code></td>
+        <td>archive</td>
+        <td>—</td>
+        <td>—</td>
+        <td>64.0 KiB</td>
+        <td><code>04e846ae1be4…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Info.plist</code></td>
+        <td>manifest</td>
+        <td>—</td>
+        <td>—</td>
+        <td>717 B</td>
+        <td><code>57968e9124de…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/MacOS/HeavyKit</code></td>
+        <td>code</td>
+        <td>mach-o</td>
+        <td>arm64</td>
+        <td>136 B</td>
+        <td><code>fe00877c17b9…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/Resources/config.json</code></td>
+        <td>resource</td>
+        <td>—</td>
+        <td>—</td>
+        <td>61 B</td>
+        <td><code>839041f0aff5…</code></td>
+      </tr>
+<tr>
+        <td><code>Contents/PkgInfo</code></td>
+        <td>manifest</td>
+        <td>—</td>
+        <td>—</td>
+        <td>8 B</td>
+        <td><code>82502191c948…</code></td>
+      </tr></tbody></table></div>
+  
+  <section class="limitations"><h3>Limitations</h3><ul><li>3 archive members were counted and hashed but not opened (for example app.asar, assets.zip, cache.car).</li><li>A package inventory hashes each inventoried member; it does not open archives, parse code signatures, or establish where any member came from.</li><li>Manifest values are self-reported by the target; none were checked against a signature, notarization ticket or entitlements.</li><li>The tree fingerprint is computed over relative member paths, sizes and hashes, so it does not depend on where the package is mounted.</li></ul></section>
+<footer>Generated by TraceForge. Evidence is content-addressed and locally authenticated. Verify with <code>tforge evidence verify ev_8f4518f0e088c4fea7b42a9b3e64b5fa9f544aa41dbbada4a35dea6f0eaea7ef</code>.</footer>
+</div>
+</body>
+</html>

@@ -59,9 +59,24 @@
     .list li { margin: 8px 0; }
     .list strong { color: var(--text); }
     footer { border-top: 1px solid var(--line); padding: 28px 0 46px; color: var(--muted); font-size: 13px; display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
-    code { background: #12202d; color: #b8f7ea; padding: 2px 6px; border-radius: 5px; font-size: .92em; }
-    @media (max-width: 880px) { .hero, .split { grid-template-columns: 1fr; } .grid { grid-template-columns: 1fr 1fr; } .hero-art { order: -1; } }
-    @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } nav { display: none; } h1 { font-size: 44px; } }
+    code { background: #12202d; color: #b8f7ea; padding: 2px 6px; border-radius: 5px; font-size: .92em; overflow-wrap: anywhere; }
+    .gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(248px, 1fr)); gap: 16px; }
+    .report-card { display: flex; flex-direction: column; min-width: 0; }
+    .report-card h3 { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+    .report-card .ver { color: var(--muted); font-size: 12px; font-weight: 600; }
+    .report-card p { flex: 1 1 auto; }
+    .facts { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; margin: 14px 0 16px; font-size: 12px; }
+    .facts dt { color: var(--muted); text-transform: uppercase; letter-spacing: .08em; font-size: 10px; padding-top: 2px; }
+    .facts dd { margin: 0; color: var(--text); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; overflow-wrap: anywhere; }
+    .button.small { padding: 9px 14px; font-size: 13px; align-self: flex-start; }
+    .gallery-foot { display: grid; grid-template-columns: 1.15fr .85fr; gap: 24px; margin-top: 20px; align-items: start; }
+    .honest { background: #19150c; border: 1px solid #3b3020; border-radius: 14px; padding: 20px 22px; }
+    .honest h3 { margin: 0 0 8px; font-size: 15px; color: var(--amber); }
+    .honest ul { margin: 0; padding-left: 18px; color: #d9c9a8; font-size: 13px; }
+    .honest li { margin: 7px 0; overflow-wrap: anywhere; }
+    .honest strong { color: #f5e6c8; }
+    @media (max-width: 880px) { .hero, .split, .gallery-foot { grid-template-columns: 1fr; } .grid { grid-template-columns: 1fr 1fr; } .hero-art { order: -1; } }
+    @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } nav { display: none; } h1 { font-size: 44px; } .section-head { flex-direction: column; align-items: flex-start; gap: 12px; } .section-head p { max-width: none; } }
   </style>
 </head>
 <body>
@@ -71,6 +86,7 @@
       <nav>
         <a href="#why">Why</a>
         <a href="#quickstart">Quickstart</a>
+        <a href="#gallery">Gallery</a>
         <a href="#mcp">MCP</a>
         <a href="https://github.com/Mutersec/traceforge">GitHub</a>
       </nav>
@@ -79,7 +95,7 @@
     <main>
       <section class="hero">
         <div>
-          <div class="eyebrow"><span class="pulse"></span> v0.1.0 · local-first</div>
+          <div class="eyebrow"><span class="pulse"></span> v0.3.0 · local-first</div>
           <h1>Evidence for every byte you <span>inspect.</span></h1>
           <p class="lede">A read-only binary inspector for Mach-O, ELF, PE and WebAssembly. Deterministic records, a local authenticated store, and an MCP server your agents can trust.</p>
           <div class="actions">
@@ -95,7 +111,7 @@
         <div class="grid">
           <article class="card"><div class="icon">01</div><h3>Read-only by design</h3><p>TraceForge never launches, attaches to, or modifies the target. Every read is bounded before allocation.</p></article>
           <article class="card"><div class="icon">02</div><h3>Evidence, not a screenshot</h3><p>Each result gets a content-addressed ID, input SHA-256, limitations and a local JSON record.</p></article>
-          <article class="card"><div class="icon">03</div><h3>Agent-native</h3><p>A dependency-free MCP stdio server exposes the same core as the CLI. Five tools, one Evidence contract.</p></article>
+          <article class="card"><div class="icon">03</div><h3>Agent-native</h3><p>A dependency-free MCP stdio server exposes the same core as the CLI. Six tools, one Evidence contract.</p></article>
           <article class="card"><div class="icon">04</div><h3>Universal slices</h3><p>Inspect every slice or select one architecture with <code>--arch arm64</code>.</p></article>
           <article class="card"><div class="icon">05</div><h3>Deterministic diffs</h3><p>Compare sections, imports, exports and slice metadata without host-specific noise.</p></article>
           <article class="card"><div class="icon">06</div><h3>Zero runtime deps</h3><p>The runtime uses Node built-ins only. The MCP protocol is implemented directly.</p></article>
@@ -110,7 +126,7 @@
             <div><span class="prompt">❯</span> cd traceforge && npm ci && npm run build</div>
             <div><span class="prompt">❯</span> node dist/cli.js scan /bin/ls</div>
             <div class="muted">TraceForge · scan · mach-o · 3 slices</div>
-            <div><span class="violet">Evidence</span> ev_157a66f2...</div>
+            <div><span class="violet">Evidence</span> ev_72e61605...</div>
             <div style="margin-top:14px"><span class="prompt">❯</span> node dist/cli.js inspect /bin/ls --arch arm64</div>
             <div><span class="prompt">❯</span> node dist/cli.js diff /bin/ls /usr/bin/true</div>
             <div><span class="prompt">❯</span> node dist/cli.js evidence verify-all</div>
@@ -144,8 +160,92 @@
         </div>
       </section>
 
+      <section id="gallery">
+        <div class="section-head">
+          <h2>Four reports, reproducible on any machine</h2>
+          <p>Not mockups. <code>scripts/gallery.mjs</code> builds four synthetic demo packages under one fixed, username-free path (<code>/tmp/traceforge-gallery</code>), and each page below was written by <code>tforge report</code> against them, then committed unchanged. Rerun the script on any machine and every byte — and every Evidence ID — comes back identical. Open one: it is a standalone page that fetches nothing and runs nothing.</p>
+        </div>
+        <div class="gallery-grid">
+          <article class="card report-card">
+            <div class="icon">01</div>
+            <h3>DemoApp <span class="ver">2.0.0 · build 200</span></h3>
+            <p>18 files, 5.1 KiB — and an app that contains other apps. The report lists <strong>5 nested packages</strong>: <code>DemoFramework.framework</code> (its classic version tree leaves five aliases recorded, never followed), its inner <code>Updater.app</code>, and two <code>.xpc</code> services, each labelled with the identifier its own manifest declares.</p>
+            <dl class="facts">
+              <dt>Members</dt><dd>18 files · 21 dirs</dd>
+              <dt>Nested</dt><dd>5 packages</dd>
+              <dt>Report</dt><dd>15,206 B</dd>
+              <dt>Evidence</dt><dd>ev_4ad427e3ed0d1029153…</dd>
+            </dl>
+            <a class="button small" href="gallery/demo-app.html">Open DemoApp report <span>→</span></a>
+          </article>
+          <article class="card report-card">
+            <div class="icon">02</div>
+            <h3>HeavyKit <span class="ver">3.2.1 · archive boundary</span></h3>
+            <p>One member is <strong>8,388,608 bytes</strong> — 8.00 MiB — hashed in a single pass, and the whole report is still 9,997 bytes. Its Limitations box says plainly that <code>app.asar</code>, <code>assets.zip</code> and <code>cache.car</code> were counted and hashed but <strong>not opened</strong>.</p>
+            <dl class="facts">
+              <dt>Members</dt><dd>8 files · 4 dirs</dd>
+              <dt>Total</dt><dd>9.13 MiB</dd>
+              <dt>Report</dt><dd>9,997 B</dd>
+              <dt>Evidence</dt><dd>ev_8f4518f0e088c4fea7b…</dd>
+            </dl>
+            <a class="button small" href="gallery/heavy-kit.html">Open HeavyKit report <span>→</span></a>
+          </article>
+          <article class="card report-card">
+            <div class="icon">03</div>
+            <h3>WideApp <span class="ver">0.9.0 · limit hit</span></h3>
+            <p>A 5,007-member tree is bigger than the inventory budget, so the walk stopped and <strong>said so</strong>: “The walk stopped at the 5,000 member limit; later members are absent from the inventory and from the tree fingerprint.” Exactly 5,000 members were recorded — 1 Mach-O, 4,999 unknown format — and the stop sits in the report's Limitations box.</p>
+            <dl class="facts">
+              <dt>Members</dt><dd>5,000 files · 4 dirs</dd>
+              <dt>Limitations</dt><dd>4, including the stop</dd>
+              <dt>Report</dt><dd>64,092 B</dd>
+              <dt>Evidence</dt><dd>ev_b204eb46a39655c8927…</dd>
+            </dl>
+            <a class="button small" href="gallery/wide-app.html">Open WideApp report <span>→</span></a>
+          </article>
+          <article class="card report-card">
+            <div class="icon">04</div>
+            <h3>Demo İstemci <span class="ver">alias · non-ASCII path</span></h3>
+            <p><code>/tmp/traceforge-gallery/Demo İstemci.app</code> is only an alias, and its name carries a dotted capital <strong>İ</strong>; inside, the walk reaches <code>İçeriler/çalışma-günlüğü.txt</code>. TraceForge inventoried what the alias points to — 10 files across 12 directories — recorded the path you gave, and never followed the 5 links inside. The outer bundle and a nested one <strong>declare the same identifier</strong>.</p>
+            <dl class="facts">
+              <dt>Members</dt><dd>10 files · 12 dirs</dd>
+              <dt>Links</dt><dd>5 recorded, never followed</dd>
+              <dt>Report</dt><dd>12,280 B</dd>
+              <dt>Evidence</dt><dd>ev_761ff4508e786ca378b…</dd>
+            </dl>
+            <a class="button small" href="gallery/linked-client.html">Open Demo İstemci report <span>→</span></a>
+          </article>
+        </div>
+        <div class="gallery-foot">
+          <div>
+            <h3 style="margin-top:0">Made by one command, and reproducible</h3>
+            <div class="terminal">
+              <div><span class="prompt">❯</span> node scripts/gallery.mjs</div>
+              <div class="muted">TraceForge · evidence gallery</div>
+              <div class="muted">fixtures: 4 synthetic demo packages built under /tmp/traceforge-gallery</div>
+              <div>ok   demo-app <span class="muted">15,206 B</span> <span class="violet">ev_4ad427e3ed0d1029153…</span></div>
+              <div>ok   heavy-kit <span class="muted">9,997 B</span> <span class="violet">ev_8f4518f0e088c4fea7b…</span></div>
+              <div>ok   wide-app <span class="muted">64,092 B</span> <span class="violet">ev_b204eb46a39655c8927…</span></div>
+              <div>ok   linked-client <span class="muted">12,280 B</span> <span class="violet">ev_761ff4508e786ca378b…</span></div>
+              <div class="muted">4 artifact(s) · 101,575 B · cap 700 KiB each, 2 MiB total</div>
+              <div class="amber">gallery: ok</div>
+            </div>
+            <p style="color:var(--muted);font-size:14px;margin-top:16px">The script builds its own demo targets from fixed bytes, then only calls the CLI — it renders no HTML of its own — rejects any report over its size cap, audits every tag before keeping the file, and <code>--check</code> re-runs the whole set and byte-compares it. <a href="https://github.com/Mutersec/traceforge/blob/main/examples/README.md">Full gallery notes</a>.</p>
+            <p style="color:var(--muted);font-size:13px">One honest note: inside a report, the member tables are wider than a phone screen, so they scroll sideways inside their own wrapper — nothing overflows a box any more, and long paths and hashes break where they must. The record is complete; only the layout is the limit.</p>
+          </div>
+          <div class="honest">
+            <h3>What these reports do not prove</h3>
+            <ul>
+              <li><strong>No origin.</strong> No code signature or notarization ticket was checked; manifest values are self-reported claims.</li>
+              <li><strong>No contents.</strong> Archives are hashed, never opened.</li>
+              <li><strong>No behaviour.</strong> Nothing was executed, launched or attached to.</li>
+              <li><strong>Not always complete.</strong> When a limit stops the walk, the report says which parts are missing.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <section id="mcp">
-        <div class="section-head"><h2>Point your agent at it</h2><p>One stdio server. Five tools. No SDK or cloud relay in the middle.</p></div>
+        <div class="section-head"><h2>Point your agent at it</h2><p>One stdio server. Six tools. No SDK or cloud relay in the middle.</p></div>
         <div class="split">
           <div class="terminal">
             <div class="muted">// mcp.json</div>
@@ -162,6 +262,7 @@
             <ul class="list">
               <li><code>scan_binary</code> — format, hashes and slice summary.</li>
               <li><code>inspect_binary</code> — sections, symbols, libraries; optional architecture.</li>
+              <li><code>inspect_package</code> — a whole <code>.app</code> or directory, the thing behind the <a href="#gallery">gallery reports</a>.</li>
               <li><code>compare_binaries</code> — deterministic structural changes.</li>
               <li><code>get_evidence</code> / <code>list_evidence</code> — authenticated local records.</li>
             </ul>

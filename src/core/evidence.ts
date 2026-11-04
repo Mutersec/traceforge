@@ -10,9 +10,9 @@ import type {
   EvidenceSummary,
 } from "./types.js";
 
-const EVIDENCE_ID = /^ev_[a-f0-9]{64}$/u;
+export const EVIDENCE_ID = /^ev_[a-f0-9]{64}$/u;
 
-const recordContent = (record: EvidenceRecord): unknown => {
+export const recordContent = (record: EvidenceRecord): unknown => {
   const { evidence_id: _ignored, ...content } = record;
   return content;
 };
@@ -54,7 +54,7 @@ export class EvidenceStore {
     this.root = resolve(root);
   }
 
-  private pathFor(evidenceIdValue: string): string {
+  pathFor(evidenceIdValue: string): string {
     if (!EVIDENCE_ID.test(evidenceIdValue))
       throw new TraceForgeError("invalid_input", "Evidence ID is invalid");
     return join(this.root, `${evidenceIdValue}.json`);
@@ -229,7 +229,7 @@ export class EvidenceStore {
   }
 }
 
-const isEvidenceRecord = (value: unknown): value is EvidenceRecord => {
+export const isEvidenceRecord = (value: unknown): value is EvidenceRecord => {
   if (value === null || typeof value !== "object") return false;
   const record = value as Record<string, unknown>;
   return (
@@ -237,7 +237,8 @@ const isEvidenceRecord = (value: unknown): value is EvidenceRecord => {
     typeof record.evidence_id === "string" &&
     (record.operation === "scan" ||
       record.operation === "inspect" ||
-      record.operation === "compare") &&
+      record.operation === "compare" ||
+      record.operation === "app") &&
     record.tool !== null &&
     typeof record.tool === "object" &&
     record.input !== null &&

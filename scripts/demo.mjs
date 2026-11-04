@@ -10,6 +10,7 @@ const store = new EvidenceStore(join(root, "evidence"));
 const reportPath = join(root, "traceforge-report.html");
 const target = "/bin/ls";
 const other = "/usr/bin/true";
+const version = "0.3.0";
 
 await rm(root, { recursive: true, force: true });
 await mkdir(root, { recursive: true });
@@ -18,13 +19,13 @@ const log = (message) => process.stdout.write(`${message}\n`);
 log("TraceForge demo · read-only binary evidence");
 log("----------------------------------------");
 
-const scan = await scanBinary(target, store, "0.1.0");
+const scan = await scanBinary(target, store, version);
 log(`✓ scan       ${scan.result.format} · ${scan.result.slices.length} slice(s) · ${scan.record.evidence_id}`);
 
-const detail = await inspect(target, store, "0.1.0");
+const detail = await inspect(target, store, version);
 log(`✓ inspect    ${detail.result.slices.reduce((sum, slice) => sum + slice.sections.length, 0)} sections · ${detail.record.evidence_id}`);
 
-const diff = await compare(target, other, store, "0.1.0");
+const diff = await compare(target, other, store, version);
 log(`✓ diff       changed=${diff.result.changed} · ${diff.record.evidence_id}`);
 
 const verified = await store.verifyAll();
