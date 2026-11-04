@@ -163,10 +163,31 @@ jobs:
           console.log(r.valid + " valid · " + r.invalid.length + " invalid · " + r.signed + " signed");
           ' "$base/verify-all.json"
 
-      # Smoke ceiling, NOT a cross-run regression gate: the thresholds are wide
-      # on purpose because shared runners differ per boot and there is no
-      # retained benchmark baseline to compare against yet. See bench/README.md.
-      - name: Benchmark smoke ceiling (gate)
+      # Smoke ceiling, NOT a cross-run regression gate: there is no retained
+      # benchmark baseline, so these are absolute bounds (see bench/README.md).
+      # The bound is OS-specific because the default that passes on
+      # macos-latest does not fit ubuntu-latest: on run 41796000990 the two
+      # ubuntu legs measured /bin/ls at 25 iterations · node v24.22.2
+      # linux/x64 at median 22.844 ms and p95 31.736 ms against the default
+      # 10/25 — and that single red step also blocked the two package-hygiene
+      # steps behind it (`set -eo pipefail` skipped the pack audit and the
+      # publish dry-run). 40/60 gives ~1.7-1.9x headroom over that ONE
+      # observation; it is provisional, not a measured distribution. macOS
+      # keeps the script defaults (bench-gate.mjs DEFAULT_MAX_MEDIAN_MS 10 /
+      # DEFAULT_MAX_P95_MS 25): its step below sets no TFORGE_BENCH_MAX_* at
+      # all, so the macOS gate log prints both limits with source (default).
+      - name: Benchmark smoke ceiling (gate · ubuntu)
+        if: runner.os == 'Linux'
+        env:
+          BENCH_ITERATIONS: "25"
+          TFORGE_BENCH_MAX_MEDIAN_MS: "40"
+          TFORGE_BENCH_MAX_P95_MS: "60"
+        run: |
+          set -eo pipefail
+          npm run bench --silent | tee "$RUNNER_TEMP/bench.json" | node scripts/bench-gate.mjs
+
+      - name: Benchmark smoke ceiling (gate · macOS, script defaults)
+        if: runner.os != 'Linux'
         env:
           BENCH_ITERATIONS: "25"
         run: |
@@ -179,7 +200,7 @@ jobs:
             {
               echo "### Benchmark gate"
               echo
-              echo "Smoke ceiling (median ≤ 10 ms, p95 ≤ 25 ms) — not a cross-run regression comparison."
+              echo "Smoke ceiling — ubuntu: median ≤ 40 ms, p95 ≤ 60 ms via TFORGE_BENCH_MAX_* env; macOS: script defaults 10/25 ms. Not a cross-run regression comparison."
               echo
               echo '```json'
               cat "$RUNNER_TEMP/bench.json"
